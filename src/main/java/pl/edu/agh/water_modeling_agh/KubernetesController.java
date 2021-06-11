@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class KubernetesController {
 
-    public void doStuff() throws IOException, ApiException {  // I'm stuff
+    public static void doStuff() throws IOException, ApiException {  // I'm stuff
         ApiClient client = Config.defaultClient();
         Configuration.setDefaultApiClient(client);
 

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+   name: modflow-2005
+spec:
+   containers:
+   - image: mjstealey/docker-modflow
+     name: kicajki
+     volumeMounts:
+     - mountPath: "/workspace"
+       name: my-path
+
+     args: ["mf2005", "tutorial_2.nam"]
+   volumes:
+   - name: my-path
+     hostPath:
+       path: /C/Users/Admin/Documents/Studia/Praca_inzynierska/studnia_docker_files
