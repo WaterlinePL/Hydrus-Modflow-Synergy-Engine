@@ -9,9 +9,11 @@ spec:
      volumeMounts:
      - mountPath: "/workspace"
        name: my-path
-
      args: ["mf2005", "tutorial_2.nam"]
+     securityContext:
+       privileged: true
    volumes:
    - name: my-path
      hostPath:
-       path: /C/Users/Admin/Documents/Studia/Praca_inzynierska/studnia_docker_files
+       path: /run/desktop/mnt/host/c/Users/Admin/Documents/Studia/Praca_inzynierska/studnia_docker_files
+       type: DirectoryOrCreate
