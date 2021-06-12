@@ -64,3 +64,6 @@ _ReSharper*/
 #Nuget packages folder
 packages/
 venv/
+constants.py
+__pycache__/
+*.py[cod]
