@@ -15,5 +15,6 @@ spec:
    volumes:
    - name: my-path
      hostPath:
-       path: /run/desktop/mnt/host/c/Users/Admin/Documents/Studia/Praca_inzynierska/studnia_docker_files
+       path: /run/desktop/mnt/host/d/Playground/Modflow
        type: DirectoryOrCreate
+   restartPolicy: Never
