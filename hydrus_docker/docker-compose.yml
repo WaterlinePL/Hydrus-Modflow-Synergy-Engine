@@ -5,5 +5,5 @@ services:
     container_name: hydrus-container
     build:
       context: .
-      args:
-        - MODEL_PATH=model.txt
+    volumes:
+      - C:\Users\micro\Desktop\Studia\Inzynierka\water_modeling_agh\hydrus_docker\Chojnice_vg_sand:c:\workspace\hydrus
