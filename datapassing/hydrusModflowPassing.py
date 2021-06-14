@@ -14,7 +14,7 @@ def updateRch():
     modflowModel = flopy.modflow.Modflow.load("simple1.nam", model_ws=constants.MODFLOW_ROOT, load_only=["rch"],
                                               forgive=True)
 
-    # useful prop - modflowModel.nper (stress period count), modflowModel.nrow (rows), modflowModel.ncol (cols)
+    # !! useful props - modflowModel.nper (stress period count), modflowModel.nrow (rows), modflowModel.ncol (cols) !!
     rchPackage = modflowModel.get_package("rch")  # get the RCH package
 
     # create new recharge array
