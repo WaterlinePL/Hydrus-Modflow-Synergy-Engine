@@ -1,9 +1,0 @@
-version: '3.5'
-
-services:
-  hydrus:
-    container_name: hydrus-container
-    build:
-      context: .
-    volumes:
-      - C:\Users\micro\Desktop\Studia\Inzynierka\water_modeling_agh\hydrus_docker\Chojnice_vg_sand:c:\workspace\hydrus
