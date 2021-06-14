@@ -7,29 +7,33 @@ import constants
 # TODO dowiedziec sie jakie parametry powinny tu być - prawdopodobnie shape nam dostarczy jakos info???
 def updateRch():
     # read recharge value from T_LEVEL.out
-    tLevel = ph.read.read_tlevel(path=constants.HYDRUS_ROOT + '\\T_LEVEL.out')
-    rechargeValue = tLevel['sum(vBot)'].iat[-1]
+    t_level = ph.read.read_tlevel(path=constants.HYDRUS_ROOT + '\\T_LEVEL.out')
+    recharge_value = t_level['sum(vBot)'].iat[-1]
 
     # load MODFLOW model - basic info and RCH package
-    modflowModel = flopy.modflow.Modflow.load("simple1.nam", model_ws=constants.MODFLOW_ROOT, load_only=["rch"],
-                                              forgive=True)
+    modflow_model = flopy.modflow.Modflow.load("simple1.nam", model_ws=constants.MODFLOW_ROOT, load_only=["rch"],
+                                               forgive=True)
 
-    # !! useful props - modflowModel.nper (stress period count), modflowModel.nrow (rows), modflowModel.ncol (cols) !!
-    rchPackage = modflowModel.get_package("rch")  # get the RCH package
+    # !! useful props:
+    # modflow_model.nper (stress period count),
+    # modflow_model.nrow (rows),
+    # modflow_model.ncol (cols) !!
+    rch_package = modflow_model.get_package("rch")  # get the RCH package
 
     # create new recharge array
-    rechargeArray = np.empty((modflowModel.nrow, modflowModel.ncol))
-    rechargeArray.fill(rechargeValue)  # TODO shapes handling
+    recharge_array = np.empty((modflow_model.nrow, modflow_model.ncol))
+    recharge_array.fill(recharge_value)  # TODO shapes handling
 
-    stressPeriod = 0  # stress period will always be 0 (based on our notes)
-    modflowModel.rch.rech[stressPeriod] = rechargeArray
-    newRecharge = modflowModel.rch.rech
+    stress_period = 0  # stress period will always be 0 (based on our notes)
+    modflow_model.rch.rech[stress_period] = recharge_array
+    new_recharge = modflow_model.rch.rech
 
     # generate and save new RCH (same properties, different recharge)
-    flopy.modflow.ModflowRch(modflowModel, nrchop=rchPackage.nrchop, ipakcb=rchPackage.ipakcb, rech=newRecharge,
-                             irch=rchPackage.irch).write_file(check=False)
+    flopy.modflow.ModflowRch(modflow_model, nrchop=rch_package.nrchop, ipakcb=rch_package.ipakcb, rech=new_recharge,
+                             irch=rch_package.irch).write_file(check=False)
 
 
+# No i co by powiedział Testoviron jakby zobaczył polskie słowa w kodzie
 def updateWodyGruntowe():
     # TODO - the whole damn thing
     pass

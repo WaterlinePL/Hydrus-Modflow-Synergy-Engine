@@ -1,9 +1,0 @@
-version: '3.5'
-
-services:
-  hydrus:
-    container_name: hydrus-container
-    build:
-      context: .
-      args:
-        - MODEL_PATH=model.txt
