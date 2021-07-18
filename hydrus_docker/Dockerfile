@@ -1,10 +1,7 @@
-# escape=`
-
-FROM mcr.microsoft.com/windows/servercore/iis
-COPY Hydrus-1D\* Hydrus-1D\
-RUN powershell Remove-Item c:/inetpub/wwwroot/iisstart.htm -force
-RUN powershell Remove-Item c:/inetpub/wwwroot/iisstart.png -force
-RUN powershell Import-Module WebAdministration
-RUN powershell New-WebAppPool -Name 'TestPool'
-
-ENTRYPOINT "Hydrus-1D\H1D_CALC.EXE workspace\hydrus"
+FROM ubuntu:20.04
+COPY hydrus .
+RUN apt-get update
+RUN apt-get install gfortran -y
+RUN touch LEVEL_01.DIR
+RUN echo "/workspace/hydrus" >> LEVEL_01.DIR
+CMD ["./hydrus"]
