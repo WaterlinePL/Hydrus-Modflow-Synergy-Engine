@@ -33,7 +33,6 @@ def updateRch():
                              irch=rch_package.irch).write_file(check=False)
 
 
-# No i co by powiedział Testoviron jakby zobaczył polskie słowa w kodzie
 def updateWodyGruntowe():
     # TODO - the whole damn thing
     pass
