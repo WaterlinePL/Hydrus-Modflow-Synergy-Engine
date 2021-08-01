@@ -4,10 +4,10 @@ metadata:
    name: hydrus-1d
 spec:
    containers:
-   - image: hydrus1d
-     name: kicajki
+   - image: observer46/water_modeling_agh:hydrus1d_linux
+     name: kicajki2
      volumeMounts:
-     - mountPath: "/workspace"
+     - mountPath: "/workspace/hydrus"
        name: my-path
      args: []
      securityContext:
