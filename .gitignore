@@ -1,6 +1,7 @@
 HELP.md
 misc.xml
 compiler.xml
+.idea/libraries/
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -35,3 +36,4 @@ __pycache__/
 *.py[cod]
 
 #######
+.idea
