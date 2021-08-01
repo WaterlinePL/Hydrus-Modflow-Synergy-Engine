@@ -1,0 +1,90 @@
+001080         H2O  0
+011000         Na+  1
+019000          K+  1
+020000        Ca++  2
+012000        Mg++  2
+001000          H+  1
+012080       MgOH+  1
+000170         Cl- -1
+000160       SO4-- -2
+000161       HSO4- -1
+000080         OH- -1
+000060       CO3-- -2
+000061       HCO3- -1
+000062     CO2(aq)  0
+020060   CaCO3(aq)  0
+012060   MgCO3(aq)  0
+000050      B(OH)3  0
+000051     B(OH)4- -1
+000052  B3O3(OH)4- -1
+000053 B4O5(OH)4-- -2
+020051   CaB(OH)4+  1
+012051   MgB(OH)4+  1
+100060    CO2(GAS)   
+120160   ANHYDRITE      4.637     1  1  5  1              CaSO4
+111160APHTHITALITE                3  1  4  3  5  2        NaK3(SO4)2
+120170ANTARCTICITE                1  1  8  2              CaCl2*6H2O
+120060   ARAGONITE      8.360     1  1  6  1              CaCO3
+119160    ARCANITE                4  2  5  1              K2SO4
+112170  BISCHOFITE                2  1  8  2              MgCl2*6H2O
+111161    BLOEDITE                2  1  3  2  5  2        Na2Mg(SO4)2*4H2O
+112080     BRUCITE      -16.792   2  1  9  2              Mg(OH)2
+111060    BURKEITE                4  6  5  2  6  1        Na6CO3(SO4)2
+120061     CALCITE      8.475     1  1  6  1              CaCO3
+120171  CACL2.4H2O                1  1  8  2              CaCl*4H2O
+120172    CA-OXY-A                1  4  8  2  9  6        Ca4Cl2(OH)6*13H2O
+120173    CA-OXY-B                1  2  8  2  9  2        Ca2Cl2(OH)2*H2O
+119170  CARNALLITE                2  1  4  1  8  3        KMgCl3*6H2O
+112060    DOLOMITE      17.000    1  1  2  1  6  1        CaMg(CO3)2
+112160    EPSOMITE      2.14      2  1  5  1              MgSO4*7H2O
+120062  GAYLUSSITE                1  1  3  2  6  1        CaNa2(CO3)2*5H2O
+111162  GLAUBERITE                1  1  3  2  5  2        Na2Ca(SO4)2
+120161      GYPSUM      4.848     1  1  5  1              CaSO4*2H2O
+111170      HALITE      -1.582    3  1  8  1              NaCl
+112161 HEXAHYDRITE                2  1  5  1              MgSO4*6H2O
+119171     KAINITE                2  1  4  1  5  1  8  1  KMgClSO4*3H2O
+119060  KALICINITE                4  1  7  1              KHCO3
+112162   KIESERITE                2  1  5  1              MgSO4*H2O
+111163 LABILE SALT                1  1  3  1  5  3        Na4Ca(SO4)3*H2O
+112163 LEONHARDTIT      -16.490
+119161     LEONITE                2  1  4  2  5  2        K2Mg(SO4)2*4H2O
+112061   MAGNESITE                2  1  6  1              MgCO3
+112171      MG-OXY                2  1  8  1  9  3        Mg2Cl(OH)3*4H2O
+119167  MERCALLITE                4  1 10  1  5  1        KHSO4
+111164  MIRABILITE      1.114     3  2  5  1              Na2SO4*10H2O
+119162    MISENITE                4  8 10  6  5  2        K8H6(SO4)2
+111061   NAHCOLITE                3  1  7  1              NaHCO3
+111062      NATRON      1.114     3  2  6  1              Na2CO3*10H2O
+112062 NESQUEHONIT      5.621     2  1  6  1              MgCO3*3H2O
+112164 PENTAHYDRIT         
+119163 PICROMERITE                2  1  4  2  5  2        K2Mg(SO4)2*6H2O
+111063  PIRSSONITE                1  1  3  2  6  2        Na2Ca(CO3)2*2H2O
+119164  POLYHALITE                1  2  2  1  4  2  5  4  K2MgCa2(SO4)4*2H2O
+120080 PORTLANDITE      -22.675   1  1  9  2              Ca(OH)2
+119061  K-CARB-3/2                4  2  6  1              K2CO3*3/2H2O
+119062K-SESQUICARB                4  8 10  4  6  6        K8H4(CO3)6*3H2O
+119063 K-NA-CARB-6                3  1  4  1  6  1        KNaCO3*6H2O
+119064     K-TRONA                3  1  4  2 10  1  6  2  K2NaH(CO3)2*2H2O
+119165   K3H(SO4)2                4  3 10  1  5  2        K3H(SO4)2
+111165  NA3H(SO4)2                3  1 10  1  5  2        Na3H(SO4)2
+111064   NA-CARB-7                3  2  6  1              Na2CO3*7H2O
+119172     SYLVITE                4  1  8  1              KCl
+119166   SYNGENITE                1  1  4  2  5  2        K2Ca(SO4)2*H2O
+112172 TACHYHYDRIT                1  1  2  2  8  6        Mg2CaCl6*12H2O
+111166  THENARDITE      0.179     3  2  5  1              Na2SO4
+111065 THERMONATRI                3  2  6  1              Na2CO3*H2O
+111066       TRONA                3  1  10  3  6  2       Na3H(CO3)2*2H2O
+111050       Borax   
+111051 Pentaborate   
+111052  Metaborate   
+111053   Teepleite   
+100500  Boric acid   
+112063  Northupite   
+101000    H(solid)  1
+356000  FeOH        0
+356001  FeOH2+      1
+356002  FeO-       -1
+420560 FeO-CA++     1
+456160 FeOH2+-SO4  -1
+456161 FeOH2+HSO4   0
+    -1

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+   name: modflow-2005
+spec:
+   containers:
+   - image: mjstealey/docker-modflow
+     name: kicajki
+     volumeMounts:
+     - mountPath: "/workspace"
+       name: my-path
+     args: ["mf2005", "simple1.nam"]
+     securityContext:
+       privileged: true
+   volumes:
+   - name: my-path
+     hostPath:
+       path: /run/desktop/mnt/host/c/Users/bloqd/Documents/Uni/Inz/Models/Simple1
+       type: DirectoryOrCreate
+   restartPolicy: Never
