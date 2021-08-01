@@ -1,20 +1,20 @@
 apiVersion: v1
 kind: Pod
 metadata:
-   name: modflow-2005
+   name: hydrus-1d
 spec:
    containers:
-   - image: mjstealey/docker-modflow
+   - image: hydrus1d
      name: kicajki
      volumeMounts:
      - mountPath: "/workspace"
        name: my-path
-     args: ["mf2005", "simple1.nam"]
+     args: []
      securityContext:
        privileged: true
    volumes:
    - name: my-path
      hostPath:
-       path: /run/desktop/mnt/host/c/Users/bloqd/Documents/Inzynierka/Models/Simple1
+       path: /run/desktop/mnt/host/c/Users/bloqd/Documents/Inzynierka/water_modeling_agh/hydrus_docker/Chojnice_vg_sand
        type: DirectoryOrCreate
    restartPolicy: Never
