@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Model_Archive_List>
+  <bin Model_Name="Tutorial_1" FileType="bin">
+    <FileName Model_Name="Tutorial_1" FileType="bin">..\MF2005.1_12\bin\mf2005.exe</FileName>
+    <FileName Model_Name="Tutorial_1" FileType="bin">..\modpath.6_0\bin\mp6.exe</FileName>
+  </bin>
+  <ancillary Model_Name="Tutorial_1" FileType="ancillary">
+    <FileName Model_Name="Tutorial_1" FileType="ancillary">Tutorial_1.gpt</FileName>
+  </ancillary>
+  <model Model_Name="Tutorial_1" FileType="Model Input">
+    <FileName Model_Name="Tutorial_1" FileType="Model Input">RunModflow.Bat.archive</FileName>
+    <FileName Model_Name="Tutorial_1" FileType="Model Input">Tutorial_1.bas</FileName>
+    <FileName Model_Name="Tutorial_1" FileType="Model Input">Tutorial_1.dis</FileName>
+    <FileName Model_Name="Tutorial_1" FileType="Model Input">Tutorial_1.fhb</FileName>
+    <FileName Model_Name="Tutorial_1" FileType="Model Input">Tutorial_1.gsf</FileName>
+    <FileName Model_Name="Tutorial_1" FileType="Model Input">Tutorial_1.lpf</FileName>
+    <FileName Model_Name="Tutorial_1" FileType="Model Input">Tutorial_1.nam.archive</FileName>
+    <FileName Model_Name="Tutorial_1" FileType="Model Input">Tutorial_1.oc</FileName>
+    <FileName Model_Name="Tutorial_1" FileType="Model Input">Tutorial_1.pcg</FileName>
+    <FileName Model_Name="Tutorial_1" FileType="Model Input">Tutorial_1.wel</FileName>
+    <FileName Model_Name="Tutorial_1" FileType="Model Input">usgs.Tutorial_1.reference</FileName>
+  </model>
+  <output Model_Name="Tutorial_1" FileType="Model Output">
+    <FileName Model_Name="Tutorial_1" FileType="Model Output">Tutorial_1.bhd</FileName>
+    <FileName Model_Name="Tutorial_1" FileType="Model Output">Tutorial_1.cbc</FileName>
+    <FileName Model_Name="Tutorial_1" FileType="Model Output">Tutorial_1.fdn</FileName>
+    <FileName Model_Name="Tutorial_1" FileType="Model Output">Tutorial_1.lst</FileName>
+  </output>
+  <Modpath_Input_Files Model_Name="Tutorial_1" FileType="Modpath Input">
+    <FileName Model_Name="Tutorial_1" FileType="Modpath Input">Mp.bat.archive</FileName>
+    <FileName Model_Name="Tutorial_1" FileType="Modpath Input">RunModpath.Bat.archive</FileName>
+    <FileName Model_Name="Tutorial_1" FileType="Modpath Input">Tutorial_1.mpbas</FileName>
+    <FileName Model_Name="Tutorial_1" FileType="Modpath Input">Tutorial_1.mpn.archive</FileName>
+    <FileName Model_Name="Tutorial_1" FileType="Modpath Input">Tutorial_1.mpsim.archive</FileName>
+    <FileName Model_Name="Tutorial_1" FileType="Modpath Input">Tutorial_1.strt</FileName>
+    <FileName Model_Name="Tutorial_1" FileType="Modpath Input">usgs.Tutorial_1_Modpath.reference</FileName>
+  </Modpath_Input_Files>
+  <Modpath_Output_Files Model_Name="Tutorial_1" FileType="Modpath Output">
+    <FileName Model_Name="Tutorial_1" FileType="Modpath Output">MPATH6.LOG</FileName>
+    <FileName Model_Name="Tutorial_1" FileType="Modpath Output">Tutorial_1.end</FileName>
+    <FileName Model_Name="Tutorial_1" FileType="Modpath Output">Tutorial_1.mplst</FileName>
+    <FileName Model_Name="Tutorial_1" FileType="Modpath Output">Tutorial_1.path</FileName>
+  </Modpath_Output_Files>
+</Model_Archive_List>

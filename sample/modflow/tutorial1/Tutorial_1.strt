@@ -1,0 +1,21 @@
+# MODPATH Starting Locations file file created on 09.04.2021 by ModelMuse version 4.3.0.0.
+     2 # Data Set 1: InputStyle
+     1 # Data Set 6: GroupCount
+Well # Data Set 7: GroupName
+    16  0.000000000000E+000      1 # Data Set 8: LocationCount ReleaseStartTime ReleaseOption
+     1     1    20    21 0 0.875 0.5 0 0 0 Well-01 # Data Set 12: Grid Layer Row Column LocalX LocalY LocalZ Label
+     1     1    20    21 0 0.625 0.5 0 0 0 Well-02 # Data Set 12: Grid Layer Row Column LocalX LocalY LocalZ Label
+     1     1    20    21 0 0.375 0.5 0 0 0 Well-03 # Data Set 12: Grid Layer Row Column LocalX LocalY LocalZ Label
+     1     1    20    21 0 0.125 0.5 0 0 0 Well-04 # Data Set 12: Grid Layer Row Column LocalX LocalY LocalZ Label
+     1     1    20    21 1 0.875 0.5 0 0 0 Well-05 # Data Set 12: Grid Layer Row Column LocalX LocalY LocalZ Label
+     1     1    20    21 1 0.625 0.5 0 0 0 Well-06 # Data Set 12: Grid Layer Row Column LocalX LocalY LocalZ Label
+     1     1    20    21 1 0.375 0.5 0 0 0 Well-07 # Data Set 12: Grid Layer Row Column LocalX LocalY LocalZ Label
+     1     1    20    21 1 0.125 0.5 0 0 0 Well-08 # Data Set 12: Grid Layer Row Column LocalX LocalY LocalZ Label
+     1     1    20    21 0.125 1 0.5 0 0 0 Well-09 # Data Set 12: Grid Layer Row Column LocalX LocalY LocalZ Label
+     1     1    20    21 0.375 1 0.5 0 0 0 Well-10 # Data Set 12: Grid Layer Row Column LocalX LocalY LocalZ Label
+     1     1    20    21 0.625 1 0.5 0 0 0 Well-11 # Data Set 12: Grid Layer Row Column LocalX LocalY LocalZ Label
+     1     1    20    21 0.875 1 0.5 0 0 0 Well-12 # Data Set 12: Grid Layer Row Column LocalX LocalY LocalZ Label
+     1     1    20    21 0.125 0 0.5 0 0 0 Well-13 # Data Set 12: Grid Layer Row Column LocalX LocalY LocalZ Label
+     1     1    20    21 0.375 0 0.5 0 0 0 Well-14 # Data Set 12: Grid Layer Row Column LocalX LocalY LocalZ Label
+     1     1    20    21 0.625 0 0.5 0 0 0 Well-15 # Data Set 12: Grid Layer Row Column LocalX LocalY LocalZ Label
+     1     1    20    21 0.875 0 0.5 0 0 0 Well-16 # Data Set 12: Grid Layer Row Column LocalX LocalY LocalZ Label
