@@ -1,0 +1,6 @@
+# MODPATH Basic Data file file created on 09.04.2021 by ModelMuse version 4.3.0.0.
+ -1.000000000000E+020  -2.000000000000E+020  # Data Set 1: HNOFLO  HDRY
+     0 # Data Set 2: DefaultIFaceCount
+     0
+CONSTANT        1 # Data Set 6: IBOUND Upper Aquifer
+CONSTANT     2.000000000000E-001  # Data Set 7: Porosity Layer 1: Upper Aquifer
