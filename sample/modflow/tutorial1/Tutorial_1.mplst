@@ -1,0 +1,149 @@
+
+MODPATH - Version 6.0.01  August 24, 2012                 
+U.S. GEOLOGICAL SURVEY PARTICLE TRACKING MODEL FOR MODFLOW
+
+Simulation File: Tutorial_1.mpsim                                                                                                                                                                                        
+ # MODPATH Simulation file file created on 09.04.2021 by ModelMuse version 4.3.0.0.
+  
+--------------------------------------------
+Allocating and reading data for grid  1
+--------------------------------------------
+
+ OPENING Tutorial_1.mpbas
+ FILE TYPE:MPBAS   UNIT   12   STATUS:OLD    
+ FORMAT:FORMATTED              ACCESS:SEQUENTIAL          
+
+ OPENING Tutorial_1.dis
+ FILE TYPE:DIS   UNIT   13   STATUS:OLD    
+ FORMAT:FORMATTED              ACCESS:SEQUENTIAL          
+
+ OPENING Tutorial_1.cbc
+ FILE TYPE:BUDGET   UNIT   20   STATUS:OLD    
+ FORMAT:UNFORMATTED            ACCESS:STREAM              
+
+ OPENING Tutorial_1.bhd
+ FILE TYPE:HEAD   UNIT   22   STATUS:OLD    
+ FORMAT:UNFORMATTED            ACCESS:STREAM              
+
+ DISCRETIZATION INPUT DATA READ FROM UNIT   13
+ # Discretization File created on 09.04.2021 by ModelMuse version 4.3.0.0.
+ # Upper left corner: (0, 1000)
+ # Lower left corner: (0, 0)
+ # Upper right corner: (1000, 1000)
+ # Lower right corner: (1000, 0)
+ # Grid angle (in degrees counterclockwise): 0
+    1 LAYERS        40 ROWS        40 COLUMNS
+    2 STRESS PERIOD(S) IN SIMULATION
+ MODEL TIME UNIT IS DAYS
+ MODEL LENGTH UNIT IS METERS
+  Confining bed flag for each layer:
+   0
+
+                     DELR =   25.0000    
+
+                     DELC =   25.0000    
+
+ TOP ELEVATION OF LAYER 1 =   10.0000    
+
+   MODEL LAYER BOTTOM EL. =   0.00000     FOR LAYER   1
+
+
+ STRESS PERIOD     LENGTH       TIME STEPS     MULTIPLIER FOR DELT    SS FLAG
+ ----------------------------------------------------------------------------
+        1         1.000000          1                    1.000         SS
+        2         9125.000          1                    1.000         SS
+
+ STEADY-STATE SIMULATION
+ 
+ # MODPATH Basic Data file file created on 09.04.2021 by ModelMuse version 4.3.0.
+
+ AQUIFER HEAD IS SET TO *********** AT ALL NO-FLOW NODES (IBOUND=0).
+ AQUIFER HEAD IS SET TO *********** AT ALL DRY NODES.
+ 
+ 
+ LAYER TYPE(LAYTYP)
+  0
+
+           BOUNDARY ARRAY =              1 FOR LAYER   1
+
+                 POROSITY =  0.200000     FOR LAYER   1
+ 
+ CHECKING THE HEAD FILE FOR GRID   1
+ Single Precision Binary Head file
+ READ HEAD FOR PERIOD     1 STEP     1  PERTIM =   1.000000E+00  TOTIM =   1.000000E+00
+ READ HEAD FOR PERIOD     2 STEP     1  PERTIM =   9.125000E+03  TOTIM =   9.126000E+03
+ THE HEAD FILE FOR GRID   1 IS COMPLETE.
+ 
+ CHECKING AND INDEXING BUDGET FILE FOR GRID   1
+ Index position =          1
+ READ FLOW PACKAGE BUDGET DATA FOR STRESS PERIOD    1 , TIME STEP    1 ...
+ Single Precision Binary Budget file
+ Reading    CONSTANT HEAD for Period    1   Time Step    1
+ Reading FLOW RIGHT FACE  for Period    1   Time Step    1
+ Reading FLOW FRONT FACE  for Period    1   Time Step    1
+   FLOW RATES BETWEEN CELLS HAVE BEEN READ
+ Reading            WELLS for Period    1   Time Step    1
+ Reading  SPECIFIED FLOWS for Period    1   Time Step    1
+ Index position =      13765
+ READ FLOW PACKAGE BUDGET DATA FOR STRESS PERIOD    2 , TIME STEP    1 ...
+ Reading    CONSTANT HEAD for Period    2   Time Step    1
+ Reading FLOW RIGHT FACE  for Period    2   Time Step    1
+ Reading FLOW FRONT FACE  for Period    2   Time Step    1
+   FLOW RATES BETWEEN CELLS HAVE BEEN READ
+ Reading            WELLS for Period    2   Time Step    1
+ Reading  SPECIFIED FLOWS for Period    2   Time Step    1
+ THE BUDGET INDEX FOR GRID   1 WAS SUCCESSFULLY CREATED.
+ 
+PATHLINE ANALYSIS (ISIMTYPE = 2)
+BACKWARD TRACKING (ITRACKDIR = 2)
+LET PARTICLES PASS THROUGH WEAK SINK CELLS (ISINK = 1)
+LET PARTICLES PASS THROUGH WEAK SOURCE CELLS FOR BACKTRACKING SIMULATIONS (ISOURCE = 1)
+DO NOT SAVE ADVECTIVE OBSERVATIONS FOR TIME SERIES SIMULATIONS (IADVOBS =  1)
+ 
+PARTICLE OUTPUT FILES:
+ENDPOINT FILE:  Tutorial_1.end                                                                                                                                                                                          
+PATHLINE FILE:  Tutorial_1.path                                                                                                                                                                                         
+ 
+REFERENCE TIME =   0.9126000E+04
+SPECIFY A LIMIT FOR TRACKING TIME (ISTOPT =  3)
+STOP TIME =   0.9125000E+04
+ Particle starting locations will be read from file:                                                                                                                                                     Tutorial_1.strt                                                                                                                                                                                         
+   Starting locations file format option (ISLFOPT) =                                                                                                                                                        2
+ 
+TOTAL NUMBER OF PARTICLES FOR ALL GROUPS =         16
+ 
+DO NOT PERFORM BUDGET CHECKS (IBDOPT =  1)
+ 
+THE ZONE VALUE FOR ALL CELLS = 1
+ 
+NO RETARDATION. FACTOR = 1 FOR ALL CELLS
+ 
+ 
+ Run particle tracking simulation ...
+ 
+ ----------------------------------------------------------------------------------------------
+Processing Time Step     1 Period     2.  Time =  9.12600E+03                                                                         (Cumulative step =      2)
+ ----------------------------------------------------------------------------------------------
+ PROCESSING HEAD AND BUDGET DATA FOR GRID   1
+ READ HEAD FOR PERIOD     2 STEP     1  PERTIM =   9.125000E+03  TOTIM =   9.126000E+03
+ UPDATE IBOUND FOR NO-FLOW AND DRY CELLS.
+ PROCESS FLOW PACKAGE BUDGET DATA FOR STRESS PERIOD    2 , TIME STEP    1 ...
+ Reading    CONSTANT HEAD for Period    2   Time Step    1
+ Reading FLOW RIGHT FACE  for Period    2   Time Step    1
+ Reading FLOW FRONT FACE  for Period    2   Time Step    1
+ Reading            WELLS for Period    2   Time Step    1
+      IFACE values will be read from a compact budget list.
+ Reading  SPECIFIED FLOWS for Period    2   Time Step    1
+      IFACE values will be read from a compact budget list.
+ 
+Particle summary:
+-----------------
+         0 particles remain active
+        16 particles terminated in zone    1
+         0 particles were stranded
+ 
+Default real number precision =         15
+Heads input from single-precision head file.
+Flows input from single-precision compact budget file.
+ 
+End of MODPATH simulation. Normal termination.

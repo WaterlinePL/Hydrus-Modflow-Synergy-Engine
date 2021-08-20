@@ -1,0 +1,4 @@
+MPBAS 12 Tutorial_1.mpbas
+DIS 13 ..\..\model\model.Tutorial_1\Tutorial_1.dis
+BUDGET 20 ..\..\output\output.Tutorial_1\Tutorial_1.cbc
+HEAD 22 ..\..\output\output.Tutorial_1\Tutorial_1.bhd

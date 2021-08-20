@@ -1,0 +1,9 @@
+# MODPATH Simulation file file created on 09.04.2021 by ModelMuse version 4.3.0.0.
+Tutorial_1.mpn
+..\..\output\output.Tutorial_1_Modpath\Tutorial_1.mplst
+     2     2     1     1     1     3     2     1     1     1     1     1 # Data Set 3: SimulationType, TrackingDirection, WeakSinkOption, WeakSouceOption, ReferenceTimeOption, StopOption, ParticleGenerationOption, TimePointOption, BudgetOutputOption, ZoneArrayOption, RetardationOption, AdvectiveObservationsOption
+..\..\output\output.Tutorial_1_Modpath\Tutorial_1.end
+..\..\output\output.Tutorial_1_Modpath\Tutorial_1.path
+  9.126000000000E+003  # Data Set 8: ReferenceTime
+  9.125000000000E+003  # Data Set 10: StopTime
+Tutorial_1.strt
