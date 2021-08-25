@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+   name: hydrus-1d
+spec:
+   containers:
+   - image: observer46/water_modeling_agh:hydrus1d_linux
+     name: kicajki2
+     volumeMounts:
+     - mountPath: "/workspace/hydrus"
+       name: my-path
+     args: []
+     securityContext:
+       privileged: true
+   volumes:
+   - name: my-path
+     hostPath:
+       path: /run/desktop/mnt/host/c/Users/bloqd/Documents/Inzynierka/water_modeling_agh/hydrus_docker/Chojnice_vg_sand
+       type: DirectoryOrCreate
+   restartPolicy: Never
