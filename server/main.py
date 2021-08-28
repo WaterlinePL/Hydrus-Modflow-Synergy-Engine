@@ -103,6 +103,7 @@ if __name__ == '__main__':
     # run flask app
     app.run(debug=True)
 
+    # manage kubernetes
     config.load_kube_config()
     api_instance = client.CoreV1Api()
 
