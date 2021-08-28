@@ -15,6 +15,6 @@ spec:
    volumes:
    - name: my-path
      hostPath:
-       path: /run/desktop/mnt/host/c/Users/bloqd/Documents/Uni/Inz/Models/Simple1
+       path: /run/desktop/mnt/host/c/Users/bloqd/Documents/Inzynierka/Models/Simple1
        type: DirectoryOrCreate
    restartPolicy: Never

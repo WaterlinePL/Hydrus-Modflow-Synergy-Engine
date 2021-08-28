@@ -1,4 +1,4 @@
-from utils.yaml_data import YamlData
+from utils.yamlData import YamlData
 
 
 class YamlGenerator:
