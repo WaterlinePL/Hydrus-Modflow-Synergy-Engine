@@ -1,33 +1,9 @@
 from typing import List, Tuple
 
 import numpy as np
-import phydrus as ph
 import flopy
-import constants
 
-
-class ShapeFileData:
-
-    def __init__(self, shape_mask_filepath: str, hydrus_output_filepath: str):
-        self.shape_mask_filepath = shape_mask_filepath
-        self.hydrus_output_filepath = hydrus_output_filepath
-
-    def read_hydrus_output(self) -> float:
-        t_level = ph.read.read_tlevel(path=self.hydrus_output_filepath)
-        return t_level['sum(vBot)'].iat[-1]
-
-    def read_shape_mask(self) -> np.array:
-        return np.load(self.shape_mask_filepath)
-
-
-class Shape:
-
-    def __init__(self, mask_array: np.array, value: float):
-        self.mask_array = mask_array
-        self.value = value
-
-    def get_recharge(self) -> np.array:
-        return self.mask_array * self.value
+from datapassing.shapeData import ShapeFileData, Shape
 
 
 class HydrusModflowPassing:
@@ -46,7 +22,8 @@ class HydrusModflowPassing:
         if len(self.shapes) < 1:
             return None
 
-        modflow_model = flopy.modflow.Modflow.load(self.nam_file, model_ws=self.modflow_workspace_path, load_only=["rch"],
+        modflow_model = flopy.modflow.Modflow.load(self.nam_file, model_ws=self.modflow_workspace_path,
+                                                   load_only=["rch"],
                                                    forgive=True)
         recharge = np.zeros((modflow_model.nrow, modflow_model.ncol))
 
@@ -78,8 +55,8 @@ class HydrusModflowPassing:
         shapes = []
         for shape_info in shape_info_files:
             shapes.append(Shape(
-                shape_info.read_shape_mask(),
-                shape_info.read_hydrus_output()
+                shape_info.shape_mask,
+                shape_info.hydrus_recharge_output
             ))
         return shapes
 

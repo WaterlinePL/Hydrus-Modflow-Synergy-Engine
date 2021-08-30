@@ -11,8 +11,11 @@ class HydrusShapesTest(unittest.TestCase):
     @staticmethod
     def test_four_shapes():
         HydrusShapesTest.create_shape_files()
-        sample_shape_masks = ["mask1.npy", "mask2.npy", "mask3.npy", "mask4.npy"]
-        sample_hydrus_output = ["t_level1.out", "t_level2.out", "t_level3.out", "t_level4.out"]
+        sample_shape_masks = ["masks/" + base_name for base_name in
+                              ["mask1.npy", "mask2.npy", "mask3.npy", "mask4.npy"]]
+
+        sample_hydrus_output = ["hydrus_out/" + base_name for base_name in
+                                ["t_level1.out", "t_level2.out", "t_level3.out", "t_level4.out"]]
 
         shape_info_files = DataPassing.HydrusModflowPassing.create_shape_info_data(list(zip(sample_shape_masks, sample_hydrus_output)))
         shapes = DataPassing.HydrusModflowPassing.read_shapes_from_files(shape_info_files)
