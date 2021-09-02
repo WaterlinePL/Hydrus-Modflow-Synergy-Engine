@@ -7,8 +7,9 @@ from constants import HYDRUS_ROOT_DOCKER
 
 class HydrusDeployer:
 
-    def __init__(self, api_instance: client.CoreV1Api, pod_name, namespace='default'):
+    def __init__(self, api_instance: client.CoreV1Api, path: str, pod_name: str, namespace: str = 'default'):
         self.api_instance = api_instance
+        self.path = path
         self.pod_name = pod_name
         self.namespace = namespace
 
@@ -29,7 +30,7 @@ class HydrusDeployer:
                                  mount_path='/workspace/hydrus',
                                  mount_path_name='my-path2',
                                  args=[],
-                                 volumes_host_path=HYDRUS_ROOT_DOCKER)
+                                 volumes_host_path=self.path)
 
             yaml_gen = YamlGenerator(yaml_data)
             pod_manifest = yaml_gen.prepare_kubernetes_pod()
