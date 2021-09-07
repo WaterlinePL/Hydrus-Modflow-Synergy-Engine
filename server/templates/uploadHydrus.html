@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Upload hydrus projects</title>
+{% endblock %}
+
+{% block body %}
+<h1>Upload hydrus projects</h1>
+<p>Select a project, then click "submit" to load it. Click "Done" once you've uploaded all projects</p>
+<form action="/upload-hydrus" method="POST" enctype="multipart/form-data">
+    <div>
+        <label>Select project archive</label>
+        <div>
+            <input type="file" name="archive-input" id="archive-input">
+        </div>
+    </div>
+    <button type="submit">Submit</button>
+</form>
+
+<button onclick="window.location.href='/'">Done (nothing here yet)</button>
+
+<h3>Models uploaded:</h3>
+<ul>
+    {% for name in model_names %}
+    <li>{{ name }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
