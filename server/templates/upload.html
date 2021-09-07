@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Upload project</title>
+{% endblock %}
+
+{% block body %}
+<h1>Upload</h1>
+<form action="/upload" method="POST" enctype="multipart/form-data">
+    <div>
+        <label>Select project archive</label>
+        <div>
+            <input type="file" name="archive-input" id="archive-input">
+        </div>
+    </div>
+    <button type="submit">Submit</button>
+</form>
+{% endblock %}

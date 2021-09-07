@@ -4,6 +4,8 @@ from modflow.modflowDeployer import ModflowDeployer
 from datapassing.hydrusModflowPassing import HydrusModflowPassing
 from kubernetes import client, config, watch
 
+from flaskApp import app
+
 
 def list_all_pods(api: client.CoreV1Api):
     print("Listing pods with their IPs:")
@@ -14,6 +16,10 @@ def list_all_pods(api: client.CoreV1Api):
 
 if __name__ == '__main__':
 
+    # run flask app
+    app.run(debug=True)
+
+    # manage kubernetes
     config.load_kube_config()
     api_instance = client.CoreV1Api()
 
@@ -39,6 +45,3 @@ if __name__ == '__main__':
     #  current way to delete pod -> kubectl delete pod modflow-2005
 
     list_all_pods(api=api_instance)
-
-
-
