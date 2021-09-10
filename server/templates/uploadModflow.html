@@ -5,15 +5,25 @@
 {% endblock %}
 
 {% block body %}
-<h1>Upload modflow project</h1>
-<p>Select the modflow project you want to simulate, then click "Submit"</p>
-<form action="/upload-modflow" method="POST" enctype="multipart/form-data">
-    <div>
-        <label>Select project archive</label>
-        <div>
-            <input type="file" name="archive-input" id="archive-input">
+<div class="jumbotron">
+    <div class="container">
+        <div class="row justify-content-md-center">
+            <div class="col-lg-9">
+                <div class="text-center">
+                    <h1 class="display-4">Upload modflow project</h1>
+                    <p class="lead">Select the modflow project you want to simulate, then click "Submit"</p>
+                </div>
+                <hr class="my-4">
+                <form action="/upload-modflow" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="archive-input">Select project archive</label>
+                        <input type="file" class="form-control-file" id="archive-input" name="archive-input">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
         </div>
     </div>
-    <button type="submit">Submit</button>
-</form>
+</div>
+
 {% endblock %}
