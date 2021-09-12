@@ -3,7 +3,14 @@ from zipfile import ZipFile
 
 import os
 
+from AppUtils import AppUtils
+
+util = AppUtils()
+util.setup()
 app = Flask("App")
+
+
+# ------------------- EXAMPLES -------------------
 
 all_posts = [
     {
@@ -36,46 +43,78 @@ def posts():
     return render_template('posts.html', posts=all_posts)
 
 
-# archive uploading
-
-# this should ultimately go into a config file
-app.config["PROJECT_DIR"] = '../workspace'
-app.config["ALLOWED_TYPES"] = ["ZIP", "RAR", "7Z"]
+# ------------------- END EXAMPLES -------------------
 
 
-def type_allowed(filename):
+# ------------------- ROUTES -------------------
 
-    # check if there even is an extension
-    if '.' not in filename:
-        return False
-
-    # check if it's allowed
-    extension = filename.rsplit('.', 1)[1]
-    return extension.upper() in app.config["ALLOWED_TYPES"]
-
-
-@app.route('/upload', methods=['GET', 'POST'])
-def upload():
-
-    # POST handler
+@app.route('/upload-modflow', methods=['GET', 'POST'])
+def upload_modflow():
     if request.method == 'POST' and request.files:
+        return upload_modflow_handler(request)
+    else:
+        return render_template('uploadModflow.html')
 
-        project = request.files['archive-input']  # matches HTML input name
 
-        if type_allowed(project.filename):
+@app.route('/upload-hydrus', methods=['GET', 'POST'])
+def upload_hydrus():
+    if request.method == 'POST' and request.files:
+        return upload_hydrus_handler(request)
+    else:
+        return render_template('uploadHydrus.html', model_names=util.loaded_hydrus_models)
 
-            # save, unzip, remove archive
-            archive_path = os.path.join(app.config["PROJECT_DIR"], project.filename)
-            project.save(archive_path)
-            with ZipFile(archive_path, 'r') as archive:
-                archive.extractall(app.config["PROJECT_DIR"])
-            os.remove(archive_path)
-            print("Project uploaded successfully")
+# ------------------- END ROUTES -------------------
 
-        else:
-            print("Invalid archive format, must be one of: ", end='')
-            print(app.config["ALLOWED_TYPES"])
 
-        return redirect(request.url)
+# ------------------- HANDLERS -------------------
 
-    return render_template('upload.html')
+def upload_modflow_handler(req):
+    project = req.files['archive-input']  # matches HTML input name
+
+    if util.type_allowed(project.filename):
+
+        # save, unzip, remove archive
+        archive_path = os.path.join(util.workspace_dir, 'modflow', project.filename)
+        project.save(archive_path)
+        with ZipFile(archive_path, 'r') as archive:
+            archive.extractall(os.path.join(util.workspace_dir, 'modflow'))
+        os.remove(archive_path)
+
+        print("Project uploaded successfully")
+        return redirect(req.root_url + 'upload-hydrus')
+
+    else:
+        print("Invalid archive format, must be one of: ", end='')
+        print(util.allowed_types)
+        return redirect(req.url)
+
+
+def upload_hydrus_handler(req):
+    project = req.files['archive-input']  # matches HTML input name
+
+    if util.type_allowed(project.filename):
+
+        # save, unzip, remove archive
+        archive_path = os.path.join(util.workspace_dir, 'hydrus', project.filename)
+        project.save(archive_path)
+        with ZipFile(archive_path, 'r') as archive:
+
+            # get the project name and remember it
+            project_name = project.filename.split('.')[0]
+            util.loaded_hydrus_models.append(project_name)
+
+            # create a dedicated catalogue and load the project into it
+            os.system('mkdir ' + os.path.join(util.workspace_dir, 'hydrus', project_name))
+            archive.extractall(os.path.join(util.workspace_dir, 'hydrus', project_name))
+
+        os.remove(archive_path)
+
+        print("Project uploaded successfully")
+        return redirect(req.root_url + 'upload-hydrus')
+
+    else:
+        print("Invalid archive format, must be one of: ", end='')
+        print(util.allowed_types)
+        return redirect(req.url)
+
+# ------------------- END HANDLERS -------------------

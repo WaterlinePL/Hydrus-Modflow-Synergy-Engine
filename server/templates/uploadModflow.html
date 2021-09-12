@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<title>Upload project</title>
+<title>Upload modflow project</title>
 {% endblock %}
 
 {% block body %}
-<h1>Upload</h1>
-<form action="/upload" method="POST" enctype="multipart/form-data">
+<h1>Upload modflow project</h1>
+<p>Select the modflow project you want to simulate, then click "Submit"</p>
+<form action="/upload-modflow" method="POST" enctype="multipart/form-data">
     <div>
         <label>Select project archive</label>
         <div>
