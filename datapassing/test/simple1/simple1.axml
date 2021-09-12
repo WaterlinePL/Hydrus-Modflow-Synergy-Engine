@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Model_Archive_List>
+  <bin Model_Name="simple1" FileType="bin">
+    <FileName Model_Name="simple1" FileType="bin">..\..\..\..\NMH\MF2005.1_12\MF2005.1_12\bin\mf2005.exe</FileName>
+  </bin>
+  <ancillary Model_Name="simple1" FileType="ancillary">
+    <FileName Model_Name="simple1" FileType="ancillary">simple1.gpt</FileName>
+  </ancillary>
+  <model Model_Name="simple1" FileType="Model Input">
+    <FileName Model_Name="simple1" FileType="Model Input">RunModflow.Bat.archive</FileName>
+    <FileName Model_Name="simple1" FileType="Model Input">simple1.bas</FileName>
+    <FileName Model_Name="simple1" FileType="Model Input">simple1.dis</FileName>
+    <FileName Model_Name="simple1" FileType="Model Input">simple1.fhb</FileName>
+    <FileName Model_Name="simple1" FileType="Model Input">simple1.gsf</FileName>
+    <FileName Model_Name="simple1" FileType="Model Input">simple1.lpf</FileName>
+    <FileName Model_Name="simple1" FileType="Model Input">simple1.nam.archive</FileName>
+    <FileName Model_Name="simple1" FileType="Model Input">simple1.oc</FileName>
+    <FileName Model_Name="simple1" FileType="Model Input">simple1.pcg</FileName>
+    <FileName Model_Name="simple1" FileType="Model Input">simple1.rch</FileName>
+    <FileName Model_Name="simple1" FileType="Model Input">usgs.simple1.reference</FileName>
+  </model>
+  <output Model_Name="simple1" FileType="Model Output">
+    <FileName Model_Name="simple1" FileType="Model Output">simple1.cbc</FileName>
+    <FileName Model_Name="simple1" FileType="Model Output">simple1.fdn</FileName>
+    <FileName Model_Name="simple1" FileType="Model Output">simple1.fhd</FileName>
+    <FileName Model_Name="simple1" FileType="Model Output">simple1.lst</FileName>
+  </output>
+</Model_Archive_List>
