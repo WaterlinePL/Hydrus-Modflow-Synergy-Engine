@@ -5,24 +5,43 @@
 {% endblock %}
 
 {% block body %}
-<h1>Upload hydrus projects</h1>
-<p>Select a project, then click "submit" to load it. Click "Done" once you've uploaded all projects</p>
-<form action="/upload-hydrus" method="POST" enctype="multipart/form-data">
-    <div>
-        <label>Select project archive</label>
-        <div>
-            <input type="file" name="archive-input" id="archive-input">
+<div class="jumbotron">
+    <div class="container">
+        <div class="row justify-content-md-center">
+            <div class="col-lg-9">
+                <div class="text-center">
+                    <h1 class="display-4">Upload hydrus projects</h1>
+                    <p class="lead">Select a project, then click "submit" to load it. Click "Done" once you've uploaded all projects
+                    </p>
+                </div>
+                <hr class="my-4">
+                <form action="/upload-hydrus" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="archive-input">Select project archive</label>
+                        <input type="file" class="form-control-file" id="archive-input" name="archive-input">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+                <button type="button" style="margin-top: 5px;" class="btn btn-secondary"
+                    onclick="window.location.href='/'">Done (nothing here yet)</button>
+            </div>
         </div>
     </div>
-    <button type="submit">Submit</button>
-</form>
+</div>
+<div class="container">
+    <div class="row justify-content-md-center">
+        <div class="col-lg-9">
+            <div>
+                <h3 style="text-align: center">Models uploaded:</h3>
+                <ul class="list-group list-group-flush">
+                    {% for name in model_names %}
+                    <li class="list-group-item">{{ name }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 
-<button onclick="window.location.href='/'">Done (nothing here yet)</button>
 
-<h3>Models uploaded:</h3>
-<ul>
-    {% for name in model_names %}
-    <li>{{ name }}</li>
-    {% endfor %}
-</ul>
 {% endblock %}
