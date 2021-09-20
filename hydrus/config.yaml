@@ -15,6 +15,6 @@ spec:
    volumes:
    - name: my-path
      hostPath:
-       path: /run/desktop/mnt/host/c/Users/bloqd/Documents/Inzynierka/water_modeling_agh/hydrus_docker/Chojnice_vg_sand
+         path: /run/desktop/mnt/host/c/Users/micro/Desktop/Studia/Inzynierka/water_modeling_agh/tests/hydrus/Chojnice_vg_sand
        type: DirectoryOrCreate
    restartPolicy: Never
