@@ -8,6 +8,10 @@ class PodController:
         self.api_instance = api_instance
 
     def wait_for_pod_termination(self, pod_name: str) -> None:
+        """
+        @param pod_name: Name of the pod you want to terminate. Must be unique (ex. "hydrus-1d-01")
+        @return: None
+        """
         pod_watch = watch.Watch()
         for event in pod_watch.stream(self.api_instance.list_pod_for_all_namespaces, watch=True):
             o = event['object']
@@ -17,6 +21,11 @@ class PodController:
                     pod_watch.stop()
 
     def delete_pod(self, namespace: str, pod_name: str) -> None:
+        """
+        @param namespace: Namespace of the pod you want to delete (ex. "default")
+        @param pod_name: Name of the pod you want to delete (ex. "hydrus-1d-01")
+        @return: None
+        """
         print('Deleting pod ' + pod_name)
         try:
             self.api_instance.delete_namespaced_pod(pod_name, namespace)
@@ -25,6 +34,11 @@ class PodController:
             print('Could not delete pod ' + pod_name + '.\n' + ex)
 
     def is_completed(self, pod_status) -> bool:
+        """
+        @param pod_status: Status of watch event object (event['object'].status)
+        @return: True if pod completed successfully. False if the pod is still running.
+        Raises exception on unexpected pod termination.
+        """
         if pod_status.container_statuses is None or \
                 pod_status.container_statuses[0].state.terminated is None:
             return False
