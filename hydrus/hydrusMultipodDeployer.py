@@ -14,5 +14,7 @@ class HydrusMultipodDeployer:
             self.hydrus_pods.append(HydrusDeployer(api_instance, path, pods_names[i], namespace=namespace))
 
     def deploy_all(self):
+        deployed_pods = []
         for pod in self.hydrus_pods:
-            pod.run_pod()
+            deployed_pods.append(pod.run_pod())
+        return deployed_pods
