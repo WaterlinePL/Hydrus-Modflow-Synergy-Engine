@@ -14,11 +14,11 @@ class PodController:
         """
         pod_watch = watch.Watch()
         for event in pod_watch.stream(self.api_instance.list_pod_for_all_namespaces, watch=True):
-            o = event['object']
-            if o.metadata.name == pod_name:
-                if self.is_completed(o.status):
-                    self.delete_pod(o.metadata.namespace, pod_name)
-                    pod_watch.stop()
+            event_object = event['object']
+            if event_object.metadata.name == pod_name:
+                if self.is_completed(event_object.status):
+                    if self.delete_pod(event_object.metadata.namespace, pod_name):
+                        pod_watch.stop()
 
     def delete_pod(self, namespace: str, pod_name: str) -> None:
         """
@@ -30,8 +30,10 @@ class PodController:
         try:
             self.api_instance.delete_namespaced_pod(pod_name, namespace)
             print('Pod deleted successfully')
+            return True
         except ApiException as ex:
             print('Could not delete pod ' + pod_name + '.\n' + ex)
+            return False
 
     def is_completed(self, pod_status) -> bool:
         """
