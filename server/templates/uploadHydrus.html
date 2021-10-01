@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block head %}
+<link rel="stylesheet" href="static/css/layout.css">
 <title>Upload hydrus projects</title>
 {% endblock %}
 
@@ -15,10 +16,27 @@
                     </p>
                 </div>
                 <hr class="my-4">
+
+                <div class="container">
+                    <div class="panel panel-default">
+                        <div class="panel-heading"><strong>Upload Files</strong>
+                        <div class="panel-body">
+
+                            <!-- Drop Zone -->
+                            <h4>Drag and drop files below</h4>
+                            <div class="upload-drop-zone" id="drop-zone">
+                                Just drag and drop files here
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- /container -->
+
+                <hr class="my-4">
+
                 <form action="/upload-hydrus" method="POST" enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="archive-input">Select project archive</label>
-                        <input type="file" class="form-control-file" id="archive-input" name="archive-input">
+                        <input type="file" class="form-control-file" id="archive-input" name="archive-input" multiple>
                     </div>
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
@@ -43,5 +61,6 @@
     </div>
 </div>
 
-
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="static/js/uploadHydrus.js"></script>
 {% endblock %}
