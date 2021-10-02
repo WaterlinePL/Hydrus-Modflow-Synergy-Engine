@@ -80,7 +80,7 @@ def define_shapes(hydrus_model_index):
         shape_array = request.get_json(force=True)
         util.loaded_shapes[hydrus_model_index] = shape_array
 
-        # TODO redirect to the next model input
+        return json.dumps({'status': 'OK'})
 
     else:
         return render_template(

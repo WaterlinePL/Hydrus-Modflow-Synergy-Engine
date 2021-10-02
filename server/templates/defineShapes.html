@@ -25,10 +25,27 @@
     }
 
     function handleSubmit(modelIdx) {
+
         let request = new XMLHttpRequest()
         request.open("POST", `/define-shape/${modelIdx}`, true)
         request.setRequestHeader("Content-type","application/x-www-form-urlencoded")
+
+        request.onload = function() {
+            let response = JSON.parse(this.responseText)
+            if (response.status === "OK") {
+                document.getElementById("submitButton").style.visibility = "hidden"
+                document.getElementById("successMessage").style.visibility = "visible"
+                document.getElementById("nextModelButton").style.visibility = "visible"
+            }
+        }
+
         request.send(JSON.stringify(shapeArray))
+
+    }
+
+    function handleNextModel(modelIdx) {
+        console.log("redirecting to next model...")
+        window.location.href = '/define-shape/' + modelIdx
     }
 
 </script>
@@ -45,6 +62,8 @@
         </div>
     {% endfor %}
 </div>
-<button onclick="handleSubmit({{ modelIndex }})">Done</button>
+<button id="submitButton" onclick="handleSubmit({{ modelIndex }})">Done</button>
+<h3 id="successMessage" style="visibility: hidden">Saved successfully</h3>
+<button id="nextModelButton" style="visibility: hidden" onclick="handleNextModel({{ modelIndex+1 }})">Next model</button>
 
 {% endblock %}
