@@ -67,39 +67,11 @@ def upload_hydrus():
 
 @app.route('/define-shape/<hydrus_model_index>', methods=['GET', 'POST'])
 def define_shapes(hydrus_model_index):
-
-    hydrus_model_index = int(hydrus_model_index)
-
     if request.method == 'POST':
-
-        # if not yet done, initialize the shape arrays list to the amount of models
-        if len(util.loaded_shapes) < len(util.loaded_hydrus_models):
-            util.loaded_shapes = [None for _ in range(len(util.loaded_hydrus_models))]
-
-        # read the array from the request and store it
-        shape_array = request.get_json(force=True)
-        util.loaded_shapes[hydrus_model_index] = shape_array
-
-        return json.dumps({'status': 'OK'})
-
+        return upload_shape_handler(request, int(hydrus_model_index))
     else:
+        return next_model_redirect_handler(int(hydrus_model_index))
 
-        # check if we still have models to go, if not, redirect to next section
-        if hydrus_model_index >= len(util.loaded_hydrus_models):
-            # TODO - change this to actual content once actual content exists
-            print(util.loaded_shapes)
-            return render_template('index.html')
-
-        else:
-            return render_template(
-                'defineShapes.html',
-                rowAmount=util.modflow_rows,
-                colAmount=util.modflow_cols,
-                rows=[str(x) for x in range(util.modflow_rows)],
-                cols=[str(x) for x in range(util.modflow_cols)],
-                modelIndex=hydrus_model_index,
-                modelName=util.loaded_hydrus_models[hydrus_model_index]
-            )
 
 # ------------------- END ROUTES -------------------
 
@@ -154,5 +126,38 @@ def upload_hydrus_handler(req):
         print("Invalid archive format, must be one of: ", end='')
         print(util.allowed_types)
         return redirect(req.url)
+
+
+def upload_shape_handler(req, hydrus_model_index):
+    # if not yet done, initialize the shape arrays list to the amount of models
+    if len(util.loaded_shapes) < len(util.loaded_hydrus_models):
+        util.loaded_shapes = [None for _ in range(len(util.loaded_hydrus_models))]
+
+    # read the array from the request and store it
+    shape_array = req.get_json(force=True)
+    util.loaded_shapes[hydrus_model_index] = shape_array
+
+    return json.dumps({'status': 'OK'})
+
+
+def next_model_redirect_handler(hydrus_model_index):
+
+    # check if we still have models to go, if not, redirect to next section
+    if hydrus_model_index >= len(util.loaded_hydrus_models):
+        # TODO - change this to actual content once actual content exists
+        print(util.loaded_shapes)
+        return render_template('index.html')
+
+    else:
+        return render_template(
+            'defineShapes.html',
+            rowAmount=util.modflow_rows,
+            colAmount=util.modflow_cols,
+            rows=[str(x) for x in range(util.modflow_rows)],
+            cols=[str(x) for x in range(util.modflow_cols)],
+            modelIndex=hydrus_model_index,
+            modelName=util.loaded_hydrus_models[hydrus_model_index]
+        )
+
 
 # ------------------- END HANDLERS -------------------
