@@ -8,7 +8,7 @@
 <script>
 
     function initializeArray(rows, cols) {
-        return Array(rows).fill().map(() => Array(cols).fill(false));
+        return Array(rows).fill().map(() => Array(cols).fill(0));
     }
     let shapeArray = initializeArray({{rowAmount|safe}}, {{colAmount|safe}})
 
@@ -18,9 +18,17 @@
         let row = parseInt(splitResult[1])
         let col = parseInt(splitResult[2])
 
-        shapeArray[row][col] = !shapeArray[row][col]
+        if (shapeArray[row][col]) shapeArray[row][col] = 0
+        else shapeArray[row][col] = 1
         console.log(shapeArray)
 
+    }
+
+    function handleSubmit(modelIdx) {
+        let request = new XMLHttpRequest()
+        request.open("POST", `/define-shape/${modelIdx}`, true)
+        request.setRequestHeader("Content-type","application/x-www-form-urlencoded")
+        request.send(JSON.stringify(shapeArray))
     }
 
 </script>
@@ -37,5 +45,6 @@
         </div>
     {% endfor %}
 </div>
+<button onclick="handleSubmit({{ modelIndex }})">Done</button>
 
 {% endblock %}

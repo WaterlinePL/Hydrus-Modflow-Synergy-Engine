@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect
 from zipfile import ZipFile
 
 import os
+import json
 
 from AppUtils import AppUtils
 
@@ -66,17 +67,29 @@ def upload_hydrus():
 
 @app.route('/define-shape/<hydrus_model_index>', methods=['GET', 'POST'])
 def define_shapes(hydrus_model_index):
+
+    hydrus_model_index = int(hydrus_model_index)
+
     if request.method == 'POST':
-        #  TODO store received array
-        pass
+
+        # if not yet done, initialize the shape arrays list to the amount of models
+        if len(util.loaded_shapes) < len(util.loaded_hydrus_models):
+            util.loaded_shapes = [None for _ in range(len(util.loaded_hydrus_models))]
+
+        # read the array from the request and store it
+        shape_array = request.get_json(force=True)
+        util.loaded_shapes[hydrus_model_index] = shape_array
+
+        # TODO redirect to the next model input
+
     else:
-        hydrus_model_index = int(hydrus_model_index)
         return render_template(
             'defineShapes.html',
             rowAmount=util.modflow_rows,
             colAmount=util.modflow_cols,
             rows=[str(x) for x in range(util.modflow_rows)],
             cols=[str(x) for x in range(util.modflow_cols)],
+            modelIndex=hydrus_model_index,
             modelName=util.loaded_hydrus_models[hydrus_model_index]
         )
 
