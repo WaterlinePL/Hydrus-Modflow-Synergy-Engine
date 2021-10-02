@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>{{ "Shape for " + modelName }}</title>
+{% endblock %}
+
+{% block body %}
+<script>
+
+    function initializeArray(rows, cols) {
+        return Array(rows).fill().map(() => Array(cols).fill(false));
+    }
+    let shapeArray = initializeArray({{rowAmount|safe}}, {{colAmount|safe}})
+
+    function handleClick(id) {
+
+        let splitResult = id.split('_')
+        let row = parseInt(splitResult[1])
+        let col = parseInt(splitResult[2])
+
+        shapeArray[row][col] = !shapeArray[row][col]
+        console.log(shapeArray)
+
+    }
+
+</script>
+
+<h1>Select the fields covered by this Hydrus model</h1>
+<div class="tableWrapper">
+    {% for row in rows %}
+        <div class="row">
+            {% for col in cols %}
+                <div class="cell" id="{{ 'cell_' + row + '_' + col }}" onclick="handleClick(this.id)">
+                    Cellcontent
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
