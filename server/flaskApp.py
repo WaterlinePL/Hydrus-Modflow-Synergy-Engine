@@ -83,15 +83,23 @@ def define_shapes(hydrus_model_index):
         return json.dumps({'status': 'OK'})
 
     else:
-        return render_template(
-            'defineShapes.html',
-            rowAmount=util.modflow_rows,
-            colAmount=util.modflow_cols,
-            rows=[str(x) for x in range(util.modflow_rows)],
-            cols=[str(x) for x in range(util.modflow_cols)],
-            modelIndex=hydrus_model_index,
-            modelName=util.loaded_hydrus_models[hydrus_model_index]
-        )
+
+        # check if we still have models to go, if not, redirect to next section
+        if hydrus_model_index >= len(util.loaded_hydrus_models):
+            # TODO - change this to actual content once actual content exists
+            print(util.loaded_shapes)
+            return render_template('index.html')
+
+        else:
+            return render_template(
+                'defineShapes.html',
+                rowAmount=util.modflow_rows,
+                colAmount=util.modflow_cols,
+                rows=[str(x) for x in range(util.modflow_rows)],
+                cols=[str(x) for x in range(util.modflow_cols)],
+                modelIndex=hydrus_model_index,
+                modelName=util.loaded_hydrus_models[hydrus_model_index]
+            )
 
 # ------------------- END ROUTES -------------------
 
