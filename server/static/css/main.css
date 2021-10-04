@@ -2,3 +2,19 @@ body {
     font-family: Helvetica;
     background: #c4ffff;
 }
+
+#navbarToggler {
+    padding:0 100px;
+}
+
+#navbarList {
+    float: right;
+}
+
+.nav-item {
+    margin: 0 15px;
+}
+
+.navbar {
+    margin-bottom: 0 !important;
+}
