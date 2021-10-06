@@ -10,7 +10,6 @@ util = AppUtils()
 util.setup()
 app = Flask("App")
 
-
 # ------------------- EXAMPLES -------------------
 
 all_posts = [
@@ -29,7 +28,7 @@ all_posts = [
 # template rendering
 @app.route('/')
 def start():
-    return redirect(request.url+"home")
+    return redirect(request.url + "home")
 
 
 # parameter passing and method declaration - ONLY GET is allowed by default
@@ -65,10 +64,10 @@ def upload_hydrus():
         return render_template('uploadHydrus.html', model_names=util.loaded_hydrus_models)
 
 
-
 @app.route('/home', methods=['GET'])
 def home():
     return render_template('home.html')
+
 
 @app.route('/define-shape/<hydrus_model_index>', methods=['GET', 'POST'])
 def define_shapes(hydrus_model_index):
@@ -76,6 +75,11 @@ def define_shapes(hydrus_model_index):
         return upload_shape_handler(request, int(hydrus_model_index))
     else:
         return next_model_redirect_handler(int(hydrus_model_index))
+
+
+@app.route('/simulation', methods=['GET'])
+def simulation():
+    return render_template('simulation.html')
 
 
 # ------------------- END ROUTES -------------------
@@ -152,7 +156,6 @@ def upload_shape_handler(req, hydrus_model_index):
 
 
 def next_model_redirect_handler(hydrus_model_index):
-
     # check if we still have models to go, if not, redirect to next section
     if hydrus_model_index >= len(util.loaded_hydrus_models):
         # TODO - change this to actual content once actual content exists
@@ -169,6 +172,5 @@ def next_model_redirect_handler(hydrus_model_index):
             modelIndex=hydrus_model_index,
             modelName=util.loaded_hydrus_models[hydrus_model_index]
         )
-
 
 # ------------------- END HANDLERS -------------------

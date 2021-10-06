@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Simulation</title>
+{% endblock %}
+
+{% block home_active %}active{%endblock%}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-md-center">
+        <div class="col-lg-9">
+            <div class="text-center">
+                <h1 class="display-4">Your simulation is ready to be started!</h1>
+                <p class="lead">Click "Run" once you're ready to start it.</p>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-md-center border border-primary mb-5">
+        Tu jakaś wizualizacja tego co zostało wyklikane
+    </div>
+    <div class="row justify-content-end">
+        <div class="col-auto">
+            <a type="button" class="btn btn-secondary" href=""> TODO button który będzie startował symulację </a>
+        </div>
+    </div>
+</div> <!-- container -->
+
+{% endblock %}
