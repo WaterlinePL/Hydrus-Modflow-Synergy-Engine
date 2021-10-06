@@ -65,11 +65,11 @@ def upload_hydrus():
         return render_template('uploadHydrus.html', model_names=util.loaded_hydrus_models)
 
 
-<<<<<<< HEAD
+
 @app.route('/home', methods=['GET'])
 def home():
     return render_template('home.html')
-=======
+
 @app.route('/define-shape/<hydrus_model_index>', methods=['GET', 'POST'])
 def define_shapes(hydrus_model_index):
     if request.method == 'POST':
@@ -77,7 +77,6 @@ def define_shapes(hydrus_model_index):
     else:
         return next_model_redirect_handler(int(hydrus_model_index))
 
->>>>>>> feature/WATER-14,19-przypisywanie-modeli-hydrusowych-obszarom
 
 # ------------------- END ROUTES -------------------
 

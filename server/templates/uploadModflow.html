@@ -46,35 +46,37 @@
                             <!--                                    <a href="#" class="list-group-item list-group-item-success"><span class="badge alert-success pull-right">Success</span>image-02.jpg</a>-->
                             <!--                                </div>-->
                             <!--                            </div>-->
-
-                            <div class="row justify-content-end">
-                                <div class="col-auto">
-                                    <a type="button" class="btn btn-secondary"
-                                       href="{{ url_for('upload_hydrus') }}">Next</a>
-                                </div>
-
-                            </div>
-                        </div> <!-- /container -->
+                        </div>
                     </div>
-                </div>
+                    <div class="row justify-content-end">
+                        <div class="col-auto">
+                            <a type="button" class="btn btn-secondary"
+                               href="{{ url_for('upload_hydrus') }}">Next</a>
+                        </div>
+
+                    </div>
+                </div> <!-- /container -->
+
             </div>
         </div>
-        <div class="container">
-            <div class="row justify-content-md-center">
-                <div class="col-lg-9">
-                    <div>
-                        <h3 style="text-align: center">Models uploaded:</h3>
-                        <ul class="list-group list-group-flush">
-                            {% for name in model_names %}
-                            <li class="list-group-item">{{ name }}</li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row justify-content-md-center">
+        <div class="col-lg-9">
+            <div>
+                <h3 style="text-align: center">Models uploaded:</h3>
+                <ul class="list-group list-group-flush">
+                    {% for name in model_names %}
+                    <li class="list-group-item">{{ name }}</li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
-        {% endblock %}
+    </div>
+</div>
+{% endblock %}
 
-        {% block scripts %}
-        <script src="static/js/uploadModflow.js"></script>
-        {% endblock %}
+{% block scripts %}
+<script src="static/js/uploadModflow.js"></script>
+{% endblock %}
