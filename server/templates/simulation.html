@@ -4,10 +4,10 @@
 <title>Simulation</title>
 {% endblock %}
 
-{% block home_active %}active{%endblock%}
+{% block home_active %} active {%endblock%}
 
 {% block body %}
-<div class="container mt-5">
+<div class="container mt-5" id="simulation-content">
     <div class="row justify-content-md-center">
         <div class="col-lg-9">
             <div class="text-center">
@@ -16,14 +16,61 @@
             </div>
         </div>
     </div>
-    <div class="row justify-content-md-center border border-primary mb-5">
+    <div class="row justify-content-md-center border border-primary mb-5 mx-5">
         Tu jakaś wizualizacja tego co zostało wyklikane
     </div>
     <div class="row justify-content-end">
         <div class="col-auto">
-            <a type="button" class="btn btn-secondary" href=""> TODO button który będzie startował symulację </a>
+            <a type="button" id="start-simulation" class="btn btn-secondary" href=""> Run (TODO button który będzie
+                startował symulację) </a>
         </div>
     </div>
 </div> <!-- container -->
 
+<div class="container mt-5 justify-content-center">
+    <div class="row">
+        <div class="alert col-4 offset-md-4 alert-success alert-dismissible" id="start-alert" hidden role="alert">
+            Simulation has been started!
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="alert col-4 offset-md-4 alert-danger alert-dismissible" hidden id="error-alert" role="alert">
+            Error occurred!
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+    <div class="row justify-content-center" hidden id="hydrus-calc">
+        <div class="col-2 ">
+            Circle
+        </div>
+        <div class="col-7 ">
+            Calculating Hydrus-1d models.
+        </div>
+    </div>
+    <div class="row justify-content-center" hidden id="passing-calc">
+        <div class="col-2">
+            Circle
+        </div>
+        <div class="col-7 ">
+            Passing Hydrus-1d result to Modflow model.
+        </div>
+    </div>
+    <div class="row justify-content-center" hidden id="modflow-calc">
+        <div class="col-2 ">
+            Circle
+        </div>
+        <div class="col-7 ">
+            Calculating Modflow model.
+        </div>
+    </div>
+
+</div> <!-- container -->
+
+{% endblock %}
+
+{% block scripts %}
+<script src="static/js/simulation.js"></script>
 {% endblock %}

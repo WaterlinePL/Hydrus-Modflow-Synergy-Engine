@@ -82,6 +82,14 @@ def simulation():
     return render_template('simulation.html')
 
 
+@app.route('/run_simulation')
+def run_simulation():
+    """
+    TODO odpalić wszystko w backendzie (najlepiej asynchronicznie czy jakoś tam) i zwrócić jakiś sukces do strony
+    """
+    return ("Success")
+
+
 # ------------------- END ROUTES -------------------
 
 
