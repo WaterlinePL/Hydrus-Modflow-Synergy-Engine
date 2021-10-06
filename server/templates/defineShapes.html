@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>{{ "Shape for " + modelName }}</title>
+{% endblock %}
+
+{% block body %}
+<script>
+
+    function initializeArray(rows, cols) {
+        return Array(rows).fill().map(() => Array(cols).fill(0));
+    }
+    let shapeArray = initializeArray({{rowAmount|safe}}, {{colAmount|safe}})
+
+    function handleClick(id) {
+
+        let splitResult = id.split('_')
+        let row = parseInt(splitResult[1])
+        let col = parseInt(splitResult[2])
+
+        if (shapeArray[row][col]) shapeArray[row][col] = 0
+        else shapeArray[row][col] = 1
+        console.log(shapeArray)
+
+    }
+
+    function handleSubmit(modelIdx) {
+
+        let request = new XMLHttpRequest()
+        request.open("POST", `/define-shape/${modelIdx}`, true)
+        request.setRequestHeader("Content-type","application/x-www-form-urlencoded")
+
+        request.onload = function() {
+            let response = JSON.parse(this.responseText)
+            if (response.status === "OK") {
+                document.getElementById("submitButton").style.visibility = "hidden"
+                document.getElementById("successMessage").style.visibility = "visible"
+                document.getElementById("nextModelButton").style.visibility = "visible"
+            }
+        }
+
+        request.send(JSON.stringify(shapeArray))
+
+    }
+
+    function handleNextModel(modelIdx) {
+        console.log("redirecting to next model...")
+        window.location.href = '/define-shape/' + modelIdx
+    }
+
+</script>
+
+<h1>Select the fields covered by this Hydrus model</h1>
+<div class="tableWrapper">
+    {% for row in rows %}
+        <div class="row">
+            {% for col in cols %}
+                <div class="cell" id="{{ 'cell_' + row + '_' + col }}" onclick="handleClick(this.id)">
+                    Cellcontent
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+</div>
+<button id="submitButton" onclick="handleSubmit({{ modelIndex }})">Done</button>
+<h3 id="successMessage" style="visibility: hidden">Saved successfully</h3>
+<button id="nextModelButton" style="visibility: hidden" onclick="handleNextModel({{ modelIndex+1 }})">Next model</button>
+
+{% endblock %}
