@@ -4,9 +4,10 @@
     // UPLOAD CLASS DEFINITION
     // ======================
 
-    var dropZone = document.getElementById('drop-zone');
+    var dropZone = document.getElementById('drop-zone-modflow');
 
-    async function startUpload(files) {
+    async function startUploadModflow(files) {
+        console.log("MODFLOW");
         const formData = new FormData();
         const file = files[0];
         formData.append('archive-input', file);
@@ -19,17 +20,17 @@
 
     dropZone.ondrop = function(e) {
         e.preventDefault();
-        this.className = 'upload-drop-zone';
-        startUpload(e.dataTransfer.files)
+        this.className = 'upload-drop-zone-modflow';
+        startUploadModflow(e.dataTransfer.files)
     }
 
     dropZone.ondragover = function() {
-        this.className = 'upload-drop-zone drop';
+        this.className = 'upload-drop-zone-modflow drop';
         return false;
     }
 
     dropZone.ondragleave = function() {
-        this.className = 'upload-drop-zone';
+        this.className = 'upload-drop-zone-modflow';
         return false;
     }
 

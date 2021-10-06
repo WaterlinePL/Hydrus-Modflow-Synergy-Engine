@@ -53,7 +53,7 @@ def upload_modflow():
     if request.method == 'POST' and request.files:
         return upload_modflow_handler(request)
     else:
-        return render_template('uploadModflow.html')
+        return render_template('uploadModflow.html', model_names=util.loaded_modflow_models)
 
 
 @app.route('/upload-hydrus', methods=['GET', 'POST'])
@@ -82,11 +82,17 @@ def upload_modflow_handler(req):
         archive_path = os.path.join(util.workspace_dir, 'modflow', project.filename)
         project.save(archive_path)
         with ZipFile(archive_path, 'r') as archive:
+            # get the project name and remember it
+            project_name = project.filename.split('.')[0]
+            util.loaded_modflow_models = [project_name]
+
+            # create a dedicated catalogue and load the project into it
+            os.system('mkdir ' + os.path.join(util.workspace_dir, 'modflow', project_name))
             archive.extractall(os.path.join(util.workspace_dir, 'modflow'))
         os.remove(archive_path)
 
         print("Project uploaded successfully")
-        return redirect(req.root_url + 'upload-hydrus')
+        return redirect(req.root_url + 'upload-modflow')
 
     else:
         print("Invalid archive format, must be one of: ", end='')

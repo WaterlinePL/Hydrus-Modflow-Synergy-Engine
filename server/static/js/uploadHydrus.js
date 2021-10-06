@@ -7,6 +7,7 @@
     var dropZone = document.getElementById('drop-zone');
 
     async function startUpload(files) {
+        console.log("HYDRUS");
         const formData = new FormData();
         for (let i = 0; i < files.length; i++)
             formData.append('archive-input', files[i]);

@@ -25,46 +25,56 @@
 
                             <!-- Drop Zone -->
                             <h4>Drag and drop files below</h4>
-                            <div class="upload-drop-zone" id="drop-zone">
+                            <div class="upload-drop-zone-modflow" id="drop-zone-modflow">
                                 Just drag and drop files here
                             </div>
 
-<!--                            fancy wyświetlanie paska progresji, ale nie jest oskryptowane (pewno z Django może dałoby się to zingegrować albo z JSem, na razie nieplanowane-->
-<!--                            polecam zaznaczyć całość a potem Ctrl+.-->
-<!--                            &lt;!&ndash; Progress Bar &ndash;&gt;-->
-<!--                            <div class="progress">-->
-<!--                                <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">-->
-<!--                                    <span class="sr-only">60% Complete</span>-->
-<!--                                </div>-->
-<!--                            </div>-->
+                            <!--                            fancy wyświetlanie paska progresji, ale nie jest oskryptowane (pewno z Django może dałoby się to zingegrować albo z JSem, na razie nieplanowane-->
+                            <!--                            polecam zaznaczyć całość a potem Ctrl+.-->
+                            <!--                            &lt;!&ndash; Progress Bar &ndash;&gt;-->
+                            <!--                            <div class="progress">-->
+                            <!--                                <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">-->
+                            <!--                                    <span class="sr-only">60% Complete</span>-->
+                            <!--                                </div>-->
+                            <!--                            </div>-->
 
                             <!-- Upload Finished -->
-<!--                            <div class="js-upload-finished">-->
-<!--                                <h3>Processed files</h3>-->
-<!--                                <div class="list-group">-->
-<!--                                    <a href="#" class="list-group-item list-group-item-success"><span class="badge alert-success pull-right">Success</span>image-01.jpg</a>-->
-<!--                                    <a href="#" class="list-group-item list-group-item-success"><span class="badge alert-success pull-right">Success</span>image-02.jpg</a>-->
-<!--                                </div>-->
-<!--                            </div>-->
-                        </div>
-                    </div>
-                </div> <!-- /container -->
+                            <!--                            <div class="js-upload-finished">-->
+                            <!--                                <h3>Processed files</h3>-->
+                            <!--                                <div class="list-group">-->
+                            <!--                                    <a href="#" class="list-group-item list-group-item-success"><span class="badge alert-success pull-right">Success</span>image-01.jpg</a>-->
+                            <!--                                    <a href="#" class="list-group-item list-group-item-success"><span class="badge alert-success pull-right">Success</span>image-02.jpg</a>-->
+                            <!--                                </div>-->
+                            <!--                            </div>-->
 
-                <hr class="my-4">
+                            <div class="row justify-content-end">
+                                <div class="col-auto">
+                                    <a type="button" class="btn btn-secondary"
+                                       href="{{ url_for('upload_hydrus') }}">Next</a>
+                                </div>
 
-                <form action="/upload-modflow" method="POST" enctype="multipart/form-data" id="modflow-upload-form">
-                    <div class="form-group">
-                        <label for="archive-input">Select project archive</label>
-                        <input type="file" class="form-control-file" id="archive-input" name="archive-input">
+                            </div>
+                        </div> <!-- /container -->
                     </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                </form>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-{% endblock %}
+        <div class="container">
+            <div class="row justify-content-md-center">
+                <div class="col-lg-9">
+                    <div>
+                        <h3 style="text-align: center">Models uploaded:</h3>
+                        <ul class="list-group list-group-flush">
+                            {% for name in model_names %}
+                            <li class="list-group-item">{{ name }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endblock %}
 
-{% block scripts %}
-<script  src="static/js/uploadModflow.js"></script>
-{% endblock %}
+        {% block scripts %}
+        <script src="static/js/uploadModflow.js"></script>
+        {% endblock %}
