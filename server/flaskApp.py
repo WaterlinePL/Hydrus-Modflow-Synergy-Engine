@@ -5,6 +5,8 @@ import os
 import json
 
 from AppUtils import AppUtils
+from simulation.SimulationService import SimulationService
+import threading
 
 util = AppUtils()
 util.setup()
@@ -84,9 +86,9 @@ def simulation():
 
 @app.route('/run_simulation')
 def run_simulation():
-    """
-    TODO odpalić wszystko w backendzie (najlepiej asynchronicznie czy jakoś tam) i zwrócić jakiś sukces do strony
-    """
+    simulation_service = SimulationService()
+    thread = threading.Thread(target=simulation_service.run_simulation, args=("default", ["cos"]))
+    thread.start()
     return ("Success")
 
 
