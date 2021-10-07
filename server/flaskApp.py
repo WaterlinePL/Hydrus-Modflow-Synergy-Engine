@@ -65,7 +65,7 @@ def upload_hydrus():
         return render_template('uploadHydrus.html', model_names=util.loaded_hydrus_models)
 
 
-@app.route('/define-shape/<hydrus_model_index>', methods=['GET', 'POST'])
+@app.route('/define-shapes/<hydrus_model_index>', methods=['GET', 'POST'])
 def define_shapes(hydrus_model_index):
     if request.method == 'POST':
         return upload_shape_handler(request, int(hydrus_model_index))

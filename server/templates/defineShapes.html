@@ -18,8 +18,7 @@
         let row = parseInt(splitResult[1])
         let col = parseInt(splitResult[2])
 
-        if (shapeArray[row][col]) shapeArray[row][col] = 0
-        else shapeArray[row][col] = 1
+        shapeArray[row][col] = shapeArray[row][col] ? 0 : 1
         console.log(shapeArray)
 
     }
@@ -27,7 +26,7 @@
     function handleSubmit(modelIdx) {
 
         let request = new XMLHttpRequest()
-        request.open("POST", `/define-shape/${modelIdx}`, true)
+        request.open("POST", `/define-shapes/${modelIdx}`, true)
         request.setRequestHeader("Content-type","application/x-www-form-urlencoded")
 
         request.onload = function() {
@@ -45,7 +44,7 @@
 
     function handleNextModel(modelIdx) {
         console.log("redirecting to next model...")
-        window.location.href = '/define-shape/' + modelIdx
+        window.location.href = '/define-shapes/' + modelIdx
     }
 
 </script>
