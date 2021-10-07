@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for
 from zipfile import ZipFile
 
 import os
@@ -28,8 +28,8 @@ all_posts = [
 
 # template rendering
 @app.route('/')
-def home():
-    return render_template('index.html')
+def start():
+    return redirect(request.url+"home")
 
 
 # parameter passing and method declaration - ONLY GET is allowed by default
@@ -63,6 +63,11 @@ def upload_hydrus():
         return upload_hydrus_handler(request)
     else:
         return render_template('uploadHydrus.html', model_names=util.loaded_hydrus_models)
+
+
+@app.route('/home', methods=['GET'])
+def home():
+    return render_template('home.html')
 
 
 @app.route('/define-shapes/<hydrus_model_index>', methods=['GET', 'POST'])
