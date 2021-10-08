@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>{{ "Shape for " + modelName }}</title>
+<link rel="stylesheet" href="/static/css/defineShapes.css">
+{% endblock %}
+
+{% block body %}
+<h1>Select the fields covered by this Hydrus model</h1>
+<div class="tableWrapper">
+    {% for row in rows %}
+        <div class="row">
+            {% for col in cols %}
+                <div class="cell" id="{{ 'cell_' + row + '_' + col }}" onclick="handleClick('{{row}}','{{col}}')">
+                    Cell &ensp;
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+</div>
+<button id="submitButton" onclick="handleSubmit('{{ modelIndex }}')">Done</button>
+<h3 id="successMessage" style="visibility: hidden">Saved successfully</h3>
+<button id="nextModelButton" style="visibility: hidden" onclick="handleNextModel('{{ modelIndex+1 }}')">Next model</button>
+
+{% endblock %}
+
+{%  block scripts %}
+<script src="/static/js/defineShapes.js"></script>
+{% endblock %}
