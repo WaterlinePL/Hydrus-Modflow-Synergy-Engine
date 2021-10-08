@@ -2,6 +2,7 @@
 
 {% block head %}
 <title>{{ "Shape for " + modelName }}</title>
+<link rel="stylesheet" href="/static/css/defineShapes.css">
 {% endblock %}
 
 {% block body %}
@@ -10,8 +11,8 @@
     {% for row in rows %}
         <div class="row">
             {% for col in cols %}
-                <div class="cell" id="{{ 'cell_' + row + '_' + col }}" onclick="handleClick(this.id)">
-                    Cellcontent
+                <div class="cell" id="{{ 'cell_' + row + '_' + col }}" onclick="handleClick('{{row}}','{{col}}')">
+                    Cell &ensp;
                 </div>
             {% endfor %}
         </div>

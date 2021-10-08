@@ -3,13 +3,12 @@ function initializeArray(rows, cols) {
     return Array(rows).fill().map(() => Array(cols).fill(0));
 }
 
-function handleClick(id) {
+function handleClick(row, col) {
 
-    let splitResult = id.split('_');
-    let row = parseInt(splitResult[1]);
-    let col = parseInt(splitResult[2]);
-
+    let cell = document.getElementById(`cell_${row}_${col}`);
     shapeArray[row][col] = shapeArray[row][col] ? 0 : 1;
+    cell.style.backgroundColor = shapeArray[row][col] ? "red" : "white";
+
     console.log(shapeArray);
 
 }
