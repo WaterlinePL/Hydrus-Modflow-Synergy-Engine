@@ -5,50 +5,6 @@
 {% endblock %}
 
 {% block body %}
-<script>
-
-    function initializeArray(rows, cols) {
-        return Array(rows).fill().map(() => Array(cols).fill(0));
-    }
-    let shapeArray = initializeArray({{rowAmount|safe}}, {{colAmount|safe}})
-
-    function handleClick(id) {
-
-        let splitResult = id.split('_')
-        let row = parseInt(splitResult[1])
-        let col = parseInt(splitResult[2])
-
-        shapeArray[row][col] = shapeArray[row][col] ? 0 : 1
-        console.log(shapeArray)
-
-    }
-
-    function handleSubmit(modelIdx) {
-
-        let request = new XMLHttpRequest()
-        request.open("POST", `/define-shapes/${modelIdx}`, true)
-        request.setRequestHeader("Content-type","application/x-www-form-urlencoded")
-
-        request.onload = function() {
-            let response = JSON.parse(this.responseText)
-            if (response.status === "OK") {
-                document.getElementById("submitButton").style.visibility = "hidden"
-                document.getElementById("successMessage").style.visibility = "visible"
-                document.getElementById("nextModelButton").style.visibility = "visible"
-            }
-        }
-
-        request.send(JSON.stringify(shapeArray))
-
-    }
-
-    function handleNextModel(modelIdx) {
-        console.log("redirecting to next model...")
-        window.location.href = '/define-shapes/' + modelIdx
-    }
-
-</script>
-
 <h1>Select the fields covered by this Hydrus model</h1>
 <div class="tableWrapper">
     {% for row in rows %}
@@ -61,8 +17,12 @@
         </div>
     {% endfor %}
 </div>
-<button id="submitButton" onclick="handleSubmit({{ modelIndex }})">Done</button>
+<button id="submitButton" onclick="handleSubmit('{{ modelIndex }}')">Done</button>
 <h3 id="successMessage" style="visibility: hidden">Saved successfully</h3>
-<button id="nextModelButton" style="visibility: hidden" onclick="handleNextModel({{ modelIndex+1 }})">Next model</button>
+<button id="nextModelButton" style="visibility: hidden" onclick="handleNextModel('{{ modelIndex+1 }}')">Next model</button>
 
+{% endblock %}
+
+{%  block scripts %}
+<script src="/static/js/defineShapes.js"></script>
 {% endblock %}
