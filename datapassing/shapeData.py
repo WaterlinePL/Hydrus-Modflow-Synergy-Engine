@@ -4,8 +4,9 @@ import phydrus as ph
 
 class ShapeFileData:
 
-    def __init__(self, shape_mask_filepath: str, hydrus_output_filepath: str):
-        self.hydrus_recharge_output = ShapeFileData.read_hydrus_output(hydrus_output_filepath)
+    def __init__(self, shape_mask_filepath: str, hydrus_output_filepath: str = None):
+        if hydrus_output_filepath is not None:
+            self.hydrus_recharge_output = ShapeFileData.read_hydrus_output(hydrus_output_filepath)
         self.shape_mask = ShapeFileData.read_shape_mask(shape_mask_filepath)
 
     @staticmethod

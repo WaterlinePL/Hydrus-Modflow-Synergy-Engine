@@ -1,6 +1,6 @@
 
 function initializeArray(rows, cols) {
-    return Array(rows).fill().map(() => Array(cols).fill(0));
+    return Array(rows).fill(0).map(() => Array(cols).fill(0));
 }
 
 function handleClick(row, col) {

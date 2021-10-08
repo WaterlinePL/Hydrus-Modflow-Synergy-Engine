@@ -12,43 +12,12 @@ util = AppUtils()
 util.setup()
 app = Flask("App")
 
-# ------------------- EXAMPLES -------------------
 
-all_posts = [
-    {
-        'title': "post 1",
-        'content': "this is content",
-        'author': "Marek Gajecki"
-    },
-    {
-        'title': "post 2",
-        'content': "this is also content"
-    }
-]
-
-
-# template rendering
+# ------------------- ROUTES -------------------
 @app.route('/')
 def start():
     return redirect(request.url + "home")
 
-
-# parameter passing and method declaration - ONLY GET is allowed by default
-@app.route('/home/<string:name>', methods=['GET'])
-def hello(name):
-    return 'sup ' + name
-
-
-# template functionality showcase
-@app.route('/posts')
-def posts():
-    return render_template('posts.html', posts=all_posts)
-
-
-# ------------------- END EXAMPLES -------------------
-
-
-# ------------------- ROUTES -------------------
 
 @app.route('/upload-modflow', methods=['GET', 'POST'])
 def upload_modflow():
@@ -168,9 +137,9 @@ def upload_shape_handler(req, hydrus_model_index):
 def next_model_redirect_handler(hydrus_model_index):
     # check if we still have models to go, if not, redirect to next section
     if hydrus_model_index >= len(util.loaded_hydrus_models):
-        # TODO - change this to actual content once actual content exists
         print(util.loaded_shapes)
-        return render_template('index.html')
+         # TODO: create dictionary with ShapeData
+        return render_template('simulation.html')
 
     else:
         return render_template(

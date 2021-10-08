@@ -5,17 +5,18 @@ from hydrus.hydrusMultipodDeployer import HydrusMultipodDeployer
 from modflow.modflowDeployer import ModflowDeployer
 from kubernetes_controller.podController import PodController
 from concurrent.futures import ThreadPoolExecutor
+import numpy as np
 
 
 class SimulationService:
-    def __int__(self):
+    def __init__(self):
         config.load_kube_config()
         self.api_instance = client.CoreV1Api()
         self.pod_controller = PodController(self.api_instance)
 
     def run_simulation(self, namespace: str, hydrus_projects: [str]):  # TODO ogarnąć zmienne w funkcji
+        # ===== RUN HYDRUS INSTANCES ======
         hydrus_count = len(hydrus_projects)
-        # run multiple hydrus instances and wait for them to finish
         sample_pod_names = ["hydrus-pod-" + str(i + 1) for i in range(hydrus_count)]
         multipod_deployer = HydrusMultipodDeployer(self.api_instance, hydrus_projects, sample_pod_names,
                                                    namespace=namespace)
@@ -25,16 +26,35 @@ class SimulationService:
         # TODO end hydrus notification
         print('Hydrus containers finished')
 
-        # copy results of hydrus to modflow
-        modflow_workspace_path = "path"
-        nam_file = "file"
-        shapes = []
+        # ===== COPY RESULTS OF HYDRUS TO MODFLOW ======
+        np.save("mask1", np.array([[1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]))
 
-        hydrus_modflow_passing = HydrusModflowPassing(modflow_workspace_path, nam_file, shapes)
-        hydrus_modflow_passing.update_rch()
+        sample_shape_masks = ["masks/" + base_name for base_name in
+                              ["mask1.npy", "mask2.npy", "mask3.npy", "mask4.npy"]]
+
+        sample_hydrus_output = ["hydrus_out/" + base_name for base_name in
+                                ["t_level1.out", "t_level2.out", "t_level3.out", "t_level4.out"]]
+
+        shape_info_files = HydrusModflowPassing.create_shape_info_data(
+            list(zip(sample_shape_masks, sample_hydrus_output)))
+
+        shapes = HydrusModflowPassing.read_shapes_from_files(shape_info_files)
+
+        result = HydrusModflowPassing("./simple1", "simple1.nam", shapes)
+
+        result.update_rch()
         # TODO end passing notification
 
-        # run modflow instance and wait for it to finish
+        # ===== RUN MODFLOW INSTANCE ======
         modflow_deployer = ModflowDeployer(api_instance=self.api_instance, pod_name='modflow-2005')
         modflow_v1_pod = modflow_deployer.run_pod()
         with ThreadPoolExecutor(max_workers=1) as exe:
@@ -42,3 +62,4 @@ class SimulationService:
         # TODO end modflow notification
         print('Modflow container finished')
         return
+

@@ -33,7 +33,12 @@
                     </div>
                     <div class="row justify-content-end">
                         <div class="col-auto">
-                            <a type="button" class="btn btn-secondary"
+                            <a type="button"
+                               {% if (model_names is defined) and model_names %}
+                               class="btn btn-secondary"
+                               {% else %}
+                               class="btn btn-secondary disabled"
+                               {% endif %}
                                href="{{ url_for('define_shapes', hydrus_model_index='0') }}">Next</a>
                         </div>
                     </div>
