@@ -71,7 +71,7 @@ def home():
     return render_template('home.html')
 
 
-@app.route('/define-shape/<hydrus_model_index>', methods=['GET', 'POST'])
+@app.route('/define-shapes/<hydrus_model_index>', methods=['GET', 'POST'])
 def define_shapes(hydrus_model_index):
     if request.method == 'POST':
         return upload_shape_handler(request, int(hydrus_model_index))
