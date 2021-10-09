@@ -43,11 +43,11 @@ class SimulationService:
                                                    pods_names=hydrus_pod_names,
                                                    namespace=namespace)
 
-        # multipod_deployer.deploy_all()
-        # with ThreadPoolExecutor(max_workers=hydrus_count) as exe:
-        #     exe.map(self.pod_controller.wait_for_pod_termination, hydrus_pod_names)
-        # # TODO end hydrus notification
-        # print('Hydrus containers finished')
+        multipod_deployer.deploy_all()
+        with ThreadPoolExecutor(max_workers=hydrus_count) as exe:
+            exe.map(self.pod_controller.wait_for_pod_termination, hydrus_pod_names)
+        # TODO end hydrus notification
+        print('Hydrus containers finished')
 
         # ===== COPY RESULTS OF HYDRUS TO MODFLOW ======
 
