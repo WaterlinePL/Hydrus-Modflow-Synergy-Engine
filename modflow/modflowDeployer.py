@@ -7,8 +7,9 @@ from constants import MODFLOW_ROOT_DOCKER
 
 class ModflowDeployer:
 
-    def __init__(self, api_instance: client.CoreV1Api, pod_name, namespace='default'):
+    def __init__(self, api_instance: client.CoreV1Api, path: str, pod_name, namespace='default'):
         self.api_instance = api_instance
+        self.path = path
         self.pod_name = pod_name
         self.namespace = namespace
 
@@ -28,7 +29,7 @@ class ModflowDeployer:
                                  mount_path='/workspace',
                                  mount_path_name='my-path1',
                                  args=["mf2005", "simple1.nam"],
-                                 volumes_host_path=MODFLOW_ROOT_DOCKER)
+                                 volumes_host_path=self.path)
 
             yaml_gen = YamlGenerator(yaml_data)
             pod_manifest = yaml_gen.prepare_kubernetes_pod()

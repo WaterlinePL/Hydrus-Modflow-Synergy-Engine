@@ -1,3 +1,4 @@
+import numpy as np
 from flask import Flask, render_template, request, redirect, url_for
 from zipfile import ZipFile
 from datapassing.shapeData import ShapeFileData, Shape
@@ -56,8 +57,20 @@ def simulation():
 
 @app.route('/run_simulation')
 def run_simulation():
-    simulation_service = SimulationService()
-    thread = threading.Thread(target=simulation_service.run_simulation, args=("default", ["cos"]))
+    if (
+            util.hydrus_dir is None or
+            util.modflow_dir is None or
+            util.loaded_modflow_models is None or not util.loaded_modflow_models or
+            util.loaded_shapes is None or not util.loaded_shapes
+    ):
+        print("Some projects are missing")
+        return ("Error")
+
+    simulation_service = SimulationService(hydrus_dir=util.hydrus_dir,
+                                           modflow_dir=util.modflow_dir,
+                                           modflow_project=util.loaded_modflow_models[0],
+                                           loaded_shapes=util.loaded_shapes)
+    thread = threading.Thread(target=simulation_service.run_simulation, args=(1, "default"))
     thread.start()
     return ("Success")
 
@@ -82,7 +95,7 @@ def upload_modflow_handler(req):
 
             # create a dedicated catalogue and load the project into it
             os.system('mkdir ' + os.path.join(util.workspace_dir, 'modflow', project_name))
-            archive.extractall(os.path.join(util.workspace_dir, 'modflow'))
+            archive.extractall(os.path.join(util.workspace_dir, 'modflow', project_name))
         os.remove(archive_path)
 
         print("Project uploaded successfully")
@@ -133,7 +146,8 @@ def upload_shape_handler(req, hydrus_model_index):
 
     # read the array from the request and store it
     shape_array = req.get_json(force=True)
-    util.loaded_shapes[util.loaded_hydrus_models[hydrus_model_index]] = ShapeFileData(shape_mask_array=shape_array)
+    np_array_shape = np.array(shape_array)
+    util.loaded_shapes[util.loaded_hydrus_models[hydrus_model_index]] = ShapeFileData(shape_mask_array=np_array_shape)
 
     return json.dumps({'status': 'OK'})
 

@@ -20,8 +20,10 @@ class AppUtils:
         self.loaded_hydrus_models = []  # an array of strings, the names of the loaded hydrus models
         self.loaded_modflow_models = []
         self.loaded_shapes = {}
-        self.modflow_rows = 2
-        self.modflow_cols = 2
+
+        #TODO: get size of models
+        self.modflow_rows = 10
+        self.modflow_cols = 10
 
     def setup(self):
         self.loaded_hydrus_models = []

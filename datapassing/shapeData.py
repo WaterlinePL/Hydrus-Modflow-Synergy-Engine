@@ -29,7 +29,8 @@ class ShapeFileData:
         except FileNotFoundError as err:
             print(f"No file found containing numpy shape mask: {err}")
 
-
+    def set_hydrus_recharge_output(self, hydrus_output_filepath: str):
+        self.hydrus_recharge_output = ShapeFileData.read_hydrus_output(hydrus_output_filepath)
 
 
 class Shape:
