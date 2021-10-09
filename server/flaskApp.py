@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 from zipfile import ZipFile
+from datapassing.shapeData import ShapeFileData, Shape
 
 import os
 import json
@@ -125,11 +126,14 @@ def upload_hydrus_handler(req):
 def upload_shape_handler(req, hydrus_model_index):
     # if not yet done, initialize the shape arrays list to the amount of models
     if len(util.loaded_shapes) < len(util.loaded_hydrus_models):
-        util.loaded_shapes = [None for _ in range(len(util.loaded_hydrus_models))]
+
+        for hydrus_model in util.loaded_hydrus_models:
+            util.loaded_shapes[hydrus_model] = None
+        # util.loaded_shapes = [None for _ in range(len(util.loaded_hydrus_models))]
 
     # read the array from the request and store it
     shape_array = req.get_json(force=True)
-    util.loaded_shapes[hydrus_model_index] = shape_array
+    util.loaded_shapes[util.loaded_hydrus_models[hydrus_model_index]] = ShapeFileData(shape_mask_array=shape_array)
 
     return json.dumps({'status': 'OK'})
 
@@ -137,8 +141,10 @@ def upload_shape_handler(req, hydrus_model_index):
 def next_model_redirect_handler(hydrus_model_index):
     # check if we still have models to go, if not, redirect to next section
     if hydrus_model_index >= len(util.loaded_hydrus_models):
+
+        for key in util.loaded_shapes:
+            print(key, '->', util.loaded_shapes[key].shape_mask)
         print(util.loaded_shapes)
-         # TODO: create dictionary with ShapeData
         return render_template('simulation.html')
 
     else:

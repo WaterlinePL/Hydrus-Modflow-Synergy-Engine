@@ -4,10 +4,15 @@ import phydrus as ph
 
 class ShapeFileData:
 
-    def __init__(self, shape_mask_filepath: str, hydrus_output_filepath: str = None):
+    def __init__(self, shape_mask_filepath: str = None, hydrus_output_filepath: str = None,
+                 shape_mask_array: np.array = None):
         if hydrus_output_filepath is not None:
             self.hydrus_recharge_output = ShapeFileData.read_hydrus_output(hydrus_output_filepath)
-        self.shape_mask = ShapeFileData.read_shape_mask(shape_mask_filepath)
+
+        if hydrus_output_filepath is not None:
+            self.shape_mask = ShapeFileData.read_shape_mask(shape_mask_filepath)
+        elif shape_mask_array is not None:
+            self.shape_mask = shape_mask_array
 
     @staticmethod
     def read_hydrus_output(hydrus_output_filepath) -> float:
@@ -23,6 +28,8 @@ class ShapeFileData:
             return np.load(shape_mask_filepath)
         except FileNotFoundError as err:
             print(f"No file found containing numpy shape mask: {err}")
+
+
 
 
 class Shape:
