@@ -26,18 +26,14 @@ class SimulationService:
         hydrus_count = len(self.loaded_shapes)
         hydrus_pod_names = ["hydrus-pod-id." + str(Id) + "-num." + str(i + 1) for i in range(hydrus_count)]
 
-        print(hydrus_pod_names)
-        print(namespace)
+        # Zmiana ścieżki z windowsowej na dockerowe "/run/desktop/mnt/host/c/..."
         docker_const_path = "/run/desktop/mnt/host"
         hydrus_path_splited = re.split("\\\\|:\\\\", self.hydrus_dir)
         hydrus_path_to_dir_docker = docker_const_path + '/' + '/'.join(hydrus_path_splited)
-        hydrus_project_paths = ['/run/desktop/mnt/host/c/Users/Admin/Documents/Studia/Praca_inzynierska/bitbucket_git_repo/water_modeling_agh/workspace/hydrus/Chojnice_vg_sand']
-        # for key in self.loaded_shapes:
-        #     hydrus_project_paths.append(hydrus_path_to_dir_docker + '/' + key)
-        print(hydrus_project_paths)
+        hydrus_project_paths = []
+        for key in self.loaded_shapes:
+            hydrus_project_paths.append(hydrus_path_to_dir_docker + '/' + key)
 
-        # hydrus_project_paths = "/run/desktop/mnt/host" + [os.path.join(self.hydrus_dir, key) for key in self.loaded_shapes]
-        # '/run/desktop/mnt/host/c/Users/Admin/Documents/Studia/Praca_inzynierska/bitbucket_git_repo/water_modeling_agh/hydrus_docker/Chojnice_vg_sand'
         multipod_deployer = HydrusMultipodDeployer(api_instance=self.api_instance,
                                                    hydrus_projects_paths=hydrus_project_paths,
                                                    pods_names=hydrus_pod_names,
@@ -56,7 +52,6 @@ class SimulationService:
             print(model_name_key, "->", self.loaded_shapes[model_name_key].hydrus_recharge_output, self.loaded_shapes[model_name_key].shape_mask,)
 
 
-        print("Hydrus Modflow Passing", list(self.loaded_shapes.values()))
         shapes = HydrusModflowPassing.read_shapes_from_files(list(self.loaded_shapes.values()))
 
         nam_file = ""
