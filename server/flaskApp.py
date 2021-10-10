@@ -54,7 +54,7 @@ def define_shapes(hydrus_model_index):
 def simulation():
     return render_template('simulation.html')
 
-
+#TODO zmienić app routa na myślnik
 @app.route('/run_simulation')
 def run_simulation():
     if (
