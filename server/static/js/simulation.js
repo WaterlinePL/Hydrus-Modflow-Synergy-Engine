@@ -1,4 +1,4 @@
-(function($) {
+(function ($) {
     var _container = $("#simulation-content"),
         _hydrusCalc = $('#hydrus-calc'),
         _modflowCalc = $('#modflow-calc'),
@@ -8,41 +8,65 @@
 
     _runButton.on("click", (e) => {
         e.preventDefault()
-        const url = "/run-simulation";
+        const url = "/simulation-run";
 
         // setBusy(_container);
         ($).ajax({
             url: url,
             type: "GET",
-            dataType: "text",
+            dataType: "json",
             context: this,
             success: function (content) {
                 _runButton.attr('hidden', true);
-                $('#start-alert').removeAttr('hidden');
-
-                //TODO przenieść to w jakieś miejsce które będzie odbierać sygnały z backendu
-                //===============
+                $('#start-alert').toast('show');
                 _hydrusCalc.removeAttr('hidden');
-                _hydrusCalc.addClass('text-success');
-                _passingCalc.removeAttr('hidden');
-                _passingCalc.addClass('text-success');
-                _modflowCalc.removeAttr('hidden');
-                _modflowCalc.addClass('text-secondary');
-                // ==============
-
-                // console.log("Success")
-                // clearBusy(_container);
-                // TODO wyświetl info co się dzieje i powiadomienie że się udało wystartować
+                check_simulation_status(content["id"])
             },
             error: function (e) {
-                $('#error-alert').removeAttr('hidden');
-                // console.log("Error")
-                // clearBusy(_container);
-                // TODO powiadomienie że się nie udało wystartować
+                $('#error-alert').toast('show')
+                const rsp = JSON.parse(e.responseText);
+                $('#toast-body-error').text(rsp["message"])
             }
         });
     });
 
+    function check_simulation_status(id) {
+        const url = "/simulation-check/" + id;
 
+        ($).ajax({
+            url: url,
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                if (data["hydrus"]) {
+                    _hydrusCalc.removeClass('text-secondary');
+                    _hydrusCalc.addClass('text-success');
+                    _passingCalc.removeAttr('hidden');
+                    $('#hydrus-tick').removeAttr('hidden');
+                    $('#hydrus-spinner').attr('hidden', true);
+                }
+                if (data["passing"]) {
+                    _passingCalc.removeClass('text-secondary');
+                    _passingCalc.addClass('text-success');
+                    _modflowCalc.removeAttr('hidden');
+                    $('#passing-tick').removeAttr('hidden');
+                    $('#passing-spinner').attr('hidden', true);
+                }
+                if (data["modflow"]) {
+                    _modflowCalc.removeClass('text-secondary');
+                    _modflowCalc.addClass('text-success');
+                    $('#modflow-tick').removeAttr('hidden');
+                    $('#modflow-spinner').attr('hidden', true);
+                    //TODO Wizualizacja
+                } else {
+                    setTimeout(check_simulation_status, 2000,[id]);
+                }
+            },
+            error: function (e) {
+                setTimeout(check_simulation_status, 2000, [id]);
+            }
+        });
+
+    }
 
 })(jQuery);
