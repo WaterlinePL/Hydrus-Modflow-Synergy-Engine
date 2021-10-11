@@ -68,10 +68,12 @@ def run_simulation():
     ):
         return jsonify(message="Some projects are missing"), 500
 
-    sim_id = 1
+    sim = simulation_service.prepare_simulation()
 
-    simulation_service.set_modflow_project(modflow_project=util.loaded_modflow_models[0])
-    simulation_service.set_loaded_shapes(loaded_shapes=util.loaded_shapes)
+    sim.set_modflow_project(modflow_project=util.loaded_modflow_models[0])
+    sim.set_loaded_shapes(loaded_shapes=util.loaded_shapes)
+
+    sim_id = sim.get_id()
 
     thread = threading.Thread(target=simulation_service.run_simulation, args=(sim_id, "default"))
     thread.start()
@@ -80,7 +82,7 @@ def run_simulation():
 
 @app.route('/simulation-check/<simulation_id>', methods=['GET'])
 def check_simulation_status(simulation_id: int):
-    hydrus_finished, passing_finished, modflow_finished = simulation_service.check_simulation_status()
+    hydrus_finished, passing_finished, modflow_finished = simulation_service.check_simulation_status(int(simulation_id))
     response = {'hydrus': hydrus_finished, 'passing': passing_finished, 'modflow': modflow_finished}
     return jsonify(response)
 

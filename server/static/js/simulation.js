@@ -28,7 +28,6 @@
                 $('#error-alert').removeAttr('hidden');
                 const rsp = JSON.parse(e.responseText);
                 console.log(rsp["message"])
-                // TODO powiadomienie że się nie udało wystartować
             }
         });
     });
@@ -58,9 +57,12 @@
                     _modflowCalc.addClass('text-success');
                     //TODO Wizualizacja
                 } else {
-                    setTimeout(check_simulation_status, 2000);
+                    setTimeout(check_simulation_status, 2000,[id]);
                 }
             },
+            error: function (e) {
+                setTimeout(check_simulation_status, 2000, [id]);
+            }
         });
 
     }
