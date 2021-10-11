@@ -3,6 +3,8 @@ from flask import Flask, render_template, request, redirect, url_for
 from zipfile import ZipFile
 from datapassing.shapeData import ShapeFileData, Shape
 
+import flopy
+
 import os
 import json
 
@@ -94,11 +96,17 @@ def upload_modflow_handler(req):
             util.loaded_modflow_models = [project_name]
 
             # create a dedicated catalogue and load the project into it
-            os.system('mkdir ' + os.path.join(util.workspace_dir, 'modflow', project_name))
-            archive.extractall(os.path.join(util.workspace_dir, 'modflow', project_name))
-        os.remove(archive_path)
+            project_path = os.path.join(util.workspace_dir, 'modflow', project_name)
+            os.system('mkdir ' + project_path)
+            archive.extractall(project_path)
+
+            # validate model and get model size
+            # TODO - validate model
+            get_model_size(project_path)
+
 
         print("Project uploaded successfully")
+        os.remove(archive_path)
         return redirect(req.root_url + 'upload-modflow')
 
     else:
@@ -173,3 +181,28 @@ def next_model_redirect_handler(hydrus_model_index):
         )
 
 # ------------------- END HANDLERS -------------------
+
+
+# ------------------- MISC FUNCTIONS -------------------
+
+
+def get_model_size(project_path: str):
+
+    # get .nam file name
+    nam_file = None
+    for filename in os.listdir(project_path):
+        filename = str(filename)
+        if filename.split('.').pop() == "nam":
+            nam_file = filename
+    if nam_file is None:
+        print("ERROR: invalid modflow model; missing .nam file")
+
+    # load model and read size
+    else:
+        modflow_model = flopy.modflow.Modflow \
+            .load(nam_file, model_ws=project_path, load_only=["rch"], forgive=True)
+        util.modflow_rows = modflow_model.nrow
+        util.modflow_cols = modflow_model.ncol
+
+
+# ------------------- END MISC FUNCTIONS -------------------
