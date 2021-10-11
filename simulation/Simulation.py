@@ -92,9 +92,9 @@ class Simulation:
         @return: Formatted path -> str
         """
         docker_const_path = "/run/desktop/mnt/host"
-        modflow_path_split = re.split("\\\\|:\\\\", dir_path)
-        modflow_path_split[0] = modflow_path_split[0].lower()
-        return docker_const_path + '/' + '/'.join(modflow_path_split) + '/' + project_name
+        path_split = re.split("\\\\|:\\\\", dir_path)
+        path_split[0] = path_split[0].lower()
+        return docker_const_path + '/' + '/'.join(path_split) + '/' + project_name
 
     def get_simulation_status(self):
         return self.hydrus_finished, self.passing_finished, self.modflow_finished
