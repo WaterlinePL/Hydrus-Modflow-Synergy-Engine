@@ -5,7 +5,7 @@
 <title>Upload hydrus projects</title>
 {% endblock %}
 
-{% block hydrus_active %}active{% endblock %}
+{% block simulation_active %}active{% endblock %}
 
 {% block body %}
 <div class="jumbotron">
@@ -14,7 +14,7 @@
             <div class="col-lg-9">
                 <div class="text-center">
                     <h1 class="display-4">Upload hydrus projects</h1>
-                    <p class="lead">Select a project, then click "submit" to load it. Click "Done" once you've uploaded all projects
+                    <p class="lead">Drag and drop project to load it. Click "Next" once you've uploaded all projects
                     </p>
                 </div>
                 <hr class="my-4">
@@ -31,19 +31,18 @@
                             </div>
                         </div>
                     </div>
-                </div> <!-- /container -->
-
-                <hr class="my-4">
-
-                <form action="/upload-hydrus" method="POST" enctype="multipart/form-data">
-                    <div class="form-group">
-                        <label for="archive-input">Select project archive</label>
-                        <input type="file" class="form-control-file" id="archive-input" name="archive-input" multiple>
+                    <div class="row justify-content-end">
+                        <div class="col-auto">
+                            <a type="button"
+                               {% if (model_names is defined) and model_names %}
+                               class="btn btn-secondary"
+                               {% else %}
+                               class="btn btn-secondary disabled"
+                               {% endif %}
+                               href="{{ url_for('define_shapes', hydrus_model_index='0') }}">Next</a>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                </form>
-                <a type="button" style="margin-top: 5px;" class="btn btn-secondary"
-                   href="{{ url_for('define_shapes', hydrus_model_index='0') }}">Done - start defining shapes</a>
+                </div> <!-- /container -->
             </div>
         </div>
     </div>

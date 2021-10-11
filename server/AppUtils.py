@@ -18,13 +18,19 @@ class AppUtils:
         self.modflow_dir = os.path.join(self.workspace_dir, 'modflow')
         self.hydrus_dir = os.path.join(self.workspace_dir, 'hydrus')
         self.loaded_hydrus_models = []  # an array of strings, the names of the loaded hydrus models
-        self.loaded_shapes = []  # an array of shape arrays corresponding to the models above
-        self.modflow_rows = 2
-        self.modflow_cols = 2
+        self.loaded_modflow_models = []
+        self.nam_file_name = ""
+        self.loaded_shapes = {}
+        self.modflow_rows = 0
+        self.modflow_cols = 0
 
     def setup(self):
         self.loaded_hydrus_models = []
-        self.loaded_shapes = []
+        self.loaded_modflow_models = []
+        self.nam_file_name = ""
+        self.loaded_shapes = {}
+        self.modflow_rows = 0
+        self.modflow_cols = 0
         verify_dir_exists_or_create(self.workspace_dir)
         verify_dir_exists_or_create(self.modflow_dir)
         verify_dir_exists_or_create(self.hydrus_dir)
