@@ -53,46 +53,68 @@
 </div> <!-- container -->
 
 <div class="container mt-5 justify-content-center">
-    <div class="row">
-        <div class="alert col-4 offset-md-4 alert-success alert-dismissible" id="start-alert" hidden role="alert">
-            Simulation has been started!
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <div class="alert col-4 offset-md-4 alert-danger alert-dismissible" hidden id="error-alert" role="alert">
-            Error occurred!
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    </div>
     <div class="row justify-content-center text-secondary" hidden id="hydrus-calc">
         <div class="col-7-auto ">
-            <div class="spinner-border" role="status">
+            <div class="spinner-border" id="hydrus-spinner" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
+            <svg xmlns="http://www.w3.org/2000/svg" id="hydrus-tick" hidden width="25" height="25" fill="currentColor" class="bi bi-check"
+                 viewBox="0 0 16 16">
+                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+            </svg>
             Calculating Hydrus-1d models.
         </div>
     </div>
     <div class="row justify-content-center text-secondary" hidden id="passing-calc">
         <div class="col-7-auto ">
-            <div class="spinner-border" role="status">
+            <div class="spinner-border" id="passing-spinner" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
+            <svg xmlns="http://www.w3.org/2000/svg" hidden id="passing-tick" width="25" height="25" fill="currentColor" class="bi bi-check"
+                 viewBox="0 0 16 16">
+                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+            </svg>
             Passing Hydrus-1d result to Modflow model.
         </div>
     </div>
     <div class="row justify-content-center text-success" hidden id="modflow-calc">
         <div class="col-7-auto ">
-            <div class="spinner-border" role="status">
+            <div class="spinner-border" id="modflow-spinner" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
+            <svg xmlns="http://www.w3.org/2000/svg" hidden id="modflow-tick" width="25" height="25" fill="currentColor" class="bi bi-check"
+                 viewBox="0 0 16 16">
+                <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+            </svg>
             Calculating Modflow model.
         </div>
     </div>
 
 </div> <!-- container -->
+
+<div style="position: absolute; bottom: 20px; right: 20px;" class="w-25">
+    <div class="toast border border-success" role="alert" id="start-alert" aria-live="assertive" aria-atomic="true"
+         data-delay="2000" style="border-width: 4px !important;">
+        <div class="toast-header bg-success text-white">
+            <strong class="mr-auto">Success</strong>
+        </div>
+        <div class="toast-body">
+            Simulation has been started!
+        </div>
+    </div>
+
+
+    <div class="toast border border-danger" role="alert" id="error-alert" aria-live="assertive" aria-atomic="true"
+         data-delay="2000" style="border-width: 4px !important;">
+        <div class="toast-header bg-danger text-white">
+            <strong class="mr-auto">Error</strong>
+        </div>
+        <div class="toast-body" id="toast-body-error">
+
+        </div>
+    </div>
+</div>
+
 
 {% endblock %}
 

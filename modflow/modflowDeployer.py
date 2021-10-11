@@ -2,7 +2,6 @@ from kubernetes import client
 from kubernetes.client.rest import ApiException
 from utils.yamlData import YamlData
 from utils.yamlGenerator import YamlGenerator
-from constants import MODFLOW_ROOT_DOCKER
 
 
 class ModflowDeployer:
