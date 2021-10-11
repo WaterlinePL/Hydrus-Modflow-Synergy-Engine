@@ -102,8 +102,8 @@ def upload_modflow_handler(req):
 
             # validate model and get model size
             # TODO - validate model
+            get_nam_file(project_path)
             get_model_size(project_path)
-
 
         print("Project uploaded successfully")
         os.remove(archive_path)
@@ -185,24 +185,19 @@ def next_model_redirect_handler(hydrus_model_index):
 
 # ------------------- MISC FUNCTIONS -------------------
 
-
-def get_model_size(project_path: str):
-
-    # get .nam file name
-    nam_file = None
+def get_nam_file(project_path: str):
     for filename in os.listdir(project_path):
         filename = str(filename)
-        if filename.split('.').pop() == "nam":
-            nam_file = filename
-    if nam_file is None:
-        print("ERROR: invalid modflow model; missing .nam file")
+        if filename.endswith(".nam"):
+            util.nam_file_name = filename
+            return
+    print("ERROR: invalid modflow model; missing .nam file")
 
-    # load model and read size
-    else:
-        modflow_model = flopy.modflow.Modflow \
-            .load(nam_file, model_ws=project_path, load_only=["rch"], forgive=True)
-        util.modflow_rows = modflow_model.nrow
-        util.modflow_cols = modflow_model.ncol
 
+def get_model_size(project_path: str):
+    modflow_model = flopy.modflow.Modflow \
+        .load(util.nam_file_name, model_ws=project_path, load_only=["rch"], forgive=True)
+    util.modflow_rows = modflow_model.nrow
+    util.modflow_cols = modflow_model.ncol
 
 # ------------------- END MISC FUNCTIONS -------------------
