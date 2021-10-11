@@ -8,7 +8,7 @@
 
     _runButton.on("click", (e) => {
         e.preventDefault()
-        const url = "/run_simulation";
+        const url = "/run-simulation";
 
         // setBusy(_container);
         ($).ajax({
