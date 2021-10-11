@@ -8,21 +8,52 @@
 {% block simulation_active %}active{% endblock %}
 
 {% block body %}
-<h1>Select the fields covered by this Hydrus model</h1>
-<div class="tableWrapper">
-    {% for row in rows %}
-        <div class="row">
-            {% for col in cols %}
-                <div class="cell" id="{{ 'cell_' + row + '_' + col }}" onclick="handleClick('{{row}}','{{col}}')">
-                    Cell &ensp;
-                </div>
-            {% endfor %}
+<div class="container mt-5" id="define-shapes-content">
+    <div class="row justify-content-md-center">
+        <div class="col-lg-9">
+            <div class="text-center">
+                <h1 class="display-4">Select the fields covered by this Hydrus model</h1>
+            </div>
         </div>
-    {% endfor %}
+    </div>
+    <div class="row justify-content-center my-2">
+        <strong>Hydrus model: {{ modelName }}</strong>
+    </div>
+
+    <div class="row justify-content-center my-2">
+        <div class="col-2-auto mx-2">
+            <table class="table table-sm">
+                <tbody>
+                {% for row in rows %}
+                <tr class="cell-row">
+                    {% for col in cols %}
+                    <td class="cell border border-1" id="{{ 'cell_' + row + '_' + col }}" onclick="handleClick('{{row}}','{{col}}')">
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row justify-content-end">
+        <div class="col-auto">
+            <button type="button" class="btn btn-secondary" id="submitButton" onclick="handleSubmit('{{ modelIndex }}')">Done</button>
+        </div>
+    </div>
 </div>
-<button id="submitButton" onclick="handleSubmit('{{ modelIndex }}')">Done</button>
-<h3 id="successMessage" style="visibility: hidden">Saved successfully</h3>
-<button id="nextModelButton" style="visibility: hidden" onclick="handleNextModel('{{ modelIndex+1 }}')">Next model</button>
+<div style="position: absolute; bottom: 20px; right: 20px;" class="w-25">
+    <div class="toast border border-success" role="alert" id="successMessage" aria-live="assertive" aria-atomic="true"
+         data-delay="2000" style="border-width: 4px !important;">
+        <div class="toast-header bg-success text-white">
+            <strong class="mr-auto">Success</strong>
+        </div>
+        <div class="toast-body">
+            Shape has been saved!
+        </div>
+    </div>
+</div>
 
 {% endblock %}
 
