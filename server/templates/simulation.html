@@ -4,6 +4,7 @@
 <title>Simulation</title>
 {% endblock %}
 
+
 {% block home_active %} active {%endblock%}
 
 {% block body %}
@@ -16,13 +17,37 @@
             </div>
         </div>
     </div>
-    <div class="row justify-content-md-center border border-primary mb-5 mx-5">
-        Tu jakaś wizualizacja tego co zostało wyklikane
+    <div class="row justify-content-center my-2">
+        <div class="col-12 text-center"><strong>Modflow model:</strong></div>
+        <div class="col-12 text-center">{{ modflow_proj[0] }}</div>
     </div>
+    <div class="row justify-content-center my-2">
+        <strong>Hydrus models:</strong>
+    </div>
+
+    <div class="row justify-content-center my-2">
+        {% for key, shape_info in shapes.items() %}
+        <div class="col-2-auto mx-2">
+            <table class="table table-sm">
+                <caption>{{ key }}</caption>
+                <tbody>
+                {% for row in shape_info.shape_mask %}
+                <tr>
+                    {% for cell in row %}
+                    <td class="{% if cell==1 %} bg-primary {%endif%} border border-1">
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endfor %}
+    </div>
+
     <div class="row justify-content-end">
         <div class="col-auto">
-            <a type="button" id="start-simulation" class="btn btn-secondary" href=""> Run (TODO button który będzie
-                startował symulację) </a>
+            <a type="button" id="start-simulation" class="btn btn-secondary" href=""> Run </a>
         </div>
     </div>
 </div> <!-- container -->
@@ -42,27 +67,27 @@
             </button>
         </div>
     </div>
-    <div class="row justify-content-center" hidden id="hydrus-calc">
-        <div class="col-2 ">
-            Circle
-        </div>
-        <div class="col-7 ">
+    <div class="row justify-content-center text-secondary" hidden id="hydrus-calc">
+        <div class="col-7-auto ">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
             Calculating Hydrus-1d models.
         </div>
     </div>
-    <div class="row justify-content-center" hidden id="passing-calc">
-        <div class="col-2">
-            Circle
-        </div>
-        <div class="col-7 ">
+    <div class="row justify-content-center text-secondary" hidden id="passing-calc">
+        <div class="col-7-auto ">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
             Passing Hydrus-1d result to Modflow model.
         </div>
     </div>
-    <div class="row justify-content-center" hidden id="modflow-calc">
-        <div class="col-2 ">
-            Circle
-        </div>
-        <div class="col-7 ">
+    <div class="row justify-content-center text-success" hidden id="modflow-calc">
+        <div class="col-7-auto ">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
             Calculating Modflow model.
         </div>
     </div>

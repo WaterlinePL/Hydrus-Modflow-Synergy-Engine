@@ -11,14 +11,17 @@ from concurrent.futures import ThreadPoolExecutor
 
 
 class SimulationService:
-    def __init__(self, hydrus_dir: str, modflow_dir: str, modflow_project: str, loaded_shapes: dict):
+    def __init__(self, hydrus_dir: str, modflow_dir: str):
         config.load_kube_config()
         self.api_instance = client.CoreV1Api()
         self.hydrus_dir = hydrus_dir
         self.modflow_dir = modflow_dir
-        self.modflow_project = modflow_project
-        self.loaded_shapes = loaded_shapes
+        self.modflow_project = None
+        self.loaded_shapes = None
         self.pod_controller = PodController(self.api_instance)
+        self.hydrus_finished = False
+        self.passing_finished = False
+        self.modflow_finished = False
 
     def run_simulation(self, simulation_id: int, namespace: str):
         # ===== RUN HYDRUS INSTANCES ======
@@ -27,7 +30,7 @@ class SimulationService:
 
         hydrus_volumes_paths = []
         for key in self.loaded_shapes:
-            hydrus_volumes_paths.append(format_path_to_docker(dir_path=self.hydrus_dir, project_name=key))
+            hydrus_volumes_paths.append(self.format_path_to_docker(dir_path=self.hydrus_dir, project_name=key))
 
         multipod_deployer = HydrusMultipodDeployer(api_instance=self.api_instance,
                                                    hydrus_projects_paths=hydrus_volumes_paths,
@@ -38,7 +41,7 @@ class SimulationService:
         with ThreadPoolExecutor(max_workers=hydrus_count) as exe:
             exe.map(self.pod_controller.wait_for_pod_termination, hydrus_pod_names)
 
-        # TODO end hydrus notification
+        self.hydrus_finished = True
         print('Hydrus containers finished')
 
         # ===== COPY RESULTS OF HYDRUS TO MODFLOW ======
@@ -61,13 +64,13 @@ class SimulationService:
         result = HydrusModflowPassing(os.path.join(self.modflow_dir, self.modflow_project), nam_file, shapes)
         result.update_rch()
 
-        # TODO end passing notification
+        self.passing_finished = True
         print("Passing successful")
 
         # ===== RUN MODFLOW INSTANCE ======
 
         modflow_pod_name = "modflow-2005-id." + str(simulation_id)
-        modflow_volumes_path = format_path_to_docker(dir_path=self.modflow_dir, project_name=self.modflow_project)
+        modflow_volumes_path = self.format_path_to_docker(dir_path=self.modflow_dir, project_name=self.modflow_project)
 
         modflow_deployer = ModflowDeployer(api_instance=self.api_instance, path=modflow_volumes_path,
                                            name_file=nam_file, pod_name=modflow_pod_name)
@@ -75,19 +78,27 @@ class SimulationService:
         with ThreadPoolExecutor(max_workers=1) as exe:
             exe.submit(self.pod_controller.wait_for_pod_termination, modflow_v1_pod.metadata.name)
 
-        # TODO end modflow notification
+        self.modflow_finished = True
         print('Modflow container finished')
         return
 
+    def set_modflow_project(self, modflow_project):
+        self.modflow_project = modflow_project
 
-def format_path_to_docker(dir_path: str, project_name: str) -> str:
-    """
-    Format windows paths to docker format "/run/desktop/mnt/host/c/..."
-    @param dir_path: Path to modflow/hydrus directory
-    @param project_name: Project directory name
-    @return: Formatted path -> str
-    """
-    docker_const_path = "/run/desktop/mnt/host"
-    modflow_path_split = re.split("\\\\|:\\\\", dir_path)
-    modflow_path_split[0] = modflow_path_split[0].lower()
-    return docker_const_path + '/' + '/'.join(modflow_path_split) + '/' + project_name
+    def set_loaded_shapes(self, loaded_shapes):
+        self.loaded_shapes = loaded_shapes
+
+    def format_path_to_docker(self, dir_path: str, project_name: str) -> str:
+        """
+        Format windows paths to docker format "/run/desktop/mnt/host/c/..."
+        @param dir_path: Path to modflow/hydrus directory
+        @param project_name: Project directory name
+        @return: Formatted path -> str
+        """
+        docker_const_path = "/run/desktop/mnt/host"
+        modflow_path_split = re.split("\\\\|:\\\\", dir_path)
+        modflow_path_split[0] = modflow_path_split[0].lower()
+        return docker_const_path + '/' + '/'.join(modflow_path_split) + '/' + project_name
+
+    def check_simulation_status(self):
+        return self.hydrus_finished, self.passing_finished, self.modflow_finished

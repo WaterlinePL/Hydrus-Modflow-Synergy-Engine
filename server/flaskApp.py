@@ -1,5 +1,5 @@
 import numpy as np
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from zipfile import ZipFile
 from datapassing.shapeData import ShapeFileData, Shape
 
@@ -13,6 +13,8 @@ import threading
 util = AppUtils()
 util.setup()
 app = Flask("App")
+simulation_service = SimulationService(hydrus_dir=util.hydrus_dir,
+                                       modflow_dir=util.modflow_dir)
 
 
 # ------------------- ROUTES -------------------
@@ -52,10 +54,11 @@ def define_shapes(hydrus_model_index):
 
 @app.route('/simulation', methods=['GET'])
 def simulation():
-    return render_template('simulation.html')
+    return render_template('simulation.html', modflow_proj=util.loaded_modflow_models,
+                           shapes=util.loaded_shapes)
 
 
-@app.route('/run-simulation')
+@app.route('/simulation-run')
 def run_simulation():
     if (
             util.hydrus_dir is None or
@@ -63,16 +66,23 @@ def run_simulation():
             util.loaded_modflow_models is None or not util.loaded_modflow_models or
             util.loaded_shapes is None or not util.loaded_shapes
     ):
-        print("Some projects are missing")
-        return ("Error")
+        return jsonify(message="Some projects are missing"), 500
 
-    simulation_service = SimulationService(hydrus_dir=util.hydrus_dir,
-                                           modflow_dir=util.modflow_dir,
-                                           modflow_project=util.loaded_modflow_models[0],
-                                           loaded_shapes=util.loaded_shapes)
-    thread = threading.Thread(target=simulation_service.run_simulation, args=(1, "default"))
+    sim_id = 1
+
+    simulation_service.set_modflow_project(modflow_project=util.loaded_modflow_models[0])
+    simulation_service.set_loaded_shapes(loaded_shapes=util.loaded_shapes)
+
+    thread = threading.Thread(target=simulation_service.run_simulation, args=(sim_id, "default"))
     thread.start()
-    return ("Success")
+    return jsonify(id=sim_id)
+
+
+@app.route('/simulation-check/<simulation_id>', methods=['GET'])
+def check_simulation_status(simulation_id: int):
+    hydrus_finished, passing_finished, modflow_finished = simulation_service.check_simulation_status()
+    response = {'hydrus': hydrus_finished, 'passing': passing_finished, 'modflow': modflow_finished}
+    return jsonify(response)
 
 
 # ------------------- END ROUTES -------------------
@@ -159,7 +169,7 @@ def next_model_redirect_handler(hydrus_model_index):
         for key in util.loaded_shapes:
             print(key, '->', util.loaded_shapes[key].shape_mask)
         print(util.loaded_shapes)
-        return render_template('simulation.html')
+        return simulation()
 
     else:
         return render_template(
