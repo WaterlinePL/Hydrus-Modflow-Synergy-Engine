@@ -34,4 +34,8 @@
         return false;
     }
 
+    if ( $('#error-modflow').length ){
+        $('#error-modflow').toast('show');
+    }
+
 })(jQuery);

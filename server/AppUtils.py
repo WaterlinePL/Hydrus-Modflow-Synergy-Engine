@@ -23,6 +23,7 @@ class AppUtils:
         self.loaded_shapes = {}
         self.modflow_rows = 0
         self.modflow_cols = 0
+        self.error_flag = False
 
     def setup(self):
         self.loaded_hydrus_models = []
@@ -34,6 +35,7 @@ class AppUtils:
         verify_dir_exists_or_create(self.workspace_dir)
         verify_dir_exists_or_create(self.modflow_dir)
         verify_dir_exists_or_create(self.hydrus_dir)
+        self.error_flag = False
 
     def type_allowed(self, filename: str):
         # check if there even is an extension

@@ -1,5 +1,5 @@
 import numpy as np
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session
 from zipfile import ZipFile
 from datapassing.shapeData import ShapeFileData, Shape
 
@@ -27,18 +27,28 @@ def start():
 
 @app.route('/upload-modflow', methods=['GET', 'POST'])
 def upload_modflow():
+    error_flag = util.error_flag
+    util.error_flag = False
+
     if request.method == 'POST' and request.files:
         return upload_modflow_handler(request)
     else:
-        return render_template('uploadModflow.html', model_names=util.loaded_modflow_models)
+        return render_template('uploadModflow.html', model_names=util.loaded_modflow_models, upload_error=error_flag)
 
 
 @app.route('/upload-hydrus', methods=['GET', 'POST'])
 def upload_hydrus():
+    is_path_correct = path_check(hydrus=True)
+    if is_path_correct is not True:
+        return is_path_correct
+
+    error_flag = util.error_flag
+    util.error_flag = False
+
     if request.method == 'POST' and request.files:
         return upload_hydrus_handler(request)
     else:
-        return render_template('uploadHydrus.html', model_names=util.loaded_hydrus_models)
+        return render_template('uploadHydrus.html', model_names=util.loaded_hydrus_models, upload_error=error_flag)
 
 
 @app.route('/home', methods=['GET'])
@@ -48,27 +58,33 @@ def home():
 
 @app.route('/define-shapes/<hydrus_model_index>', methods=['GET', 'POST'])
 def define_shapes(hydrus_model_index):
+    is_path_correct = path_check(shapes=True)
+    if is_path_correct is not True:
+        return is_path_correct
+
+    error_flag = util.error_flag
+    util.error_flag = False
+
     if request.method == 'POST':
         return upload_shape_handler(request, int(hydrus_model_index))
     else:
-        return next_model_redirect_handler(int(hydrus_model_index))
+        return next_model_redirect_handler(int(hydrus_model_index), error_flag)
 
 
 @app.route('/simulation', methods=['GET'])
 def simulation():
+    is_path_correct = path_check()
+    if is_path_correct is not True:
+        return is_path_correct
     return render_template('simulation.html', modflow_proj=util.loaded_modflow_models,
                            shapes=util.loaded_shapes)
 
 
 @app.route('/simulation-run')
 def run_simulation():
-    if (
-            util.hydrus_dir is None or
-            util.modflow_dir is None or
-            util.loaded_modflow_models is None or not util.loaded_modflow_models or
-            util.loaded_shapes is None or not util.loaded_shapes
-    ):
-        return jsonify(message="Some projects are missing"), 500
+    is_path_correct = path_check()
+    if is_path_correct is not True:
+        return is_path_correct
 
     sim = simulation_service.prepare_simulation()
 
@@ -90,6 +106,19 @@ def check_simulation_status(simulation_id: int):
 
 
 # ------------------- END ROUTES -------------------
+
+def path_check(hydrus: bool = False, shapes: bool = False):
+    if util.modflow_dir is None or util.loaded_modflow_models is None or not util.loaded_modflow_models:
+        util.error_flag = True
+        return redirect(url_for('upload_modflow'))
+    elif hydrus is False and (util.hydrus_dir is None or util.loaded_hydrus_models is None or not util.loaded_hydrus_models):
+        util.error_flag = True
+        return redirect(url_for('upload_hydrus'))
+    elif (hydrus is False and shapes is False) and (util.loaded_shapes is None or not util.loaded_shapes):
+        util.error_flag = True
+        print("shapes", shapes)
+        return redirect(url_for('define_shapes', hydrus_model_index=0))
+    return True
 
 
 # ------------------- HANDLERS -------------------
@@ -172,14 +201,14 @@ def upload_shape_handler(req, hydrus_model_index):
     return json.dumps({'status': 'OK'})
 
 
-def next_model_redirect_handler(hydrus_model_index):
+def next_model_redirect_handler(hydrus_model_index, error_flag):
     # check if we still have models to go, if not, redirect to next section
     if hydrus_model_index >= len(util.loaded_hydrus_models):
 
         for key in util.loaded_shapes:
             print(key, '->', util.loaded_shapes[key].shape_mask)
         print(util.loaded_shapes)
-        return simulation()
+        return redirect(url_for('simulation'))
 
     else:
         return render_template(
