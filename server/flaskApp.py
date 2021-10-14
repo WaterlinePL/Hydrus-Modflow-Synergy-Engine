@@ -116,7 +116,6 @@ def path_check(hydrus: bool = False, shapes: bool = False):
         return redirect(url_for('upload_hydrus'))
     elif (hydrus is False and shapes is False) and (util.loaded_shapes is None or not util.loaded_shapes):
         util.error_flag = True
-        print("shapes", shapes)
         return redirect(url_for('define_shapes', hydrus_model_index=0))
     return True
 
@@ -204,10 +203,8 @@ def upload_shape_handler(req, hydrus_model_index):
 def next_model_redirect_handler(hydrus_model_index, error_flag):
     # check if we still have models to go, if not, redirect to next section
     if hydrus_model_index >= len(util.loaded_hydrus_models):
-
         for key in util.loaded_shapes:
-            print(key, '->', util.loaded_shapes[key].shape_mask)
-        print(util.loaded_shapes)
+            print(key, '->\n', util.loaded_shapes[key].shape_mask)
         return redirect(url_for('simulation'))
 
     else:
@@ -218,7 +215,8 @@ def next_model_redirect_handler(hydrus_model_index, error_flag):
             rows=[str(x) for x in range(util.modflow_rows)],
             cols=[str(x) for x in range(util.modflow_cols)],
             modelIndex=hydrus_model_index,
-            modelName=util.loaded_hydrus_models[hydrus_model_index]
+            modelName=util.loaded_hydrus_models[hydrus_model_index],
+            upload_error=error_flag
         )
 
 # ------------------- END HANDLERS -------------------
