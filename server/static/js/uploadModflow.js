@@ -25,17 +25,17 @@
 
     dropZone.ondrop = function (e) {
         e.preventDefault();
-        this.className = 'upload-drop-zone-modflow';
+        this.className = 'upload-drop-zone';
         startUploadModflow(e.dataTransfer.files)
     }
 
     dropZone.ondragover = function () {
-        this.className = 'upload-drop-zone-modflow drop';
+        this.className = 'upload-drop-zone drop';
         return false;
     }
 
     dropZone.ondragleave = function () {
-        this.className = 'upload-drop-zone-modflow';
+        this.className = 'upload-drop-zone';
         return false;
     }
 

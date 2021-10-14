@@ -38,7 +38,7 @@ def upload_modflow():
 
 @app.route('/upload-hydrus', methods=['GET', 'POST'])
 def upload_hydrus():
-    is_path_correct = path_check(hydrus=True)
+    is_path_correct = path_check(hydrus_path=True)
     if is_path_correct is not True:
         return is_path_correct
 
@@ -58,7 +58,7 @@ def home():
 
 @app.route('/define-shapes/<hydrus_model_index>', methods=['GET', 'POST'])
 def define_shapes(hydrus_model_index):
-    is_path_correct = path_check(shapes=True)
+    is_path_correct = path_check(shapes_path=True)
     if is_path_correct is not True:
         return is_path_correct
 
@@ -107,14 +107,23 @@ def check_simulation_status(simulation_id: int):
 
 # ------------------- END ROUTES -------------------
 
-def path_check(hydrus: bool = False, shapes: bool = False):
-    if util.modflow_dir is None or util.loaded_modflow_models is None or not util.loaded_modflow_models:
+def path_check(hydrus_path: bool = False, shapes_path: bool = False):
+    '''
+    :param hydrus_path: True if we use path_check() function trying to access upload-hydrus page
+    :param shapes_path: True if we use path_check() function trying to access define-shapes page
+    :return: True if user is authorized to access chosen page. Otherwise user is
+             redirected to correct page (for example to upload missing model).
+    '''
+    if util.modflow_dir is None or not util.loaded_modflow_models:
+        # redirect to upload modflow page if model is not defined
         util.error_flag = True
         return redirect(url_for('upload_modflow'))
-    elif hydrus is False and (util.hydrus_dir is None or util.loaded_hydrus_models is None or not util.loaded_hydrus_models):
+    elif hydrus_path is False and (util.hydrus_dir is None or not util.loaded_hydrus_models):
+        # redirect to upload hydrus page if model is not defined
         util.error_flag = True
         return redirect(url_for('upload_hydrus'))
-    elif (hydrus is False and shapes is False) and (util.loaded_shapes is None or not util.loaded_shapes):
+    elif (hydrus_path is False and shapes_path is False) and (not util.loaded_shapes):
+        # redirect to define shapes page if shapes are not defined
         util.error_flag = True
         return redirect(url_for('define_shapes', hydrus_model_index=0))
     return True
