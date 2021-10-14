@@ -66,7 +66,6 @@
                 setTimeout(check_simulation_status, 2000, [id]);
             }
         });
-
     }
 
 })(jQuery);
