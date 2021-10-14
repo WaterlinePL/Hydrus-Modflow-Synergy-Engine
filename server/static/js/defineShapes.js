@@ -3,6 +3,18 @@ function initializeArray(rows, cols) {
     return Array(rows).fill(0).map(() => Array(cols).fill(0));
 }
 
+let rows_all =  document.getElementsByClassName("cell-row");
+let rows_total = rows_all.length
+let columns_total = rows_all[0].children.length
+console.log("rows: " + rows_total);
+console.log("columns: " + columns_total);
+
+let shapeArray = initializeArray(rows_total,columns_total);
+
+if ( $('#error-shapes').length ){
+    showToast('error-shapes');
+}
+
 function handleClick(row, col) {
 
     let cell = document.getElementById(`cell_${row}_${col}`);
@@ -16,14 +28,6 @@ function handleClick(row, col) {
 
 }
 
-let rows_all =  document.getElementsByClassName("cell-row");
-let rows_total = rows_all.length
-let columns_total = rows_all[0].children.length
-console.log("rows: " + rows_total);
-console.log("columns: " + columns_total);
-
-let shapeArray = initializeArray(rows_total,columns_total);
-
 function handleSubmit(modelIdx) {
 
     let request = new XMLHttpRequest();
@@ -33,7 +37,7 @@ function handleSubmit(modelIdx) {
     request.onload = function() {
         let response = JSON.parse(this.responseText);
         if (response.status === "OK") {
-            showToast();
+            showToast('successMessage');
             let nextModelId = parseInt(modelIdx)+1;
             setTimeout(function(){
                 console.log("redirecting to next model...");
@@ -56,8 +60,8 @@ function handleBackButton(modelIdx) {
     }
 }
 
-function showToast() {
-    let myAlert = document.getElementById('successMessage');
+function showToast(elementId) {
+    let myAlert = document.getElementById(elementId);
     let bsAlert = new bootstrap.Toast(myAlert);
     bsAlert.show();
 }

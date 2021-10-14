@@ -1,4 +1,4 @@
-(function($) {
+(function ($) {
     'use strict';
 
     // UPLOAD CLASS DEFINITION
@@ -7,31 +7,40 @@
     var dropZone = document.getElementById('drop-zone-modflow');
 
     async function startUploadModflow(files) {
-        console.log("MODFLOW");
         const formData = new FormData();
         const file = files[0];
         formData.append('archive-input', file);
         var url = "/upload-modflow";
         await fetch(url, {
-            method : "POST",
+            method: "POST",
             body: formData
-        }).then(reponse => location.replace(reponse.url));
+        }).then(response => {
+            if (response.status !== 200) {
+                $("#invalid-project-alert").toast('show');
+            } else {
+                location.replace(response.url)
+            }
+        });
     }
 
-    dropZone.ondrop = function(e) {
+    dropZone.ondrop = function (e) {
         e.preventDefault();
-        this.className = 'upload-drop-zone-modflow';
+        this.className = 'upload-drop-zone';
         startUploadModflow(e.dataTransfer.files)
     }
 
-    dropZone.ondragover = function() {
-        this.className = 'upload-drop-zone-modflow drop';
+    dropZone.ondragover = function () {
+        this.className = 'upload-drop-zone drop';
         return false;
     }
 
-    dropZone.ondragleave = function() {
-        this.className = 'upload-drop-zone-modflow';
+    dropZone.ondragleave = function () {
+        this.className = 'upload-drop-zone';
         return false;
+    }
+
+    if ( $('#error-modflow').length ){
+        $('#error-modflow').toast('show');
     }
 
 })(jQuery);
