@@ -46,6 +46,16 @@ function handleSubmit(modelIdx) {
     request.send(JSON.stringify(shapeArray));
 }
 
+function handleBackButton(modelIdx) {
+    console.log(`redirect to last page`);
+    let lastModelId = parseInt(modelIdx) - 1;
+    if (lastModelId === -1) {
+        window.location.href = '/upload-hydrus';
+    } else {
+        window.location.href = '/define-shapes/' + lastModelId;
+    }
+}
+
 function showToast() {
     let myAlert = document.getElementById('successMessage');
     let bsAlert = new bootstrap.Toast(myAlert);

@@ -2,6 +2,7 @@
 
 {% block head %}
 <link rel="stylesheet" href="static/css/layout.css">
+<link rel="stylesheet" href="/static/css/uploadModflow.css">
 <title>HP4M | MODFLOW</title>
 {% endblock %}
 
@@ -9,8 +10,32 @@
 
 {% block body %}
 <div class="jumbotron">
-    <div class="container">
+    <div class="container mt-5">
         <div class="row justify-content-md-center">
+            <div class="col-lg-9 progress-bar-hp4m">
+                <div class="step modflow">
+                    <a href="{{url_for('upload_modflow')}}" class="label modflow">1</a>
+                    <a href="{{url_for('upload_modflow')}}" class="title modflow">Upload Modflow</a>
+                </div>
+                <span class="bar-hp4m modflow"></span>
+                <span class="bar-hp4m hydrus"></span>
+                <div class="step hydrus">
+                    <a href="{{url_for('upload_hydrus')}}" class="label hydrus">2</a>
+                    <a href="{{url_for('upload_hydrus')}}" class="title hydrus">Upload Hydrus</a>
+                </div>
+                <span class="bar-hp4m hydrus"></span>
+                <span class="bar-hp4m shapes"></span>
+                <div class="step shapes">
+                    <a href="{{ url_for('define_shapes', hydrus_model_index='0') }}" class="label shapes">3</a>
+                    <a href="{{ url_for('define_shapes', hydrus_model_index='0') }}" class="title shapes">Define Shapes</a>
+                </div>
+                <span class="bar-hp4m shapes"></span>
+                <span class="bar-hp4m simulation"></span>
+                <div class="step simulation">
+                    <a href="{{ url_for('simulation') }}" class="label simulation">4</a>
+                    <a href="{{ url_for('simulation') }}" class="title simulation">Run Simulation</a>
+                </div>
+            </div>
             <div class="col-lg-9">
                 <div class="text-center">
                     <h1 class="display-4">Upload modflow project</h1>

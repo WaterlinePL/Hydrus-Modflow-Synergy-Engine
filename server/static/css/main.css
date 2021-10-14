@@ -1,6 +1,5 @@
 body {
     font-family: Helvetica;
-    background: #c4ffff;
 }
 
 #navbarToggler {
@@ -17,4 +16,46 @@ body {
 
 .navbar {
     margin-bottom: 0 !important;
+}
+
+.progress-bar-hp4m {
+	text-align: center;
+	margin: 20px auto;
+}
+
+.progress-bar-hp4m .step {
+	display: inline-block;
+	width: 50px;
+	height: 50px;
+	border-radius: 50px;
+	border: 1px solid #6c757d;
+}
+
+.progress-bar-hp4m .bar-hp4m {
+	display: inline-block;
+	position: relative;
+	width: 100px;
+	height: 10px;
+    top: -60px;
+	margin-left: -5px;
+	margin-right: -5px;
+	border-width: 1px 0px;
+	border-color: #6c757d;
+	border-style: solid;
+}
+
+.progress-bar-hp4m .step .label {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  border-radius: 50px;
+  margin-top: 3px;
+  margin-bottom: 10px;
+  color: #6c757d;
+}
+
+.progress-bar-hp4m .step .title {
+  color: #6c757d;
+  font-size: 10px;
 }
