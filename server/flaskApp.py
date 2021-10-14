@@ -1,5 +1,5 @@
 import numpy as np
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, abort
 from zipfile import ZipFile
 from datapassing.shapeData import ShapeFileData, Shape
 import shutil
@@ -119,7 +119,8 @@ def upload_modflow_handler(req):
         os.remove(archive_path)
         if invalid_model:
             shutil.rmtree(project_path, ignore_errors=True)  # remove invalid project dir
-            return redirect(req.url)
+            return abort(500)
+
 
         get_model_size(project_path)
         util.loaded_modflow_models = [project_name]
@@ -129,7 +130,7 @@ def upload_modflow_handler(req):
     else:
         print("Invalid archive format, must be one of: ", end='')
         print(util.allowed_types)
-        return redirect(req.url)
+        return abort(500)
 
 
 def upload_hydrus_handler(req):
