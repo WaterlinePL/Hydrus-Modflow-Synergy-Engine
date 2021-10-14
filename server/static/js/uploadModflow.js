@@ -7,7 +7,6 @@
     var dropZone = document.getElementById('drop-zone-modflow');
 
     async function startUploadModflow(files) {
-        console.log("MODFLOW");
         const formData = new FormData();
         const file = files[0];
         formData.append('archive-input', file);
@@ -16,7 +15,7 @@
             method: "POST",
             body: formData
         }).then(response => {
-            if (response.status != 200) {
+            if (response.status !== 200) {
                 $("#invalid-project-alert").toast('show');
             } else {
                 location.replace(response.url)

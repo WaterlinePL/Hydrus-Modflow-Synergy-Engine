@@ -112,15 +112,12 @@ def upload_modflow_handler(req):
             archive.extractall(project_path)
 
             # validate model
-            invalid_model = False
-            if not is_modflow_model_valid(project_path):
-                invalid_model = True
+            invalid_model = not is_modflow_model_valid(project_path)
 
         os.remove(archive_path)
         if invalid_model:
             shutil.rmtree(project_path, ignore_errors=True)  # remove invalid project dir
             return abort(500)
-
 
         get_model_size(project_path)
         util.loaded_modflow_models = [project_name]
@@ -225,7 +222,7 @@ def is_modflow_model_valid(project_path: str) -> bool:
             return False
         m.rch.check()
     except IOError:
-        print(".nam file doesn't exist")
+        print("Model is not valid - files are missing")
         return False
     except KeyError:
         print("Model is not valid - modflow common error")
