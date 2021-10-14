@@ -1,8 +1,8 @@
 import numpy as np
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, abort
 from zipfile import ZipFile
 from datapassing.shapeData import ShapeFileData, Shape
-
+import shutil
 import flopy
 
 import os
@@ -105,26 +105,29 @@ def upload_modflow_handler(req):
         with ZipFile(archive_path, 'r') as archive:
             # get the project name and remember it
             project_name = project.filename.split('.')[0]
-            util.loaded_modflow_models = [project_name]
 
             # create a dedicated catalogue and load the project into it
             project_path = os.path.join(util.workspace_dir, 'modflow', project_name)
             os.system('mkdir ' + project_path)
             archive.extractall(project_path)
 
-            # validate model and get model size
-            # TODO - validate model
-            get_nam_file(project_path)
-            get_model_size(project_path)
+            # validate model
+            invalid_model = not is_modflow_model_valid(project_path)
 
-        print("Project uploaded successfully")
         os.remove(archive_path)
+        if invalid_model:
+            shutil.rmtree(project_path, ignore_errors=True)  # remove invalid project dir
+            return abort(500)
+
+        get_model_size(project_path)
+        util.loaded_modflow_models = [project_name]
+        print("Project uploaded successfully")
         return redirect(req.root_url + 'upload-modflow')
 
     else:
         print("Invalid archive format, must be one of: ", end='')
         print(util.allowed_types)
-        return redirect(req.url)
+        return abort(500)
 
 
 def upload_hydrus_handler(req):
@@ -192,12 +195,13 @@ def next_model_redirect_handler(hydrus_model_index):
             modelName=util.loaded_hydrus_models[hydrus_model_index]
         )
 
+
 # ------------------- END HANDLERS -------------------
 
 
 # ------------------- MISC FUNCTIONS -------------------
 
-def get_nam_file(project_path: str):
+def get_nam_file(project_path: str) -> None:
     for filename in os.listdir(project_path):
         filename = str(filename)
         if filename.endswith(".nam"):
@@ -206,7 +210,28 @@ def get_nam_file(project_path: str):
     print("ERROR: invalid modflow model; missing .nam file")
 
 
-def get_model_size(project_path: str):
+def is_modflow_model_valid(project_path: str) -> bool:
+    get_nam_file(project_path)
+    if not util.nam_file_name:
+        return False
+    try:
+        # load whole model and validate it
+        m = flopy.modflow.Modflow.load(util.nam_file_name, model_ws=project_path, forgive=True, check=True)
+        if m.rch is None:
+            print("Model doesn't contain .rch file")
+            return False
+        m.rch.check()
+    except IOError:
+        print("Model is not valid - files are missing")
+        return False
+    except KeyError:
+        print("Model is not valid - modflow common error")
+        return False
+
+    return True
+
+
+def get_model_size(project_path: str) -> None:
     modflow_model = flopy.modflow.Modflow \
         .load(util.nam_file_name, model_ws=project_path, load_only=["rch"], forgive=True)
     util.modflow_rows = modflow_model.nrow
