@@ -2,7 +2,7 @@ import numpy as np
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from zipfile import ZipFile
 from datapassing.shapeData import ShapeFileData, Shape
-
+import shutil
 import flopy
 
 import os
@@ -105,20 +105,25 @@ def upload_modflow_handler(req):
         with ZipFile(archive_path, 'r') as archive:
             # get the project name and remember it
             project_name = project.filename.split('.')[0]
-            util.loaded_modflow_models = [project_name]
 
             # create a dedicated catalogue and load the project into it
             project_path = os.path.join(util.workspace_dir, 'modflow', project_name)
             os.system('mkdir ' + project_path)
             archive.extractall(project_path)
 
-            # validate model and get model size
-            # TODO - validate model
-            get_nam_file(project_path)
-            get_model_size(project_path)
+            # validate model
+            invalid_model = False
+            if not is_modflow_model_valid(project_path):
+                invalid_model = True
 
-        print("Project uploaded successfully")
         os.remove(archive_path)
+        if invalid_model:
+            shutil.rmtree(project_path, ignore_errors=True)  # remove invalid project dir
+            return redirect(req.url)
+
+        get_model_size(project_path)
+        util.loaded_modflow_models = [project_name]
+        print("Project uploaded successfully")
         return redirect(req.root_url + 'upload-modflow')
 
     else:
@@ -192,12 +197,13 @@ def next_model_redirect_handler(hydrus_model_index):
             modelName=util.loaded_hydrus_models[hydrus_model_index]
         )
 
+
 # ------------------- END HANDLERS -------------------
 
 
 # ------------------- MISC FUNCTIONS -------------------
 
-def get_nam_file(project_path: str):
+def get_nam_file(project_path: str) -> None:
     for filename in os.listdir(project_path):
         filename = str(filename)
         if filename.endswith(".nam"):
@@ -206,7 +212,28 @@ def get_nam_file(project_path: str):
     print("ERROR: invalid modflow model; missing .nam file")
 
 
-def get_model_size(project_path: str):
+def is_modflow_model_valid(project_path: str) -> bool:
+    get_nam_file(project_path)
+    if not util.nam_file_name:
+        return False
+    try:
+        # load whole model and validate it
+        m = flopy.modflow.Modflow.load(util.nam_file_name, model_ws=project_path, forgive=True, check=True)
+        if m.rch is None:
+            print("Model doesn't contain .rch file")
+            return False
+        m.rch.check()
+    except IOError:
+        print(".nam file doesn't exist")
+        return False
+    except KeyError:
+        print("Model is not valid - modflow common error")
+        return False
+
+    return True
+
+
+def get_model_size(project_path: str) -> None:
     modflow_model = flopy.modflow.Modflow \
         .load(util.nam_file_name, model_ws=project_path, load_only=["rch"], forgive=True)
     util.modflow_rows = modflow_model.nrow
