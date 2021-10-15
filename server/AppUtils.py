@@ -20,6 +20,7 @@ class AppUtils:
         self.loaded_hydrus_models = []  # an array of strings, the names of the loaded hydrus models
         self.loaded_modflow_models = []
         self.nam_file_name = ""
+        self.recharge_masks = []
         self.loaded_shapes = {}
         self.modflow_rows = 0
         self.modflow_cols = 0

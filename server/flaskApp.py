@@ -120,6 +120,7 @@ def upload_modflow_handler(req):
             return abort(500)
 
         get_model_size(project_path)
+        get_shapes_from_rch(project_path)
         util.loaded_modflow_models = [project_name]
         print("Project uploaded successfully")
         return redirect(req.root_url + 'upload-modflow')
@@ -236,5 +237,54 @@ def get_model_size(project_path: str) -> None:
         .load(util.nam_file_name, model_ws=project_path, load_only=["rch"], forgive=True)
     util.modflow_rows = modflow_model.nrow
     util.modflow_cols = modflow_model.ncol
+
+
+def get_shapes_from_rch(project_path: str) -> None:
+    """
+    Defines shapes masks for uploaded modflow model based on recharge
+    @param project_path: path to modflow project main directory
+    @return: None
+    """
+    modflow_model = flopy.modflow.Modflow \
+        .load(util.nam_file_name, model_ws=project_path, load_only=["rch"], forgive=True)
+
+    stress_period = 0
+
+    util.recharge_masks = []
+    is_checked_array = np.full((util.modflow_rows, util.modflow_cols), False)
+    recharge_array = modflow_model.rch.rech.array[stress_period][0]
+
+    for i in range(util.modflow_rows):
+        for j in range(util.modflow_cols):
+            if not is_checked_array[i][j]:
+                util.recharge_masks.append(np.zeros((util.modflow_rows, util.modflow_cols)))
+                fill_mask_recursive(mask=util.recharge_masks[-1], recharge_array=recharge_array,
+                                    is_checked_array=is_checked_array, i=i, j=j, value=recharge_array[i][j])
+
+    print(util.recharge_masks)
+
+
+def fill_mask_recursive(mask, recharge_array, is_checked_array, i: int, j: int, value: float):
+    """
+    Fill given mask with 1's according to recharge array
+    @param mask: Binary mask of current shape - initially filled with 0's
+    @param recharge_array: 2d array filled with modflow model recharge values
+    @param is_checked_array: control array - 'True' means that given cell was already used in one of the masks
+    @param i: column index
+    @param j: row index
+    @param value: recharge value of current mask
+    @return: None
+    """
+    # return condition - out of bounds or given cell was already used
+    if i < 0 or i >= util.modflow_rows or j < 0 or j >= util.modflow_cols or is_checked_array[i][j]:
+        return
+    if recharge_array[i][j] == value:
+        is_checked_array[i][j] = True
+        mask[i][j] = 1
+        fill_mask_recursive(mask, recharge_array, is_checked_array, i - 1, j, value)
+        fill_mask_recursive(mask, recharge_array, is_checked_array, i + 1, j, value)
+        fill_mask_recursive(mask, recharge_array, is_checked_array, i, j - 1, value)
+        fill_mask_recursive(mask, recharge_array, is_checked_array, i, j + 1, value)
+    return
 
 # ------------------- END MISC FUNCTIONS -------------------
