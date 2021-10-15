@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<link rel="stylesheet" href="static/css/layout.css">
+<link rel="stylesheet" href="/static/css/layout.css">
 <title>HP4M | HYDRUS</title>
 {% endblock %}
 
@@ -61,8 +61,22 @@
         </div>
     </div>
 </div>
+{% if upload_error %}
+<div style="position: absolute; bottom: 20px; right: 20px;" class="w-25">
+    <div class="toast border border-danger" role="alert" id="error-hydrus" aria-live="assertive" aria-atomic="true"
+         data-delay="2000" style="border-width: 4px !important;">
+        <div class="toast-header bg-danger text-white">
+            <strong class="mr-auto">Error</strong>
+        </div>
+        <div class="toast-body" id="toast-body-error-hydrus">
+            Upload HYDRUS model
+        </div>
+    </div>
+</div>
+{% endif %}
+
 {% endblock %}
 
 {% block scripts %}
-<script src="static/js/uploadHydrus.js"></script>
+<script src="/static/js/uploadHydrus.js"></script>
 {% endblock %}

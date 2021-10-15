@@ -34,4 +34,7 @@
         return false;
     }
 
+    if ( $('#error-hydrus').length ){
+        $('#error-hydrus').toast('show');
+    }
 })(jQuery);
