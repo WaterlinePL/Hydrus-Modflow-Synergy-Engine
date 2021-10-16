@@ -249,10 +249,11 @@ def get_shapes_from_rch(project_path: str) -> None:
         .load(util.nam_file_name, model_ws=project_path, load_only=["rch"], forgive=True)
 
     stress_period = 0
+    layer = 0
 
     util.recharge_masks = []
     is_checked_array = np.full((util.modflow_rows, util.modflow_cols), False)
-    recharge_array = modflow_model.rch.rech.array[stress_period][0]
+    recharge_array = modflow_model.rch.rech.array[stress_period][layer]
 
     for i in range(util.modflow_rows):
         for j in range(util.modflow_cols):
