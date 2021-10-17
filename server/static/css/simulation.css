@@ -1,15 +1,13 @@
-.tableWrapper {
-    margin-left: 50px;
-}
-
 .step.modflow, .bar-hp4m.modflow,
 .step.hydrus, .bar-hp4m.hydrus,
-.step.shapes, .bar-hp4m.shapes {
+.step.shapes, .bar-hp4m.shapes,
+.step.simulation, .bar-hp4m.simulation {
 	background-color: #007bff;
 }
 
 .step .label.modflow,
 .step .label.hydrus,
-.step .label.shapes {
+.step .label.shapes,
+.step .label.simulation {
 	color: white;
 }

@@ -2,6 +2,7 @@
 
 {% block head %}
 <title>HP4M | Simulation</title>
+<link rel="stylesheet" href="/static/css/simulation.css">
 {% endblock %}
 
 
@@ -10,6 +11,8 @@
 {% block body %}
 <div class="container mt-5" id="simulation-content">
     <div class="row justify-content-md-center">
+        {% include 'progressBar.html' %}
+
         <div class="col-lg-9">
             <div class="text-center">
                 <h1 class="display-4">Your simulation is ready to be started!</h1>
@@ -45,9 +48,12 @@
         {% endfor %}
     </div>
 
-    <div class="row justify-content-end">
-        <div class="col-auto">
-            <a type="button" id="start-simulation" class="btn btn-secondary" href=""> Run </a>
+    <div class="row ">
+        <div class="col-md-1 offset-md-2">
+            <a type="button" class="btn btn-default" href="{{url_for('define_shapes',  hydrus_model_index='0')}}">Back</a>
+        </div>
+        <div class="col-md-1 offset-md-6">
+            <button type="button" id="start-simulation" class="btn btn-secondary" href=""> Run</button>
         </div>
     </div>
 </div> <!-- container -->
@@ -58,7 +64,8 @@
             <div class="spinner-border" id="hydrus-spinner" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
-            <svg xmlns="http://www.w3.org/2000/svg" id="hydrus-tick" hidden width="25" height="25" fill="currentColor" class="bi bi-check"
+            <svg xmlns="http://www.w3.org/2000/svg" id="hydrus-tick" hidden width="25" height="25" fill="currentColor"
+                 class="bi bi-check"
                  viewBox="0 0 16 16">
                 <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
             </svg>
@@ -70,7 +77,8 @@
             <div class="spinner-border" id="passing-spinner" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
-            <svg xmlns="http://www.w3.org/2000/svg" hidden id="passing-tick" width="25" height="25" fill="currentColor" class="bi bi-check"
+            <svg xmlns="http://www.w3.org/2000/svg" hidden id="passing-tick" width="25" height="25" fill="currentColor"
+                 class="bi bi-check"
                  viewBox="0 0 16 16">
                 <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
             </svg>
@@ -82,7 +90,8 @@
             <div class="spinner-border" id="modflow-spinner" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
-            <svg xmlns="http://www.w3.org/2000/svg" hidden id="modflow-tick" width="25" height="25" fill="currentColor" class="bi bi-check"
+            <svg xmlns="http://www.w3.org/2000/svg" hidden id="modflow-tick" width="25" height="25" fill="currentColor"
+                 class="bi bi-check"
                  viewBox="0 0 16 16">
                 <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
             </svg>

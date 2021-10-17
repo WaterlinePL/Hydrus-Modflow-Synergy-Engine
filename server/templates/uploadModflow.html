@@ -2,6 +2,7 @@
 
 {% block head %}
 <link rel="stylesheet" href="/static/css/layout.css">
+<link rel="stylesheet" href="/static/css/uploadModflow.css">
 <title>HP4M | MODFLOW</title>
 {% endblock %}
 
@@ -9,8 +10,10 @@
 
 {% block body %}
 <div class="jumbotron">
-    <div class="container">
+    <div class="container mt-5">
         <div class="row justify-content-md-center">
+            {% include 'progressBar.html' %}
+
             <div class="col-lg-9">
                 <div class="text-center">
                     <h1 class="display-4">Upload modflow project</h1>
@@ -28,24 +31,6 @@
                             <div class="upload-drop-zone" id="drop-zone-modflow">
                                 Just drag and drop files here
                             </div>
-
-                            <!--                            fancy wyświetlanie paska progresji, ale nie jest oskryptowane (pewno z Django może dałoby się to zingegrować albo z JSem, na razie nieplanowane-->
-                            <!--                            polecam zaznaczyć całość a potem Ctrl+.-->
-                            <!--                            &lt;!&ndash; Progress Bar &ndash;&gt;-->
-                            <!--                            <div class="progress">-->
-                            <!--                                <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">-->
-                            <!--                                    <span class="sr-only">60% Complete</span>-->
-                            <!--                                </div>-->
-                            <!--                            </div>-->
-
-                            <!-- Upload Finished -->
-                            <!--                            <div class="js-upload-finished">-->
-                            <!--                                <h3>Processed files</h3>-->
-                            <!--                                <div class="list-group">-->
-                            <!--                                    <a href="#" class="list-group-item list-group-item-success"><span class="badge alert-success pull-right">Success</span>image-01.jpg</a>-->
-                            <!--                                    <a href="#" class="list-group-item list-group-item-success"><span class="badge alert-success pull-right">Success</span>image-02.jpg</a>-->
-                            <!--                                </div>-->
-                            <!--                            </div>-->
                         </div>
                     </div>
                     <div class="row justify-content-end">
