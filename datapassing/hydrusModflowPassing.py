@@ -30,6 +30,10 @@ class HydrusModflowPassing:
         recharge = modflow_model.rch.rech[stress_period].array
 
         for shape in self.shapes:
+            mask = (shape.mask_array == 1)
+            recharge[mask] = 0.0
+
+        for shape in self.shapes:
             recharge += shape.get_recharge()
 
 
