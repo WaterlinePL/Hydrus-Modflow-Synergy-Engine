@@ -22,15 +22,20 @@ class HydrusModflowPassing:
         if len(self.shapes) < 1:
             return None
 
+        # load MODFLOW model - basic info and RCH package
         modflow_model = flopy.modflow.Modflow.load(self.nam_file, model_ws=self.modflow_workspace_path,
                                                    load_only=["rch"],
                                                    forgive=True)
-        recharge = np.zeros((modflow_model.nrow, modflow_model.ncol))
+
+        recharge = modflow_model.rch.rech[stress_period].array
+
+        for shape in self.shapes:
+            mask = (shape.mask_array == 1)
+            recharge[mask] = 0.0
 
         for shape in self.shapes:
             recharge += shape.get_recharge()
 
-        # load MODFLOW model - basic info and RCH package
 
         # !! useful props:
         # modflow_model.nper (stress period count),
@@ -39,8 +44,6 @@ class HydrusModflowPassing:
         rch_package = modflow_model.get_package("rch")  # get the RCH package
 
         # create new recharge array
-        # recharge_array.fill(recharge_value)  # TODO shapes handling - done?
-
         modflow_model.rch.rech[stress_period] = recharge
         new_recharge = modflow_model.rch.rech
 
