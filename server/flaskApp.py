@@ -2,6 +2,8 @@ import numpy as np
 from flask import Flask, render_template, request, redirect, url_for, jsonify, abort
 from zipfile import ZipFile
 from datapassing.shapeData import ShapeFileData, Shape
+from DAO import DAO, PROJECTS, RESULTS
+from constants import DB_URL
 import shutil
 import flopy
 
@@ -14,6 +16,9 @@ import threading
 
 util = AppUtils()
 util.setup()
+
+dao = DAO(DB_URL)
+
 app = Flask("App")
 simulation_service = SimulationService(hydrus_dir=util.hydrus_dir,
                                        modflow_dir=util.modflow_dir)
