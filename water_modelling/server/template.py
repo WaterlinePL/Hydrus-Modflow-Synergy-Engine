@@ -1,0 +1,5 @@
+HOME = 'home.html'
+UPLOAD_HYDRUS = 'uploadHydrus.html'
+UPLOAD_MODFLOW = 'uploadModflow.html'
+DEFINE_SHAPES = 'defineShapes.html'
+SIMULATION = 'simulation.html'

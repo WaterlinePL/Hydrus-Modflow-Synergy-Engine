@@ -20,7 +20,7 @@ class PodController:
                     if self.delete_pod(event_object.metadata.namespace, pod_name):
                         pod_watch.stop()
 
-    def delete_pod(self, namespace: str, pod_name: str) -> None:
+    def delete_pod(self, namespace: str, pod_name: str) -> bool:
         """
         @param namespace: Namespace of the pod you want to delete (ex. "default")
         @param pod_name: Name of the pod you want to delete (ex. "hydrus-1d-01")
@@ -35,7 +35,8 @@ class PodController:
             print('Could not delete pod ' + pod_name + '.\n' + ex)
             return False
 
-    def is_completed(self, pod_status) -> bool:
+    @staticmethod
+    def is_completed(pod_status) -> bool:
         """
         @param pod_status: Status of watch event object (event['object'].status)
         @return: True if pod completed successfully. False if the pod is still running.

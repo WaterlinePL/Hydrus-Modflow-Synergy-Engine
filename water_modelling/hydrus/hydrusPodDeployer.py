@@ -1,10 +1,12 @@
 from kubernetes import client
 from kubernetes.client.rest import ApiException
+
+from hydrus.IHydrusDeployer import IHydrusDeployer
 from utils.yamlData import YamlData
 from utils.yamlGenerator import YamlGenerator
 
 
-class HydrusDeployer:
+class HydrusPodDeployer(IHydrusDeployer):
 
     def __init__(self, api_instance: client.CoreV1Api, path: str, pod_name: str, namespace: str = 'default'):
         self.api_instance = api_instance
@@ -12,7 +14,7 @@ class HydrusDeployer:
         self.pod_name = pod_name
         self.namespace = namespace
 
-    def run_pod(self):
+    def run(self):
         resp = None
         try:
             resp = self.api_instance.read_namespaced_pod(name=self.pod_name, namespace=self.namespace)

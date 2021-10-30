@@ -1,10 +1,12 @@
 from kubernetes import client
 from kubernetes.client.rest import ApiException
+
+from modflow.IModflowDeployer import IModflowDeployer
 from utils.yamlData import YamlData
 from utils.yamlGenerator import YamlGenerator
 
 
-class ModflowDeployer:
+class ModflowPodDeployer(IModflowDeployer):
 
     def __init__(self, api_instance: client.CoreV1Api, path: str, name_file: str, pod_name, modflow_version="mf2005",
                  namespace='default'):
@@ -15,7 +17,7 @@ class ModflowDeployer:
         self.name_file = name_file
         self.modflow_version = modflow_version
 
-    def run_pod(self):
+    def run(self):
         resp = None
         try:
             resp = self.api_instance.read_namespaced_pod(name=self.pod_name, namespace=self.namespace)

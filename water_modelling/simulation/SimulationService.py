@@ -24,7 +24,7 @@ class SimulationService:
                                                                      self.hydrus_dir, namespace)
 
     def check_simulation_status(self, simulation_id: int):
-        h, p, m = self.simulations[simulation_id]['simulation'].get_simulation_status()
-        if h and p and m:
+        hydrus_done, passing_done, modflow_done = self.simulations[simulation_id]['simulation'].get_simulation_status()
+        if hydrus_done and passing_done and modflow_done:
             self.simulations[simulation_id]['is_finished'] = True
-        return h, p, m
+        return hydrus_done, passing_done, modflow_done
