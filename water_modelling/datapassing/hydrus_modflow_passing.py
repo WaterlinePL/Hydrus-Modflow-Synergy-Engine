@@ -3,7 +3,7 @@ from typing import List, Tuple, Optional
 import numpy as np
 import flopy
 
-from datapassing.shapeData import ShapeFileData, Shape
+from datapassing.shape_data import ShapeFileData, Shape
 
 
 class HydrusModflowPassing:

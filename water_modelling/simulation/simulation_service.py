@@ -1,6 +1,6 @@
 from kubernetes import client, config
-from kubernetes_controller.podController import PodController
-from simulation.Simulation import Simulation
+from kubernetes_controller.pod_controller import PodController
+from simulation.simulation import Simulation
 
 
 class SimulationService:

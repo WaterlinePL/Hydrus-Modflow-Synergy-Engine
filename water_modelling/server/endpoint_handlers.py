@@ -1,15 +1,15 @@
-from AppUtils import AppUtils
+from app_utils import AppUtils
 import numpy as np
 from flask import render_template, redirect, abort
 from zipfile import ZipFile
-from datapassing.shapeData import ShapeFileData
+from datapassing.shape_data import ShapeFileData
 import shutil
 
 
 import os
 import json
 
-from modflow import ModflowUtils
+from modflow import modflow_utils
 from server import endpoints, template
 
 util = AppUtils()
@@ -34,17 +34,17 @@ def upload_modflow_handler(req):
             archive.extractall(project_path)
 
             # validate model
-            util.nam_file_name = ModflowUtils.get_nam_file(project_path)
-            invalid_model = not ModflowUtils.validate_model(project_path, util.nam_file_name)
+            util.nam_file_name = modflow_utils.get_nam_file(project_path)
+            invalid_model = not modflow_utils.validate_model(project_path, util.nam_file_name)
 
         os.remove(archive_path)
         if invalid_model:
             shutil.rmtree(project_path, ignore_errors=True)  # remove invalid project dir
             return abort(500)
 
-        util.modflow_rows, util.modflow_cols = ModflowUtils.get_model_size(project_path, util.nam_file_name)
-        util.recharge_masks = ModflowUtils.get_shapes_from_rch(project_path, util.nam_file_name,
-                                                               (util.modflow_rows, util.modflow_cols))
+        util.modflow_rows, util.modflow_cols = modflow_utils.get_model_size(project_path, util.nam_file_name)
+        util.recharge_masks = modflow_utils.get_shapes_from_rch(project_path, util.nam_file_name,
+                                                                (util.modflow_rows, util.modflow_cols))
         util.loaded_modflow_models = [project_name]
         print("Project uploaded successfully")
         return redirect(endpoints.UPLOAD_MODFLOW)

@@ -3,7 +3,7 @@ from typing import List
 
 import numpy as np
 
-import datapassing.hydrusModflowPassing as DataPassing
+import datapassing.hydrus_modflow_passing as DataPassing
 
 
 class HydrusShapesTest(unittest.TestCase):

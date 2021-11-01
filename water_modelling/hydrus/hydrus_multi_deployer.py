@@ -2,8 +2,8 @@ from typing import List
 
 from kubernetes import client
 
-from hydrus.IHydrusDeployer import IHydrusDeployer
-from hydrus.hydrusPodDeployer import HydrusPodDeployer
+from hydrus.hydrus_deployer_interface import IHydrusDeployer
+from hydrus.hydrus_pod_deployer import HydrusPodDeployer
 
 # TODO: switcharoo (get rid of kubernetes pods)
 HydrusDeployer = HydrusPodDeployer

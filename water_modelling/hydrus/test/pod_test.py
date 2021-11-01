@@ -6,7 +6,7 @@ from kubernetes import client, config
 from kubernetes.client import V1Pod
 
 from constants import HYDRUS_ROOT_DOCKER
-from hydrus.hydrusMultiDeployer import HydrusMultiDeployer
+from hydrus.hydrus_multi_deployer import HydrusMultiDeployer
 
 CONTAINER_NAME = "hydrus1d_linux:latest"
 

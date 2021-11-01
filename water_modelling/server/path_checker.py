@@ -3,7 +3,7 @@ from typing import Optional
 from flask import Response, url_for, redirect
 
 from server import endpoints
-from server.AppUtils import AppUtils
+from server.app_utils import AppUtils
 
 
 def path_check_modflow_step(util: AppUtils) -> Optional[Response]:

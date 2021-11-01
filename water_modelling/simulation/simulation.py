@@ -2,12 +2,12 @@ import os.path
 import re
 from typing import Tuple
 
-from datapassing.hydrusModflowPassing import HydrusModflowPassing
-from hydrus.hydrusMultiDeployer import HydrusMultiDeployer
-from modflow import ModflowUtils
-from modflow.modflowPodDeployer import ModflowPodDeployer
+from datapassing.hydrus_modflow_passing import HydrusModflowPassing
+from hydrus.hydrus_multi_deployer import HydrusMultiDeployer
+from modflow import modflow_utils
+from modflow.modflow_pod_deployer import ModflowPodDeployer
 from concurrent.futures import ThreadPoolExecutor
-from kubernetes_controller.podController import PodController
+from kubernetes_controller.pod_controller import PodController
 from kubernetes.client import CoreV1Api
 
 
@@ -31,7 +31,7 @@ class Simulation:
         self.run_hydrus(api_instance, hydrus_dir, namespace, pod_controller)
 
         # ===== COPY RESULTS OF HYDRUS TO MODFLOW ======
-        nam_file = ModflowUtils.get_nam_file(os.path.join(modflow_dir, self.modflow_project))
+        nam_file = modflow_utils.get_nam_file(os.path.join(modflow_dir, self.modflow_project))
         self.pass_data_from_hydrus_to_modflow(hydrus_dir, modflow_dir, nam_file)
 
         # ===== RUN MODFLOW INSTANCE ======

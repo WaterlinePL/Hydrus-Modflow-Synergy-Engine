@@ -1,24 +1,26 @@
 from kubernetes import client
 from kubernetes.client.rest import ApiException
 
-from hydrus.IHydrusDeployer import IHydrusDeployer
-from utils.yamlData import YamlData
-from utils.yamlGenerator import YamlGenerator
+from modflow.modflow_deployer_interface import IModflowDeployer
+from utils.yaml_data import YamlData
+from utils.yaml_generator import YamlGenerator
 
 
-class HydrusPodDeployer(IHydrusDeployer):
+class ModflowPodDeployer(IModflowDeployer):
 
-    def __init__(self, api_instance: client.CoreV1Api, path: str, pod_name: str, namespace: str = 'default'):
+    def __init__(self, api_instance: client.CoreV1Api, path: str, name_file: str, pod_name, modflow_version="mf2005",
+                 namespace='default'):
         self.api_instance = api_instance
         self.path = path
         self.pod_name = pod_name
         self.namespace = namespace
+        self.name_file = name_file
+        self.modflow_version = modflow_version
 
     def run(self):
         resp = None
         try:
             resp = self.api_instance.read_namespaced_pod(name=self.pod_name, namespace=self.namespace)
-
         except ApiException as e:
             if e.status != 404:
                 print("Unknown error: %s" % e)
@@ -26,11 +28,11 @@ class HydrusPodDeployer(IHydrusDeployer):
 
         if not resp:
             yaml_data = YamlData(pod_name=self.pod_name,
-                                 container_image='observer46/water_modeling_agh:hydrus1d_linux',
-                                 container_name='kicajki2',
-                                 mount_path='/workspace/hydrus',
-                                 mount_path_name='my-path2',
-                                 args=[],
+                                 container_image='mjstealey/docker-modflow',
+                                 container_name='kicajki',
+                                 mount_path='/workspace',
+                                 mount_path_name='my-path1',
+                                 args=[self.modflow_version, self.name_file],
                                  volumes_host_path=self.path)
 
             yaml_gen = YamlGenerator(yaml_data)

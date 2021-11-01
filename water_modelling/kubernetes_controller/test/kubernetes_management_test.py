@@ -1,10 +1,10 @@
 import unittest
 from kubernetes import client, config
-from hydrus.hydrusPodDeployer import HydrusPodDeployer
-from hydrus.hydrusMultiDeployer import HydrusMultiDeployer
-from modflow.modflowPodDeployer import ModflowPodDeployer
+from hydrus.hydrus_pod_deployer import HydrusPodDeployer
+from hydrus.hydrus_multi_deployer import HydrusMultiDeployer
+from modflow.modflow_pod_deployer import ModflowPodDeployer
 from constants import HYDRUS_ROOT_DOCKER
-from kubernetes_controller.podController import PodController
+from kubernetes_controller.pod_controller import PodController
 from concurrent.futures import ThreadPoolExecutor
 
 

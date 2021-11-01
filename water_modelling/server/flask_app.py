@@ -1,11 +1,11 @@
 from flask import Flask, render_template, request, redirect, jsonify
 
-import EndpointHandlers
-from server import endpoints, template, PathChecker
-from simulation.SimulationService import SimulationService
+import endpoint_handlers
+from server import endpoints, template, path_checker
+from simulation.simulation_service import SimulationService
 import threading
 
-util = EndpointHandlers.util
+util = endpoint_handlers.util
 app = Flask("App")
 simulation_service = SimulationService(hydrus_dir=util.hydrus_dir,
                                        modflow_dir=util.modflow_dir)
@@ -25,7 +25,7 @@ def home():
 @app.route(endpoints.UPLOAD_MODFLOW, methods=['GET', 'POST'])
 def upload_modflow():
     if request.method == 'POST' and request.files:
-        return EndpointHandlers.upload_modflow_handler(request)
+        return endpoint_handlers.upload_modflow_handler(request)
     else:
         return render_template(template.UPLOAD_MODFLOW,
                                model_names=util.loaded_modflow_models,
@@ -34,11 +34,11 @@ def upload_modflow():
 
 @app.route(endpoints.UPLOAD_HYDRUS, methods=['GET', 'POST'])
 def upload_hydrus():
-    check_previous_steps = PathChecker.path_check_modflow_step(util)
+    check_previous_steps = path_checker.path_check_modflow_step(util)
     if check_previous_steps:
         return check_previous_steps
     if request.method == 'POST' and request.files:
-        return EndpointHandlers.upload_hydrus_handler(request)
+        return endpoint_handlers.upload_hydrus_handler(request)
     else:
         return render_template(template.UPLOAD_HYDRUS,
                                model_names=util.loaded_hydrus_models,
@@ -47,19 +47,19 @@ def upload_hydrus():
 
 @app.route(endpoints.DEFINE_SHAPES, methods=['GET', 'POST'])
 def define_shapes(hydrus_model_index):
-    check_previous_steps = PathChecker.path_check_hydrus_step(util)
+    check_previous_steps = path_checker.path_check_hydrus_step(util)
     if check_previous_steps:
         return check_previous_steps
 
     if request.method == 'POST':
-        return EndpointHandlers.upload_shape_handler(request, int(hydrus_model_index))
+        return endpoint_handlers.upload_shape_handler(request, int(hydrus_model_index))
     else:
-        return EndpointHandlers.next_model_redirect_handler(int(hydrus_model_index), util.get_error_flag())
+        return endpoint_handlers.next_model_redirect_handler(int(hydrus_model_index), util.get_error_flag())
 
 
 @app.route(endpoints.SIMULATION, methods=['GET'])
 def simulation():
-    check_previous_steps = PathChecker.path_check_define_shapes(util)
+    check_previous_steps = path_checker.path_check_define_shapes(util)
     if check_previous_steps:
         return check_previous_steps
 
@@ -68,7 +68,7 @@ def simulation():
 
 @app.route(endpoints.SIMULATION_RUN)
 def run_simulation():
-    check_previous_steps = PathChecker.path_check_define_shapes(util)
+    check_previous_steps = path_checker.path_check_define_shapes(util)
     if check_previous_steps:
         return check_previous_steps
 
