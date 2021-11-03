@@ -3,8 +3,9 @@ import numpy as np
 from flask import render_template, redirect, abort
 from zipfile import ZipFile
 from datapassing.shape_data import ShapeFileData
+from DAO import DAO, PROJECTS, RESULTS
+from constants import DB_URL
 import shutil
-
 
 import os
 import json
@@ -14,6 +15,8 @@ from server import endpoints, template
 
 util = AppUtils()
 util.setup()
+
+dao = DAO(DB_URL)
 
 
 def upload_modflow_handler(req):
