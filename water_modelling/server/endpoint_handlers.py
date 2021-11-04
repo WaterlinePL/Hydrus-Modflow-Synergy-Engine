@@ -19,6 +19,10 @@ util.setup()
 dao = DAO(DB_URL)
 
 
+def project_list_handler():
+    return render_template(template.PROJECT_LIST, projects=dao.read_all(PROJECTS))
+
+
 def upload_modflow_handler(req):
     project = req.files['archive-input']  # matches HTML input name
 

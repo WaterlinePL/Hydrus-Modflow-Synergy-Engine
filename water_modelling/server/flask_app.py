@@ -22,6 +22,11 @@ def home():
     return render_template(template.HOME)
 
 
+@app.route(endpoints.PROJECT_LIST, methods=['GET'])
+def project_list():
+    return endpoint_handlers.project_list_handler()
+
+
 @app.route(endpoints.UPLOAD_MODFLOW, methods=['GET', 'POST'])
 def upload_modflow():
     if request.method == 'POST' and request.files:

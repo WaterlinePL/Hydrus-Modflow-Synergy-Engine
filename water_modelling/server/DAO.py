@@ -1,5 +1,22 @@
 
 from pymongo import MongoClient
+from constants import DB_URL
+
+"""
+A project document contains the following:
+{
+    "rows": int - the amount of rows in the model grid,
+    "cols": int - the amount of columns in the model grid,
+    "cell_size": float - the length of a single grid cell,
+    "lat": float - the latitude the model lies at,
+    "long": float - the longitude the model lies at,
+    "start_date": string - the start date of the simulation, YYYY-mm-dd
+    "end_date": string - the end date of the simulation, YYYY-mm-dd,
+    "modflow_model": string - the name of the folder containing the modflow model,
+    "hydrus_models": List<String> - a list of names of folders containing the hydrus models
+}
+"""
+
 
 PROJECTS = "projects"
 RESULTS = "results"
@@ -40,6 +57,15 @@ class DAO:
         :return: the first document found matching the query, or None if not found
         """
         return self.db[collection].find_one(query)
+
+    def read_all(self, collection: str):
+        """
+        Returns all the documents from a specified collection.
+
+        :param collection: as string, the collection whose contents we want to get
+        :return: a list of documents from that collection
+        """
+        return [x for x in self.db[collection].find()]
 
     def update(self, collection: str, query: dict, new_data: dict, operator="$set"):
         """

@@ -1,4 +1,5 @@
 HOME = '/home'
+PROJECT_LIST = '/project-list'
 UPLOAD_HYDRUS = '/upload-hydrus'
 UPLOAD_MODFLOW = '/upload-modflow'
 DEFINE_SHAPES = '/define-shapes/<hydrus_model_index>'
