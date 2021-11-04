@@ -11,6 +11,7 @@
     {% for project in projects %}
         <li>
             <h3>{{ project.name }}</h3>
+            <a href="{{ url_for('project', project_id=project._id) }}">Open</a>
         </li>
     {% endfor %}
     </ul>

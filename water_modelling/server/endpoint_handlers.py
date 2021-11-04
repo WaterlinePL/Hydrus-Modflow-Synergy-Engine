@@ -20,7 +20,31 @@ dao = DAO(DB_URL)
 
 
 def project_list_handler():
-    return render_template(template.PROJECT_LIST, projects=dao.read_all(PROJECTS))
+    util.all_projects = dao.read_all(PROJECTS)
+    return render_template(template.PROJECT_LIST, projects=util.all_projects)
+
+
+def project_handler(project_id):
+    if project_id is None:
+        # case 1 - there is already a project loaded and we just want to see it
+        if util.active_project is not None:
+            return render_template(template.PROJECT, project=util.active_project)
+        # case 2 - there is no project loaded, the user should be redirected to the project list to select a project
+        else:
+            return redirect(endpoints.PROJECT_LIST)
+    # case 3 - there is no project selected, but we're just selecting one
+    else:
+        chosen_project = None
+        for project in util.all_projects:
+            if str(project["_id"]) == project_id:
+                chosen_project = project
+                break
+        # case 3a - the project does not exist
+        if chosen_project is None:
+            return redirect(endpoints.PROJECT_LIST)
+        else:
+            util.active_project = chosen_project
+            return render_template(template.PROJECT, project=chosen_project)
 
 
 def upload_modflow_handler(req):

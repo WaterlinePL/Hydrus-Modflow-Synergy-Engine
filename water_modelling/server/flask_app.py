@@ -27,6 +27,12 @@ def project_list():
     return endpoint_handlers.project_list_handler()
 
 
+@app.route(endpoints.PROJECT, methods=['GET'])
+@app.route(endpoints.PROJECT_NO_ID, defaults={'project_id': None})
+def project(project_id):
+    return endpoint_handlers.project_handler(project_id)
+
+
 @app.route(endpoints.UPLOAD_MODFLOW, methods=['GET', 'POST'])
 def upload_modflow():
     if request.method == 'POST' and request.files:
