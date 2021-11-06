@@ -2,12 +2,10 @@ from flask import Flask, render_template, request, redirect, jsonify
 
 import endpoint_handlers
 from server import endpoints, template, path_checker
-from simulation.simulation_service import SimulationService
 import threading
 
 util = endpoint_handlers.util
 app = Flask("App")
-simulation_service = None  # TODO - create SimulationService instance once a project has been loaded (how?)
 
 
 # ------------------- ROUTES -------------------
@@ -90,20 +88,21 @@ def run_simulation():
     if check_previous_steps:
         return check_previous_steps
 
-    sim = simulation_service.prepare_simulation()
+    util.init_simulation_service()
+    sim = util.simulation_service.prepare_simulation()
 
     sim.set_modflow_project(modflow_project=util.loaded_modflow_models[0])
     sim.set_loaded_shapes(loaded_shapes=util.loaded_shapes)
 
     sim_id = sim.get_id()
 
-    thread = threading.Thread(target=simulation_service.run_simulation, args=(sim_id, "default"))
+    thread = threading.Thread(target=util.simulation_service.run_simulation, args=(sim_id, "default"))
     thread.start()
     return jsonify(id=sim_id)
 
 
 @app.route(endpoints.SIMULATION_CHECK, methods=['GET'])
 def check_simulation_status(simulation_id: int):
-    hydrus_finished, passing_finished, modflow_finished = simulation_service.check_simulation_status(int(simulation_id))
+    hydrus_finished, passing_finished, modflow_finished = util.simulation_service.check_simulation_status(int(simulation_id))
     response = {'hydrus': hydrus_finished, 'passing': passing_finished, 'modflow': modflow_finished}
     return jsonify(response)

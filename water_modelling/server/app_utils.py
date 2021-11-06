@@ -3,6 +3,8 @@ import os
 
 import version_contants
 
+from simulation.simulation_service import SimulationService
+
 
 def verify_dir_exists_or_create(path: str):
     if not os.path.isdir(path):
@@ -19,6 +21,7 @@ class AppUtils:
         self.loaded_project = None
         self.loaded_hydrus_models = []  # an array of strings, the names of the loaded hydrus models
         self.loaded_modflow_models = []
+        self.simulation_service = None
         self.nam_file_name = ""
         self.recharge_masks = []
         self.loaded_shapes = {}
@@ -67,3 +70,7 @@ class AppUtils:
         # check if it's allowed
         extension = filename.rsplit('.', 1)[1]
         return extension.upper() in self.allowed_types
+
+    def init_simulation_service(self):
+        if self.loaded_project is not None:
+            self.simulation_service = SimulationService(self.get_hydrus_dir(), self.get_modflow_dir())
