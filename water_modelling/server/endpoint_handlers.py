@@ -55,10 +55,10 @@ def upload_modflow_handler(req):
         archive_path = os.path.join(util.get_modflow_dir(), model.filename)
         model.save(archive_path)
         with ZipFile(archive_path, 'r') as archive:
-            # get the project name and remember it
+            # get the model name and remember it
             model_name = model.filename.split('.')[0]
 
-            # create a dedicated catalogue and load the project into it
+            # create a dedicated catalogue and load the model into it
             model_path = os.path.join(util.get_modflow_dir(), model_name)
             os.system('mkdir ' + model_path)
             archive.extractall(model_path)
@@ -69,14 +69,14 @@ def upload_modflow_handler(req):
 
         os.remove(archive_path)
         if invalid_model:
-            shutil.rmtree(model_path, ignore_errors=True)  # remove invalid project dir
+            shutil.rmtree(model_path, ignore_errors=True)  # remove invalid model dir
             return abort(500)
 
         util.modflow_rows, util.modflow_cols = modflow_utils.get_model_size(model_path, util.nam_file_name)
         util.recharge_masks = modflow_utils.get_shapes_from_rch(model_path, util.nam_file_name,
                                                                 (util.modflow_rows, util.modflow_cols))
         util.loaded_modflow_models = [model_name]
-        print("Project uploaded successfully")
+        print("Modflow model uploaded successfully")
         return redirect(endpoints.UPLOAD_MODFLOW)
 
     else:
@@ -86,26 +86,26 @@ def upload_modflow_handler(req):
 
 
 def upload_hydrus_handler(req):
-    project = req.files['archive-input']  # matches HTML input name
+    model = req.files['archive-input']  # matches HTML input name
 
-    if util.type_allowed(project.filename):
+    if util.type_allowed(model.filename):
 
         # save, unzip, remove archive
-        archive_path = os.path.join(util.hydrus_dir, project.filename)
-        project.save(archive_path)
+        archive_path = os.path.join(util.get_hydrus_dir(), model.filename)
+        model.save(archive_path)
         with ZipFile(archive_path, 'r') as archive:
 
-            # get the project name and remember it
-            project_name = project.filename.split('.')[0]
-            util.loaded_hydrus_models.append(project_name)
+            # get the model name and remember it
+            model_name = model.filename.split('.')[0]
+            util.loaded_hydrus_models.append(model_name)
 
-            # create a dedicated catalogue and load the project into it
-            os.system('mkdir ' + os.path.join(util.hydrus_dir, project_name))
-            archive.extractall(os.path.join(util.hydrus_dir, project_name))
+            # create a dedicated catalogue and load the model into it
+            os.system('mkdir ' + os.path.join(util.get_hydrus_dir(), model_name))
+            archive.extractall(os.path.join(util.get_hydrus_dir(), model_name))
 
         os.remove(archive_path)
 
-        print("Project uploaded successfully")
+        print("Hydrus model uploaded successfully")
         return redirect(endpoints.UPLOAD_HYDRUS)
 
     else:
