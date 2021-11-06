@@ -1,6 +1,6 @@
 HOME = '/home'
 PROJECT_LIST = '/project-list'
-PROJECT = '/project/<project_id>'
+PROJECT = '/project/<project_name>'
 PROJECT_NO_ID = '/project'
 UPLOAD_HYDRUS = '/upload-hydrus'
 UPLOAD_MODFLOW = '/upload-modflow'

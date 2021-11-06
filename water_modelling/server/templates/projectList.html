@@ -8,10 +8,10 @@
 <div>
     <h1>Choose an existing project</h1>
     <ul>
-    {% for project in projects %}
+    {% for project_name in projects %}
         <li>
-            <h3>{{ project.name }}</h3>
-            <a href="{{ url_for('project', project_id=project._id) }}">Open</a>
+            <h3>{{ project_name }}</h3>
+            <a href="{{ url_for('project', project_name=project_name) }}">Open</a>
         </li>
     {% endfor %}
     </ul>

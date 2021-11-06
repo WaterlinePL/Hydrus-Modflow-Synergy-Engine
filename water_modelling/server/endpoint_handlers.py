@@ -3,8 +3,7 @@ import numpy as np
 from flask import render_template, redirect, abort
 from zipfile import ZipFile
 from datapassing.shape_data import ShapeFileData
-from DAO import DAO, PROJECTS, RESULTS
-from constants import DB_URL
+import DAO
 import shutil
 
 import os
@@ -16,34 +15,27 @@ from server import endpoints, template
 util = AppUtils()
 util.setup()
 
-dao = DAO(DB_URL)
-
 
 def project_list_handler():
-    util.all_projects = dao.read_all(PROJECTS)
-    return render_template(template.PROJECT_LIST, projects=util.all_projects)
+    return render_template(template.PROJECT_LIST, projects=DAO.read_all())
 
 
-def project_handler(project_id):
-    if project_id is None:
+def project_handler(project_name):
+    if project_name is None:
         # case 1 - there is already a project loaded and we just want to see it
-        if util.active_project is not None:
-            return render_template(template.PROJECT, project=util.active_project)
+        if util.loaded_project is not None:
+            return render_template(template.PROJECT, project=util.loaded_project)
         # case 2 - there is no project loaded, the user should be redirected to the project list to select a project
         else:
             return redirect(endpoints.PROJECT_LIST)
     # case 3 - there is no project selected, but we're just selecting one
     else:
-        chosen_project = None
-        for project in util.all_projects:
-            if str(project["_id"]) == project_id:
-                chosen_project = project
-                break
+        chosen_project = DAO.read(project_name)
         # case 3a - the project does not exist
         if chosen_project is None:
             return redirect(endpoints.PROJECT_LIST)
         else:
-            util.active_project = chosen_project
+            util.loaded_project = chosen_project
             return render_template(template.PROJECT, project=chosen_project)
 
 

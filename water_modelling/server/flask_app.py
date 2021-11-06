@@ -7,8 +7,7 @@ import threading
 
 util = endpoint_handlers.util
 app = Flask("App")
-simulation_service = SimulationService(hydrus_dir=util.hydrus_dir,
-                                       modflow_dir=util.modflow_dir)
+simulation_service = None
 
 
 # ------------------- ROUTES -------------------
@@ -28,9 +27,9 @@ def project_list():
 
 
 @app.route(endpoints.PROJECT, methods=['GET'])
-@app.route(endpoints.PROJECT_NO_ID, defaults={'project_id': None})
-def project(project_id):
-    return endpoint_handlers.project_handler(project_id)
+@app.route(endpoints.PROJECT_NO_ID, defaults={'project_name': None})
+def project(project_name):
+    return endpoint_handlers.project_handler(project_name)
 
 
 @app.route(endpoints.UPLOAD_MODFLOW, methods=['GET', 'POST'])
