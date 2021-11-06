@@ -1,4 +1,5 @@
 HOME = 'home.html'
+CREATE_PROJECT = 'createProject.html'
 PROJECT_LIST = 'projectList.html'
 PROJECT = 'project.html'
 UPLOAD_HYDRUS = 'uploadHydrus.html'

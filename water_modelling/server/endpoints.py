@@ -1,4 +1,5 @@
 HOME = '/home'
+CREATE_PROJECT = '/create-project'
 PROJECT_LIST = '/project-list'
 PROJECT = '/project/<project_name>'
 PROJECT_NO_ID = '/project'

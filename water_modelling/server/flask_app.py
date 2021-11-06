@@ -21,6 +21,14 @@ def home():
     return render_template(template.HOME)
 
 
+@app.route(endpoints.CREATE_PROJECT, methods=['GET', 'POST'])
+def create_project():
+    if request.method == 'POST':
+        return endpoint_handlers.create_project_handler(request)
+    else:
+        return render_template(template.CREATE_PROJECT)
+
+
 @app.route(endpoints.PROJECT_LIST, methods=['GET'])
 def project_list():
     return endpoint_handlers.project_list_handler()

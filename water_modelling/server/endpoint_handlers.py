@@ -16,6 +16,16 @@ util = AppUtils()
 util.setup()
 
 
+def create_project_handler(req):
+    name = req.form['name']
+    project = {
+        "name": name
+    }
+    DAO.create(project)
+    util.loaded_project = project
+    return redirect(endpoints.PROJECT_NO_ID)
+
+
 def project_list_handler():
     return render_template(template.PROJECT_LIST, projects=DAO.read_all())
 

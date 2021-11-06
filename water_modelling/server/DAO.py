@@ -20,8 +20,22 @@ A project .json file contains the following:
 WORKSPACE_PATH = "../../workspace"
 
 
-def create(document: dict):
-    pass
+def create(project):
+
+    # TODO - check for collision?
+
+    # create catalogue structure
+    project_root = os.path.join(WORKSPACE_PATH, project['name'])
+    hydrus_folder = os.path.join(project_root, 'hydrus')
+    modflow_folder = os.path.join(project_root, 'modflow')
+    os.mkdir(project_root)
+    os.mkdir(hydrus_folder)
+    os.mkdir(modflow_folder)
+
+    # save project JSON file
+    file_path = os.path.join(project_root, project['name']+'.json')
+    file = open(file_path, 'w+')
+    json.dump(project, file)
 
 
 def read(project_name: str):
