@@ -7,7 +7,7 @@ import threading
 
 util = endpoint_handlers.util
 app = Flask("App")
-simulation_service = None
+simulation_service = None  # TODO - create SimulationService instance once a project has been loaded (how?)
 
 
 # ------------------- ROUTES -------------------

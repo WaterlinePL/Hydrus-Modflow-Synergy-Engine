@@ -36,39 +36,46 @@ def project_handler(project_name):
             return redirect(endpoints.PROJECT_LIST)
         else:
             util.loaded_project = chosen_project
+            print(util.loaded_project)
             return render_template(template.PROJECT, project=chosen_project)
 
 
 def upload_modflow_handler(req):
-    project = req.files['archive-input']  # matches HTML input name
 
-    if util.type_allowed(project.filename):
+    # every uploaded model needs to belong to a project;
+    # if there is no active project, we cannot upload a model
+    if util.loaded_project is None:
+        return redirect(endpoints.PROJECT_LIST)
+
+    model = req.files['archive-input']  # matches HTML input name
+
+    if util.type_allowed(model.filename):
 
         # save, unzip, remove archive
-        archive_path = os.path.join(util.modflow_dir, project.filename)
-        project.save(archive_path)
+        archive_path = os.path.join(util.get_modflow_dir(), model.filename)
+        model.save(archive_path)
         with ZipFile(archive_path, 'r') as archive:
             # get the project name and remember it
-            project_name = project.filename.split('.')[0]
+            model_name = model.filename.split('.')[0]
 
             # create a dedicated catalogue and load the project into it
-            project_path = os.path.join(util.modflow_dir, project_name)
-            os.system('mkdir ' + project_path)
-            archive.extractall(project_path)
+            model_path = os.path.join(util.get_modflow_dir(), model_name)
+            os.system('mkdir ' + model_path)
+            archive.extractall(model_path)
 
             # validate model
-            util.nam_file_name = modflow_utils.get_nam_file(project_path)
-            invalid_model = not modflow_utils.validate_model(project_path, util.nam_file_name)
+            util.nam_file_name = modflow_utils.get_nam_file(model_path)
+            invalid_model = not modflow_utils.validate_model(model_path, util.nam_file_name)
 
         os.remove(archive_path)
         if invalid_model:
-            shutil.rmtree(project_path, ignore_errors=True)  # remove invalid project dir
+            shutil.rmtree(model_path, ignore_errors=True)  # remove invalid project dir
             return abort(500)
 
-        util.modflow_rows, util.modflow_cols = modflow_utils.get_model_size(project_path, util.nam_file_name)
-        util.recharge_masks = modflow_utils.get_shapes_from_rch(project_path, util.nam_file_name,
+        util.modflow_rows, util.modflow_cols = modflow_utils.get_model_size(model_path, util.nam_file_name)
+        util.recharge_masks = modflow_utils.get_shapes_from_rch(model_path, util.nam_file_name,
                                                                 (util.modflow_rows, util.modflow_cols))
-        util.loaded_modflow_models = [project_name]
+        util.loaded_modflow_models = [model_name]
         print("Project uploaded successfully")
         return redirect(endpoints.UPLOAD_MODFLOW)
 
