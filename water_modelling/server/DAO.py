@@ -5,13 +5,15 @@ import os
 A project .json file contains the following:
 {
     "name": string - the name of the project, must match root catalogue,
-    "rows": int - the amount of rows in the model grid,
-    "cols": int - the amount of columns in the model grid,
-    "cell_size": float - the length of a single grid cell,
     "lat": float - the latitude the model lies at,
     "long": float - the longitude the model lies at,
     "start_date": string - the start date of the simulation, YYYY-mm-dd
     "end_date": string - the end date of the simulation, YYYY-mm-dd,
+    "rows": int - the amount of rows in the model grid,
+    "cols": int - the amount of columns in the model grid,
+    "grid_unit": string - the unit in which the model grid size is represented; "feet", "meters", "centimeters" or null,
+    "row_cells": List<Float> - the heights of the model's consecutive rows,
+    "col_cells": List<Float> - the widths of the model's consecutive columns,
     "modflow_model": string - the name of the folder containing the modflow model,
     "hydrus_models": List<String> - a list of names of folders containing the hydrus models
 }

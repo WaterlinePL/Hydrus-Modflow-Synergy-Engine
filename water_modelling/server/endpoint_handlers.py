@@ -1,4 +1,4 @@
-from app_utils import AppUtils
+from app_utils import AppUtils, get_or_none
 import numpy as np
 from flask import render_template, redirect, abort
 from zipfile import ZipFile
@@ -18,8 +18,24 @@ util.setup()
 
 def create_project_handler(req):
     name = req.form['name']
+    lat = get_or_none(req, "lat")
+    long = get_or_none(req, "long")
+    start_date = get_or_none(req, "start_date")
+    end_date = get_or_none(req, "end_date")
     project = {
-        "name": name
+        "name": name,
+        "lat": lat,
+        "long": long,
+        "start_date": start_date,
+        "end_date": end_date,
+        # everything below here will be populated once modflow and hydrus models are loaded
+        "rows": None,
+        "cols": None,
+        "grid_unit": None,
+        "row_cells": [],
+        "col_cells": [],
+        "modflow_models": [],
+        "hydrus_models": []
     }
     DAO.create(project)
     util.loaded_project = project
