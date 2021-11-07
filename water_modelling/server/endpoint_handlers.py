@@ -90,8 +90,8 @@ def upload_modflow_handler(req):
             archive.extractall(model_path)
 
             # validate model
-            util.nam_file_name = modflow_utils.get_nam_file(model_path)
-            invalid_model = not modflow_utils.validate_model(model_path, util.nam_file_name)
+            nam_file_name = modflow_utils.get_nam_file(model_path)
+            invalid_model = not modflow_utils.validate_model(model_path, nam_file_name)
 
         os.remove(archive_path)
         if invalid_model:
@@ -99,9 +99,9 @@ def upload_modflow_handler(req):
             return abort(500)
 
         # if model is valid, read its parameters and store them
-        model_data = modflow_utils.get_model_data(model_path, util.nam_file_name)
+        model_data = modflow_utils.get_model_data(model_path, nam_file_name)
 
-        util.recharge_masks = modflow_utils.get_shapes_from_rch(model_path, util.nam_file_name,
+        util.recharge_masks = modflow_utils.get_shapes_from_rch(model_path, nam_file_name,
                                                                 (model_data["rows"], model_data["cols"]))
 
         # update project JSON

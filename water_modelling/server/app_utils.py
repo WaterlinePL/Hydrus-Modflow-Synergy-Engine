@@ -24,13 +24,11 @@ class AppUtils:
         self.workspace_dir = os.path.join(self.project_root, 'workspace')
         self.loaded_project = None
         self.simulation_service = None
-        self.nam_file_name = ""
         self.recharge_masks = []
         self.loaded_shapes = {}
         self.error_flag = False
 
     def setup(self) -> None:
-        self.nam_file_name = ""
         self.recharge_masks = []
         self.loaded_shapes = {}
         verify_dir_exists_or_create(self.workspace_dir)
