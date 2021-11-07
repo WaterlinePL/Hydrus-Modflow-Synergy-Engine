@@ -1,6 +1,8 @@
 import json
 import os
 
+from app_utils import AppUtils
+
 """
 A project .json file contains the following:
 {
@@ -22,11 +24,17 @@ A project .json file contains the following:
 WORKSPACE_PATH = "../../workspace"
 
 
-def create(project):
+def create(project: dict):
+    """
+    Creates a new project in the workspace. The project consists of a root directory, which contains
+    a modflow folder for the modflow model, a hydrus folder for the hydrus models, and a JSON file
+    containing information about the project, as described above.
 
-    # TODO - check for collision?
-
+    :param project: dictionary, the representation of the project's JSON file
+    :return: None
+    """
     # create catalogue structure
+    # TODO - check for collision?
     project_root = os.path.join(WORKSPACE_PATH, project['name'])
     hydrus_folder = os.path.join(project_root, 'hydrus')
     modflow_folder = os.path.join(project_root, 'modflow')
@@ -41,6 +49,12 @@ def create(project):
 
 
 def read(project_name: str):
+    """
+    Reads and returns the JSON file for the project with the specified name.
+
+    :param project_name: string, the name of the project whose JSON file we want to retrieve
+    :return: the project's JSON file
+    """
     return json.load(open(os.path.join(WORKSPACE_PATH, project_name, project_name+".json")))
 
 
@@ -48,7 +62,31 @@ def read_all():
     """
     Returns a list of names of all projects existing in the system.
 
-    :return: a list of strings, project names
+    :return: a list of strings, the project names
     """
     return [name for name in os.listdir(WORKSPACE_PATH) if os.path.isdir(os.path.join(WORKSPACE_PATH, name))]
 
+
+def update(project_name: str, changed_fields: dict, util: AppUtils):
+    """
+    Updates the given fields in a given project, leaving the rest unchanged. The name field cannot be modified.
+    If the project that was updated was currently loaded, the app utility will be given this updated object as well.
+
+    :param project_name: string, the project whose fields to update
+    :param changed_fields: dict, the fields to be updated
+    :param util: the app utility; this has to be passed as a parameter to avoid circular imports
+    :return: None
+    """
+    # read and update project file
+    project = read(project_name)
+    for field in changed_fields.keys():
+        if field != "name":
+            project[field] = changed_fields[field]
+
+    # if that project is currently loaded, and it probably is, update the record in the utility
+    if util.loaded_project["name"] == project_name:
+        util.loaded_project = project
+
+    # write the updated project into the JSON file
+    file = open(os.path.join(WORKSPACE_PATH, project_name, project_name+".json"), "w")
+    json.dump(project, file)

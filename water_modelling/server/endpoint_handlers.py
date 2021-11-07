@@ -34,7 +34,7 @@ def create_project_handler(req):
         "grid_unit": None,
         "row_cells": [],
         "col_cells": [],
-        "modflow_models": [],
+        "modflow_model": None,
         "hydrus_models": []
     }
     DAO.create(project)
@@ -98,10 +98,23 @@ def upload_modflow_handler(req):
             shutil.rmtree(model_path, ignore_errors=True)  # remove invalid model dir
             return abort(500)
 
-        util.modflow_rows, util.modflow_cols = modflow_utils.get_model_size(model_path, util.nam_file_name)
+        model_data = modflow_utils.get_model_data(model_path, util.nam_file_name)
+        util.modflow_rows, util.modflow_cols = model_data["rows"], model_data["cols"]
         util.recharge_masks = modflow_utils.get_shapes_from_rch(model_path, util.nam_file_name,
                                                                 (util.modflow_rows, util.modflow_cols))
         util.loaded_modflow_models = [model_name]
+
+        # update project JSON
+        updates = {
+            "modflow_model": model_name,
+            "rows": model_data["rows"],
+            "cols": model_data["cols"],
+            "grid_unit": model_data["grid_unit"],
+            "row_cells": model_data["row_cells"],
+            "col_cells": model_data["col_cells"]
+        }
+        DAO.update(util.loaded_project["name"], updates, util)
+
         print("Modflow model uploaded successfully")
         return redirect(endpoints.UPLOAD_MODFLOW)
 
