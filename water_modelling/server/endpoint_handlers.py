@@ -104,7 +104,6 @@ def upload_modflow_handler(req):
         util.modflow_rows, util.modflow_cols = model_data["rows"], model_data["cols"]
         util.recharge_masks = modflow_utils.get_shapes_from_rch(model_path, util.nam_file_name,
                                                                 (util.modflow_rows, util.modflow_cols))
-        util.loaded_modflow_models = [model_name]
 
         # update project JSON
         updates = {
@@ -138,7 +137,6 @@ def upload_hydrus_handler(req):
 
             # get the model name and remember it
             model_name = model.filename.split('.')[0]
-            util.loaded_hydrus_models.append(model_name)
 
             # create a dedicated catalogue and load the model into it
             os.system('mkdir ' + os.path.join(util.get_hydrus_dir(), model_name))
@@ -163,23 +161,23 @@ def upload_hydrus_handler(req):
 
 def upload_shape_handler(req, hydrus_model_index):
     # if not yet done, initialize the shape arrays list to the amount of models
-    if len(util.loaded_shapes) < len(util.loaded_hydrus_models):
+    if len(util.loaded_shapes) < len(util.loaded_project["hydrus_models"]):
 
-        for hydrus_model in util.loaded_hydrus_models:
+        for hydrus_model in util.loaded_project["hydrus_models"]:
             util.loaded_shapes[hydrus_model] = None
-        # util.loaded_shapes = [None for _ in range(len(util.loaded_hydrus_models))]
+        # util.loaded_shapes = [None for _ in range(len(util.loaded_project["hydrus_models"]))]
 
     # read the array from the request and store it
     shape_array = req.get_json(force=True)
     np_array_shape = np.array(shape_array)
-    util.loaded_shapes[util.loaded_hydrus_models[hydrus_model_index]] = ShapeFileData(shape_mask_array=np_array_shape)
+    util.loaded_shapes[util.loaded_project["hydrus_models"][hydrus_model_index]] = ShapeFileData(shape_mask_array=np_array_shape)
 
     return json.dumps({'status': 'OK'})
 
 
 def next_model_redirect_handler(hydrus_model_index, error_flag):
     # check if we still have models to go, if not, redirect to next section
-    if hydrus_model_index >= len(util.loaded_hydrus_models):
+    if hydrus_model_index >= len(util.loaded_project["hydrus_models"]):
         for key in util.loaded_shapes:
             print(key, '->\n', util.loaded_shapes[key].shape_mask)
         return redirect(endpoints.SIMULATION)
@@ -192,6 +190,6 @@ def next_model_redirect_handler(hydrus_model_index, error_flag):
             rows=[str(x) for x in range(util.modflow_rows)],
             cols=[str(x) for x in range(util.modflow_cols)],
             modelIndex=hydrus_model_index,
-            modelName=util.loaded_hydrus_models[hydrus_model_index],
+            modelName=util.loaded_project["hydrus_models"][hydrus_model_index],
             upload_error=error_flag
         )

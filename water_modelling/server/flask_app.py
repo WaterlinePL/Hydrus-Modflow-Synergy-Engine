@@ -44,7 +44,7 @@ def upload_modflow():
         return endpoint_handlers.upload_modflow_handler(request)
     else:
         return render_template(template.UPLOAD_MODFLOW,
-                               model_names=util.loaded_modflow_models,
+                               model_names=[util.loaded_project["modflow_model"]],
                                upload_error=util.get_error_flag())
 
 
@@ -57,7 +57,7 @@ def upload_hydrus():
         return endpoint_handlers.upload_hydrus_handler(request)
     else:
         return render_template(template.UPLOAD_HYDRUS,
-                               model_names=util.loaded_hydrus_models,
+                               model_names=util.loaded_project["hydrus_models"],
                                upload_error=util.get_error_flag())
 
 
@@ -79,7 +79,11 @@ def simulation():
     if check_previous_steps:
         return check_previous_steps
 
-    return render_template(template.SIMULATION, modflow_proj=util.loaded_modflow_models, shapes=util.loaded_shapes)
+    return render_template(
+        template.SIMULATION,
+        modflow_proj=[util.loaded_project["modflow_model"]],
+        shapes=util.loaded_shapes
+    )
 
 
 @app.route(endpoints.SIMULATION_RUN)
@@ -91,7 +95,7 @@ def run_simulation():
     util.init_simulation_service()
     sim = util.simulation_service.prepare_simulation()
 
-    sim.set_modflow_project(modflow_project=util.loaded_modflow_models[0])
+    sim.set_modflow_project(modflow_project=[util.loaded_project["modflow_model"]])
     sim.set_loaded_shapes(loaded_shapes=util.loaded_shapes)
 
     sim_id = sim.get_id()

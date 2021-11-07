@@ -23,8 +23,6 @@ class AppUtils:
         self.project_root = version_contants.PROJECT_ROOT
         self.workspace_dir = os.path.join(self.project_root, 'workspace')
         self.loaded_project = None
-        self.loaded_hydrus_models = []  # an array of strings, the names of the loaded hydrus models
-        self.loaded_modflow_models = []
         self.simulation_service = None
         self.nam_file_name = ""
         self.recharge_masks = []
@@ -34,8 +32,6 @@ class AppUtils:
         self.error_flag = False
 
     def setup(self) -> None:
-        self.loaded_hydrus_models = []
-        self.loaded_modflow_models = []
         self.nam_file_name = ""
         self.recharge_masks = []
         self.loaded_shapes = {}

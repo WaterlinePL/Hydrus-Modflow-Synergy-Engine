@@ -12,7 +12,7 @@ def path_check_modflow_step(util: AppUtils) -> Optional[Response]:
     @return: Optional redirect to first incorrect step up to upload_modflow (first step).
     """
 
-    if util.get_modflow_dir() is None or not util.loaded_modflow_models:
+    if util.get_modflow_dir() is None or not util.loaded_project["modflow_model"]:
         util.error_flag = True
         return redirect(url_for(endpoints.UPLOAD_MODFLOW))
 
@@ -29,7 +29,7 @@ def path_check_hydrus_step(util: AppUtils) -> Optional[Response]:
     if check_previous:
         return check_previous
 
-    if util.get_hydrus_dir() is None or not util.loaded_hydrus_models:
+    if util.get_hydrus_dir() is None or not util.loaded_project["hydrus_models"]:
         util.error_flag = True
         return redirect(url_for(endpoints.UPLOAD_HYDRUS))
 
