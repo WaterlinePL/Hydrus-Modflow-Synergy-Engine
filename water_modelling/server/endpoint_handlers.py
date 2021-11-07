@@ -54,7 +54,7 @@ def project_handler(project_name):
         # case 2 - there is no project loaded, the user should be redirected to the project list to select a project
         else:
             return redirect(endpoints.PROJECT_LIST)
-    # case 3 - there is no project selected, but we're just selecting one
+    # case 3 - we're selecting a new project
     else:
         chosen_project = DAO.read(project_name)
         # case 3a - the project does not exist
@@ -62,6 +62,11 @@ def project_handler(project_name):
             return redirect(endpoints.PROJECT_LIST)
         else:
             util.loaded_project = chosen_project
+
+            # make sure to clear out any data entered for a previous project
+            util.recharge_masks = []
+            util.loaded_shapes = {}
+
             print(util.loaded_project)
             return render_template(template.PROJECT, project=chosen_project)
 
