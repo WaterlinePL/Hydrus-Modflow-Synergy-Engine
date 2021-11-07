@@ -101,9 +101,8 @@ def upload_modflow_handler(req):
         # if model is valid, read its parameters and store them
         model_data = modflow_utils.get_model_data(model_path, util.nam_file_name)
 
-        util.modflow_rows, util.modflow_cols = model_data["rows"], model_data["cols"]
         util.recharge_masks = modflow_utils.get_shapes_from_rch(model_path, util.nam_file_name,
-                                                                (util.modflow_rows, util.modflow_cols))
+                                                                (model_data["rows"], model_data["cols"]))
 
         # update project JSON
         updates = {
@@ -185,10 +184,10 @@ def next_model_redirect_handler(hydrus_model_index, error_flag):
     else:
         return render_template(
             template.DEFINE_SHAPES,
-            rowAmount=util.modflow_rows,
-            colAmount=util.modflow_cols,
-            rows=[str(x) for x in range(util.modflow_rows)],
-            cols=[str(x) for x in range(util.modflow_cols)],
+            rowAmount=util.loaded_project["rows"],
+            colAmount=util.loaded_project["cols"],
+            rows=[str(x) for x in range(util.loaded_project["rows"])],
+            cols=[str(x) for x in range(util.loaded_project["cols"])],
             modelIndex=hydrus_model_index,
             modelName=util.loaded_project["hydrus_models"][hydrus_model_index],
             upload_error=error_flag

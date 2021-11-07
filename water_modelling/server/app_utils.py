@@ -27,16 +27,12 @@ class AppUtils:
         self.nam_file_name = ""
         self.recharge_masks = []
         self.loaded_shapes = {}
-        self.modflow_rows = 0
-        self.modflow_cols = 0
         self.error_flag = False
 
     def setup(self) -> None:
         self.nam_file_name = ""
         self.recharge_masks = []
         self.loaded_shapes = {}
-        self.modflow_rows = 0
-        self.modflow_cols = 0
         verify_dir_exists_or_create(self.workspace_dir)
         self.error_flag = False
 
