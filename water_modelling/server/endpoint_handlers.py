@@ -98,7 +98,9 @@ def upload_modflow_handler(req):
             shutil.rmtree(model_path, ignore_errors=True)  # remove invalid model dir
             return abort(500)
 
+        # if model is valid, read its parameters and store them
         model_data = modflow_utils.get_model_data(model_path, util.nam_file_name)
+
         util.modflow_rows, util.modflow_cols = model_data["rows"], model_data["cols"]
         util.recharge_masks = modflow_utils.get_shapes_from_rch(model_path, util.nam_file_name,
                                                                 (util.modflow_rows, util.modflow_cols))
@@ -143,6 +145,12 @@ def upload_hydrus_handler(req):
             archive.extractall(os.path.join(util.get_hydrus_dir(), model_name))
 
         os.remove(archive_path)
+
+        # update project JSON
+        updates = {
+            "hydrus_models": util.loaded_project["hydrus_models"] + [model_name]
+        }
+        DAO.update(util.loaded_project["name"], updates, util)
 
         print("Hydrus model uploaded successfully")
         return redirect(endpoints.UPLOAD_HYDRUS)
