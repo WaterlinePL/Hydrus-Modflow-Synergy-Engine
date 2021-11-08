@@ -19,6 +19,23 @@ def get_model_size(project_path: str, nam_file_name: str) -> Tuple[int, int]:
     return modflow_model.nrow, modflow_model.ncol
 
 
+def get_cells_size(project_path: str, nam_file_name: str) -> Tuple[List[int], List[int]]:
+    """
+    Get cells size of modflow model
+    @param project_path: Path to Modflow project main directory
+    @param nam_file_name: Name of .nam file inside the Modflow project
+    @return: Tuple with lists containing scaled width of the Modflow project cells (cell_width_along_rows, cell_width_along_columns)
+    """
+
+    modflow_model = flopy.modflow.Modflow \
+        .load(nam_file_name, model_ws=project_path, load_only=["dis"], forgive=True)
+    cell_width_along_rows = modflow_model.dis.delr.array
+    cell_width_along_rows /= min(cell_width_along_rows)
+    cell_width_along_columns = modflow_model.dis.delc.array
+    cell_width_along_columns /= min(cell_width_along_columns)
+    return cell_width_along_rows.tolist(), cell_width_along_columns.tolist()
+
+
 def validate_model(project_path: str, nam_file_name: str) -> bool:
     """
     Validates modflow model - check if it contains .nam file (list of files), .rch file (recharge),
@@ -74,7 +91,7 @@ def get_shapes_from_rch(project_path: str, nam_file_name: str, project_shape: Tu
                 recharge_masks.append(np.zeros(project_shape))
                 _fill_mask_recursive(mask=recharge_masks[-1], recharge_array=recharge_array,
                                      is_checked_array=is_checked_array,
-                                     project_shape = project_shape,
+                                     project_shape=project_shape,
                                      row=row, col=col,
                                      value=recharge_array[row][col])
 

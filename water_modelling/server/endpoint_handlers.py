@@ -5,7 +5,6 @@ from zipfile import ZipFile
 from datapassing.shape_data import ShapeFileData
 import shutil
 
-
 import os
 import json
 
@@ -118,3 +117,15 @@ def next_model_redirect_handler(hydrus_model_index, error_flag):
             modelName=util.loaded_hydrus_models[hydrus_model_index],
             upload_error=error_flag
         )
+
+
+def simulation_summary_handler():
+    cell_width_along_rows, cell_width_along_columns = modflow_utils.get_cells_size(
+        util.modflow_dir + "\\" + util.loaded_modflow_models[0], util.nam_file_name)
+    return render_template(
+        template.SIMULATION,
+        modflow_proj=util.loaded_modflow_models,
+        shapes=util.loaded_shapes,
+        cell_width_along_rows=cell_width_along_rows,
+        cell_width_along_columns=cell_width_along_columns
+    )
