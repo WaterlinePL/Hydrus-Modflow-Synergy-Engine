@@ -11,7 +11,7 @@
         const formData = new FormData();
         for (let i = 0; i < files.length; i++)
             formData.append('archive-input', files[i]);
-        var url = "/upload-hydrus";
+        var url = Config.uploadHydrus;
         await fetch(url, {
             method : "POST",
             body: formData

@@ -1,6 +1,6 @@
 from app_utils import AppUtils
 import numpy as np
-from flask import render_template, redirect, abort
+from flask import render_template, redirect, abort, jsonify
 from zipfile import ZipFile
 from datapassing.shape_data import ShapeFileData
 import shutil
@@ -118,3 +118,20 @@ def next_model_redirect_handler(hydrus_model_index, error_flag):
             modelName=util.loaded_hydrus_models[hydrus_model_index],
             upload_error=error_flag
         )
+
+
+def upload_new_configurations(req):
+    modflow_exe = req.json['modflowExe']
+    hydrus_exe = req.json['hydrusExe']
+    print(modflow_exe, hydrus_exe)
+
+    if not os.path.exists(modflow_exe):
+        return jsonify(error=str("Incorrect Modflow exe path")), 404
+
+    if not os.path.exists(hydrus_exe):
+        return jsonify(error=str("Incorrect Hydrus exe path")), 404
+
+    util.modflow_exe = modflow_exe
+    util.hydrus_exe = hydrus_exe
+
+    return json.dumps({'status': 'OK'})

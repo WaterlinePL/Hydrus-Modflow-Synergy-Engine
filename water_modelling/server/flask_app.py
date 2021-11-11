@@ -22,6 +22,14 @@ def home():
     return render_template(template.HOME)
 
 
+@app.route(endpoints.CONFIGURATION, methods=['GET', 'POST'])
+def configuration():
+    if request.method == 'POST':
+        return endpoint_handlers.upload_new_configurations(request)
+    else:
+        return render_template(template.CONFIGURATION, modflow_exe=util.modflow_exe, hydrus_exe=util.hydrus_exe)
+
+
 @app.route(endpoints.UPLOAD_MODFLOW, methods=['GET', 'POST'])
 def upload_modflow():
     if request.method == 'POST' and request.files:

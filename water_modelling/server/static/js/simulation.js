@@ -8,7 +8,7 @@
 
     _runButton.on("click", (e) => {
         e.preventDefault()
-        const url = "/simulation-run";
+        const url = Config.simulationRun;
 
         // setBusy(_container);
         ($).ajax({
@@ -31,7 +31,7 @@
     });
 
     function check_simulation_status(id) {
-        const url = "/simulation-check/" + id;
+        const url = Config.simulationCheck + id;
 
         ($).ajax({
             url: url,

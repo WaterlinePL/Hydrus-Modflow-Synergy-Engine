@@ -1,6 +1,7 @@
 HOME = '/home'
 UPLOAD_HYDRUS = '/upload-hydrus'
 UPLOAD_MODFLOW = '/upload-modflow'
+CONFIGURATION = '/configuration'
 DEFINE_SHAPES = '/define-shapes/<hydrus_model_index>'
 SIMULATION = '/simulation'
 SIMULATION_RUN = '/simulation-run'
