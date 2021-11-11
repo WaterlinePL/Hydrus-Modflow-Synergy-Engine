@@ -36,7 +36,7 @@
                     <div class="row justify-content-end">
                         <div class="col-auto">
                             <a type="button"
-                               {% if (model_names is defined) and model_names %}
+                               {% if (model_name is defined) and model_name %}
                                class="btn btn-secondary"
                                {% else %}
                                class="btn btn-secondary disabled"
@@ -57,9 +57,7 @@
             <div>
                 <h3 style="text-align: center">Models uploaded:</h3>
                 <ul class="list-group list-group-flush">
-                    {% for name in model_names %}
-                    <li class="list-group-item">{{ name }}</li>
-                    {% endfor %}
+                    <li class="list-group-item">{{ model_name }}</li>
                 </ul>
             </div>
         </div>

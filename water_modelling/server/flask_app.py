@@ -44,7 +44,7 @@ def upload_modflow():
         return endpoint_handlers.upload_modflow_handler(request)
     else:
         return render_template(template.UPLOAD_MODFLOW,
-                               model_names=[util.loaded_project["modflow_model"]],
+                               model_name=util.loaded_project["modflow_model"],
                                upload_error=util.get_error_flag())
 
 
@@ -81,7 +81,7 @@ def simulation():
 
     return render_template(
         template.SIMULATION,
-        modflow_proj=[util.loaded_project["modflow_model"]],
+        modflow_proj=util.loaded_project["modflow_model"],
         shapes=util.loaded_shapes
     )
 
@@ -95,7 +95,7 @@ def run_simulation():
     util.init_simulation_service()
     sim = util.simulation_service.prepare_simulation()
 
-    sim.set_modflow_project(modflow_project=[util.loaded_project["modflow_model"]])
+    sim.set_modflow_project(modflow_project=util.loaded_project["modflow_model"])
     sim.set_loaded_shapes(loaded_shapes=util.loaded_shapes)
 
     sim_id = sim.get_id()
