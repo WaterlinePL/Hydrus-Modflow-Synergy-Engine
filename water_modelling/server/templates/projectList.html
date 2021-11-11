@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>All projects</title>
+{% endblock %}
+
+{% block body %}
+<div>
+    <h1>Choose an existing project</h1>
+    <ul>
+    {% for project_name in projects %}
+        <li>
+            <h3>{{ project_name }}</h3>
+            <a href="{{ url_for('project', project_name=project_name) }}">Open</a>
+        </li>
+    {% endfor %}
+    </ul>
+    <h3>or <a href="{{ url_for('create_project') }}">Create a new project</a></h3>
+</div>
+{% endblock %}
+
+{%  block scripts %}
+<script src="/static/js/projectList.js"></script>
+{% endblock %}
