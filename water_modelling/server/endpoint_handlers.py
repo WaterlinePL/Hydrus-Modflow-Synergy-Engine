@@ -9,6 +9,7 @@ import shutil
 import os
 import json
 
+from hydrus import hydrus_utils
 from modflow import modflow_utils
 from server import endpoints, template
 
@@ -161,14 +162,22 @@ def upload_hydrus_handler(req):
         model.save(archive_path)
         with ZipFile(archive_path, 'r') as archive:
 
-            # get the model name and remember it
+            # get the project name and remember it
             model_name = model.filename.split('.')[0]
+            project_path = os.path.join(util.get_hydrus_dir(), model_name)
 
-            # create a dedicated catalogue and load the model into it
-            os.system('mkdir ' + os.path.join(util.get_hydrus_dir(), model_name))
-            archive.extractall(os.path.join(util.get_hydrus_dir(), model_name))
+            # create a dedicated catalogue and load the project into it
+            os.system('mkdir ' + project_path)
+            archive.extractall(project_path)
+
+            # validate model
+            invalid_model = not hydrus_utils.validate_model(project_path)
 
         os.remove(archive_path)
+        if invalid_model:
+            shutil.rmtree(project_path, ignore_errors=True)  # remove invalid project dir
+            return abort(500)
+        util.loaded_hydrus_models.append(project_name)
 
         # update project JSON
         updates = {

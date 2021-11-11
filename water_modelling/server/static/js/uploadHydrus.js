@@ -31,10 +31,16 @@ async function doDelete(modelName) {
         await fetch(url, {
             method : "POST",
             body: formData
-        }).then(reponse => location.replace(reponse.url));
+        }).then(response => {
+            if (response.status !== 200) {
+                $("#invalid-project-alert").toast('show');
+            } else {
+                location.replace(response.url);
+            }
+        });
     }
 
-    dropZone.ondrop = function(e) {
+    dropZone.ondrop = function (e) {
         e.preventDefault();
         this.className = 'upload-drop-zone';
 
@@ -52,12 +58,12 @@ async function doDelete(modelName) {
         }
     }
 
-    dropZone.ondragover = function() {
+    dropZone.ondragover = function () {
         this.className = 'upload-drop-zone drop';
         return false;
     }
 
-    dropZone.ondragleave = function() {
+    dropZone.ondragleave = function () {
         this.className = 'upload-drop-zone';
         return false;
     }
