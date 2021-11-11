@@ -6,23 +6,38 @@ import os
 import numpy as np
 
 
-def get_model_size(project_path: str, nam_file_name: str) -> Tuple[int, int]:
+def get_model_data(project_path: str, nam_file_name: str) -> dict:
     """
-    Get size of modflow model
+    Get the following info about the modflow model:
+    {
+        "rows": the amount of rows in the model,
+        "cols": the amount of columns in the model,
+        "grid_unit": the unit in which the cell dimensions are given,
+        "row_cells": the height of each row,
+        "col_cells": the width of each column
+    }
+
     @param project_path: Path to Modflow project main directory
     @param nam_file_name: Name of .nam file inside the Modflow project
-    @return: Tuple representing size of the Modflow project (rows, cols)
+    @return: A dictionary of info as described above.
     """
 
     modflow_model = flopy.modflow.Modflow \
-        .load(nam_file_name, model_ws=project_path, load_only=["rch"], forgive=True)
-    return modflow_model.nrow, modflow_model.ncol
+        .load(nam_file_name, model_ws=project_path, load_only=["rch", "dis"], forgive=True)
+    return {
+        "rows": modflow_model.nrow,
+        "cols": modflow_model.ncol,
+        "row_cells": modflow_model.dis.delc.array.tolist(),
+        "col_cells": modflow_model.dis.delr.array.tolist(),
+        "grid_unit": modflow_model.modelgrid.units
+    }
 
 
 def validate_model(project_path: str, nam_file_name: str) -> bool:
     """
     Validates modflow model - check if it contains .nam file (list of files), .rch file (recharge),
     perform recharge check.
+
     @param project_path: Path to Modflow project main directory
     @param nam_file_name: Name of .nam file inside the Modflow project
     @return: True if model is valid, False otherwise
@@ -51,6 +66,7 @@ def validate_model(project_path: str, nam_file_name: str) -> bool:
 def get_shapes_from_rch(project_path: str, nam_file_name: str, project_shape: Tuple[int, int]) -> List[np.ndarray]:
     """
     Defines shapes masks for uploaded Modflow model based on recharge
+
     @param project_path: Path to Modflow project main directory
     @param nam_file_name: Name of .nam file inside the Modflow project
     @param project_shape: Tuple representing size of the Modflow project (rows, cols)
@@ -96,6 +112,7 @@ def _fill_mask_recursive(mask: np.ndarray, recharge_array: np.ndarray, is_checke
                          project_shape: Tuple[int, int], row: int, col: int, value: float):
     """
     Fill given mask with 1's according to recharge array (using DFS)
+
     @param mask: Binary mask of current shape - initially filled with 0's
     @param recharge_array: 2d array filled with modflow model recharge values
     @param is_checked_array: Control array - 'True' means that given cell was already used in one of the masks

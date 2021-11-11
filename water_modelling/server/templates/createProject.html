@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Create new project</title>
+{% endblock %}
+
+{% block body %}
+<div>
+    <h1>Create new project</h1>
+    <form action="{{ url_for('create_project') }}" method="post">
+        <label>Name:</label>
+        <input type="text" name="name">
+        <br>
+        <label>Latitude:</label>
+        <input type="text" name="lat">
+        <br>
+        <label>Longitude:</label>
+        <input type="text" name="long">
+        <br>
+        <label>Start date (YYYY-mm-dd):</label>
+        <input type="text" name="start_date">
+        <br>
+        <label>End date (YYYY-mm-dd):</label>
+        <input type="text" name="end_date">
+        <br>
+        <button type="submit">Create</button>
+    </form>
+
+</div>
+{% endblock %}
+
+{%  block scripts %}
+{% endblock %}

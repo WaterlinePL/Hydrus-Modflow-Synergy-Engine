@@ -1,4 +1,7 @@
 HOME = 'home.html'
+CREATE_PROJECT = 'createProject.html'
+PROJECT_LIST = 'projectList.html'
+PROJECT = 'project.html'
 UPLOAD_HYDRUS = 'uploadHydrus.html'
 UPLOAD_MODFLOW = 'uploadModflow.html'
 DEFINE_SHAPES = 'defineShapes.html'
