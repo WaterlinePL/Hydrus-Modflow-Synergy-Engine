@@ -31,7 +31,7 @@ function handleClick(row, col) {
 function handleSubmit(modelIdx) {
 
     let request = new XMLHttpRequest();
-    request.open("POST", `/define-shapes/${modelIdx}`, true);
+    request.open("POST", Config.defineShapes+`${modelIdx}`, true);
     request.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 
     request.onload = function() {
@@ -41,7 +41,7 @@ function handleSubmit(modelIdx) {
             let nextModelId = parseInt(modelIdx)+1;
             setTimeout(function(){
                 console.log("redirecting to next model...");
-                window.location.href = '/define-shapes/'+nextModelId;
+                window.location.href = Config.defineShapes+nextModelId;
             }, 500);
 
         }
@@ -54,9 +54,9 @@ function handleBackButton(modelIdx) {
     console.log(`redirect to last page`);
     let lastModelId = parseInt(modelIdx) - 1;
     if (lastModelId === -1) {
-        window.location.href = '/upload-hydrus';
+        window.location.href = Config.uploadHydrus;
     } else {
-        window.location.href = '/define-shapes/' + lastModelId;
+        window.location.href = Config.defineShapes + lastModelId;
     }
 }
 

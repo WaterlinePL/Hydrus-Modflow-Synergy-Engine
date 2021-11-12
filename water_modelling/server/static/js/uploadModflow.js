@@ -10,7 +10,7 @@
         const formData = new FormData();
         const file = files[0];
         formData.append('archive-input', file);
-        var url = "/upload-modflow";
+        var url = Config.uploadModflow;
         await fetch(url, {
             method: "POST",
             body: formData

@@ -19,6 +19,14 @@ def home():
     return render_template(template.HOME)
 
 
+@app.route(endpoints.CONFIGURATION, methods=['GET', 'POST'])
+def configuration():
+    if request.method == 'POST':
+        return endpoint_handlers.upload_new_configurations(request)
+    else:
+        return render_template(template.CONFIGURATION, modflow_exe=util.modflow_exe, hydrus_exe=util.hydrus_exe)
+
+
 @app.route(endpoints.CREATE_PROJECT, methods=['GET', 'POST'])
 def create_project():
     if request.method == 'POST':

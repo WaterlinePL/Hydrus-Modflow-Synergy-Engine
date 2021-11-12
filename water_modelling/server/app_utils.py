@@ -24,6 +24,8 @@ class AppUtils:
         self.workspace_dir = os.path.join(self.project_root, 'workspace')
         self.loaded_project = None
         self.simulation_service = None
+        self.hydrus_exe = ""
+        self.modflow_exe = ""
         self.recharge_masks = []
         self.loaded_shapes = {}
         self.error_flag = False
