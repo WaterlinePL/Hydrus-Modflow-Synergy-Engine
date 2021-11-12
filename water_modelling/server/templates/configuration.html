@@ -30,7 +30,7 @@
         </div>
     </div>
 
-    {% if modflow_exe != "" %}
+    {% if modflow_exe != "" or hydrus_exe != "" %}
     <div class="container">
         <div class="row justify-content-md-center">
             <div class="col-lg-9">
@@ -38,12 +38,12 @@
                     <h3 style="text-align: center">Current setup:</h3>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item ">
-                            <span class="home-description left">Modflow</span>
-                            <span class="home-description right">{{modflow_exe}}</span>
+                            <span class="slice-column left">Modflow</span>
+                            <span class="slice-column right">{{modflow_exe}}</span>
                         </li>
                         <li class="list-group-item">
-                            <span class="home-description left">Hydrus</span>
-                            <span class="home-description right">{{hydrus_exe}}</span>
+                            <span class="slice-column left">Hydrus</span>
+                            <span class="slice-column right">{{hydrus_exe}}</span>
                         </li>
                     </ul>
                 </div>
