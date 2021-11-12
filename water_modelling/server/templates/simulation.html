@@ -35,10 +35,10 @@
                     <table class="table table-sm" style="width: 500px">
                         <tbody>
                         {% for row in shape_info.shape_mask %}
-                            <tr style="height: {{ cols_height[loop.index0] }}px !important;">
+                            <tr style="height: {{ cols_height[loop.index0] }}px !important; padding:0 !important;">
                                 {% for cell in row %}
                                     <td class="{% if cell==1 %} bg-primary {% endif %} border border-1"
-                                        style="width:{{ rows_width[loop.index0] }}px !important;">
+                                        style="width:{{ rows_width[loop.index0] }}px !important; padding:0 !important;">
                                     </td>
                                 {% endfor %}
                             </tr>
