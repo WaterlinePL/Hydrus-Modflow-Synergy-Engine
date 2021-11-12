@@ -3,8 +3,8 @@
 
     // UPLOAD CLASS DEFINITION
     // ======================
-    var listArray = Array.from($('#models-list').children());
-    listArray = listArray.map(item => item.innerText);
+    var models = Array.from($('#models-list').children());
+    models = models.map(item => item.innerText);
 
 
     var dropZone = document.getElementById('drop-zone');
@@ -27,7 +27,7 @@
 
         var flag = false;
         for (let i = 0; i < e.dataTransfer.files.length; i++) {
-            if (listArray.includes(e.dataTransfer.files[i].name.split(".")[0])) {
+            if (models.includes(e.dataTransfer.files[i].name.split(".")[0])) {
                 flag = true;
             }
         }
