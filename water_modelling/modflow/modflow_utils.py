@@ -2,6 +2,7 @@ from typing import Tuple, Optional, List
 
 import flopy
 import os
+import sys
 
 import numpy as np
 
@@ -24,16 +25,14 @@ def get_cells_size(project_path: str, nam_file_name: str) -> Tuple[List[int], Li
     Get cells size of modflow model
     @param project_path: Path to Modflow project main directory
     @param nam_file_name: Name of .nam file inside the Modflow project
-    @return: Tuple with lists containing scaled width of the Modflow project cells (cell_width_along_rows, cell_width_along_columns)
+    @return: Tuple with lists containing width of the Modflow project cells (rows_width, cols_height)
     """
 
     modflow_model = flopy.modflow.Modflow \
         .load(nam_file_name, model_ws=project_path, load_only=["dis"], forgive=True)
-    cell_width_along_rows = modflow_model.dis.delr.array
-    cell_width_along_rows /= min(cell_width_along_rows)
-    cell_width_along_columns = modflow_model.dis.delc.array
-    cell_width_along_columns /= min(cell_width_along_columns)
-    return cell_width_along_rows.tolist(), cell_width_along_columns.tolist()
+    rows_width = modflow_model.dis.delr.array
+    cols_height = modflow_model.dis.delc.array
+    return rows_width.tolist(), cols_height.tolist()
 
 
 def validate_model(project_path: str, nam_file_name: str) -> bool:
@@ -73,6 +72,8 @@ def get_shapes_from_rch(project_path: str, nam_file_name: str, project_shape: Tu
     @param project_shape: Tuple representing size of the Modflow project (rows, cols)
     @return: List of shapes read from Modflow project
     """
+
+    sys.setrecursionlimit(10**6)
 
     modflow_model = flopy.modflow.Modflow \
         .load(nam_file_name, model_ws=project_path, load_only=["rch"], forgive=True)

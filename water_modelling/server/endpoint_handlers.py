@@ -120,12 +120,25 @@ def next_model_redirect_handler(hydrus_model_index, error_flag):
 
 
 def simulation_summary_handler():
-    cell_width_along_rows, cell_width_along_columns = modflow_utils.get_cells_size(
+    rows_width, cols_height = modflow_utils.get_cells_size(
         util.modflow_dir + "\\" + util.loaded_modflow_models[0], util.nam_file_name)
+
+    sum_width = sum(rows_width)
+    sum_height = sum(cols_height)
+
+    width = 500
+    height = 500 * (sum_height / sum_width)
+
+    scaleX = sum_width / width
+    scaleY = sum_height / height
+
+    rows_width = np.divide(rows_width, scaleX)
+    cols_height = np.divide(cols_height, scaleY)
+
     return render_template(
         template.SIMULATION,
         modflow_proj=util.loaded_modflow_models,
         shapes=util.loaded_shapes,
-        cell_width_along_rows=cell_width_along_rows,
-        cell_width_along_columns=cell_width_along_columns
+        rows_width=rows_width,
+        cols_height=cols_height,
     )
