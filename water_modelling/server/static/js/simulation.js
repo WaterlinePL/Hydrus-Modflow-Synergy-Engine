@@ -57,7 +57,7 @@
                     _modflowCalc.addClass('text-success');
                     $('#modflow-tick').removeAttr('hidden');
                     $('#modflow-spinner').attr('hidden', true);
-                    //TODO Wizualizacja
+                    $('#download').removeAttr('hidden');
                 } else {
                     setTimeout(check_simulation_status, 2000,[id]);
                 }
