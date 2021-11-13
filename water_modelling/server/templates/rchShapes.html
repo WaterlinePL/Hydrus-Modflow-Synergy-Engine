@@ -20,12 +20,26 @@
     </div>
     <div class="row justify-content-center my-2">
         <div class="col-2-auto">
+            {% if current_model and current_model is defined%}
+            <select id="hydrus-model" class="form-control form-control-sm">
+                <option>{{current_model}}</option>
+                {% for model in hydrus_models%}
+
+                {% if model != current_model %}
+                <option>{{model}}</option>
+                {% endif %}
+
+                {% endfor %}
+            </select>
+
+            {% else %}
             <select id="hydrus-model" class="form-control form-control-sm">
                 <option disabled selected value> --- Select an option ---</option>
                 {% for model in hydrus_models%}
                 <option>{{model}}</option>
                 {% endfor %}
             </select>
+            {% endif %}
         </div>
     </div>
 
@@ -54,14 +68,20 @@
         </div>
         <div class="col-md-1 offset-md-6">
             <button type="button" class="btn btn-secondary" id="submitButton"
-                    onclick="handleSubmit('{{ rch_shape_index }}')">Done
+                    {% if current_model and current_model is defined%}
+                    onclick="handleSubmit('{{ rch_shape_index }}', '{{current_model}}')"
+                    {% else %}
+                    onclick="handleSubmit('{{ rch_shape_index }}', null)"
+                    {% endif %}
+            >Done
 
             </button>
         </div>
     </div>
 </div>
 <div style="position: absolute; bottom: 20px; right: 20px;" class="w-25">
-    <div class="toast border border-success" role="alert" id="success-rch-shapes" aria-live="assertive" aria-atomic="true"
+    <div class="toast border border-success" role="alert" id="success-rch-shapes" aria-live="assertive"
+         aria-atomic="true"
          data-delay="2000" style="border-width: 4px !important;">
         <div class="toast-header bg-success text-white">
             <strong class="mr-auto">Success</strong>

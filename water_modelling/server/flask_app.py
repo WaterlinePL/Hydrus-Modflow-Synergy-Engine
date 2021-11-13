@@ -76,6 +76,8 @@ def define_method():
 
 @app.route(endpoints.DEFINE_SHAPES, methods=['GET', 'POST'])
 def define_shapes(hydrus_model_index):
+    util.set_method(endpoints.DEFINE_SHAPES)
+
     check_previous_steps = path_checker.path_check_hydrus_step(util)
     if check_previous_steps:
         return check_previous_steps
@@ -88,6 +90,7 @@ def define_shapes(hydrus_model_index):
 
 @app.route(endpoints.RCH_SHAPES, methods=['GET', 'POST'])
 def rch_shapes(rch_shape_index):
+    util.set_method(endpoints.RCH_SHAPES)
 
     if request.method == 'POST':
         return endpoint_handlers.assign_model_to_shape(request, int(rch_shape_index))

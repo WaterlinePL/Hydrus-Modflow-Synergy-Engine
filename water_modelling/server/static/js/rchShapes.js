@@ -1,10 +1,10 @@
-function handleSubmit(rchShapeIdx) {
+function handleSubmit(rchShapeIdx, currentModel) {
 
     const hydrusModel = $("#hydrus-model").val();
-    console.log(hydrusModel);
+    console.log(hydrusModel, currentModel);
 
     if (hydrusModel !== null && hydrusModel !== undefined){
-        const formdata = {"hydrusModel": hydrusModel};
+        const formdata = {"hydrusModel": hydrusModel, "previousModel": currentModel};
         const nextIdx = parseInt(rchShapeIdx)+1;
 
         $.ajax({

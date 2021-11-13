@@ -64,6 +64,8 @@ def project_handler(project_name):
             util.loaded_project = chosen_project
 
             # make sure to clear out any data entered for a previous project
+            util.current_method = None
+            util.models_masks_ids = {}
             util.recharge_masks = []
             util.loaded_shapes = {}
 
@@ -201,12 +203,17 @@ def next_model_redirect_handler(hydrus_model_index, error_flag):
 
 def next_shape_redirect_handler(rch_shape_index):
     if rch_shape_index >= len(util.recharge_masks):
+        util.get_shapes_from_masks_ids()
         for key in util.loaded_shapes:
             print(key, '->\n', util.loaded_shapes[key].shape_mask)
         return redirect(endpoints.SIMULATION)
     else:
+        current_model = util.get_current_model_by_id(rch_shape_index)
+        print("Current model ", current_model)
+
         return render_template(template.RCH_SHAPES, hydrus_models=util.loaded_project["hydrus_models"],
-                               shape_mask=util.recharge_masks[rch_shape_index], rch_shape_index=rch_shape_index)
+                               shape_mask=util.recharge_masks[rch_shape_index], rch_shape_index=rch_shape_index,
+                               current_model=current_model)
 
 
 def assign_model_to_shape(req, rch_shape_index):
@@ -214,17 +221,20 @@ def assign_model_to_shape(req, rch_shape_index):
 
         for hydrus_model in util.loaded_project["hydrus_models"]:
             util.loaded_shapes[hydrus_model] = None
+            util.models_masks_ids[hydrus_model] = None
 
-    hydrus_model_mame = req.json["hydrusModel"]
+    hydrus_model_name = req.json["hydrusModel"]
+    previos_hydrus_model_name = req.json["previousModel"]
 
-    # TODO: back button, reassign mask to the different hydrus model name
-    if util.loaded_shapes[hydrus_model_mame] is None:
-        util.loaded_shapes[hydrus_model_mame] = ShapeFileData(
-            shape_mask_array=util.recharge_masks[rch_shape_index])
+    if previos_hydrus_model_name:
+        util.models_masks_ids[previos_hydrus_model_name].remove(rch_shape_index)
+
+    if util.models_masks_ids[hydrus_model_name] is None:
+        util.models_masks_ids[hydrus_model_name] = [rch_shape_index]
     else:
-        updated_mask = np.logical_or(util.recharge_masks[rch_shape_index],
-                                     util.loaded_shapes[hydrus_model_mame].shape_mask)
-        util.loaded_shapes[hydrus_model_mame] = ShapeFileData(shape_mask_array=updated_mask)
+        util.models_masks_ids[hydrus_model_name].append(rch_shape_index)
+
+    print("Assign " , hydrus_model_name , util.models_masks_ids[hydrus_model_name])
 
     return json.dumps({'status': 'OK'})
 
