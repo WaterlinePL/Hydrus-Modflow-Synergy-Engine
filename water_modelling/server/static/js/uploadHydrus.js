@@ -3,6 +3,9 @@
 
     // UPLOAD CLASS DEFINITION
     // ======================
+    var models = Array.from($('#models-list').children());
+    models = models.map(item => item.innerText);
+
 
     var dropZone = document.getElementById('drop-zone');
 
@@ -21,7 +24,19 @@
     dropZone.ondrop = function(e) {
         e.preventDefault();
         this.className = 'upload-drop-zone';
-        startUpload(e.dataTransfer.files);
+
+        var flag = false;
+        for (let i = 0; i < e.dataTransfer.files.length; i++) {
+            if (models.includes(e.dataTransfer.files[i].name.split(".")[0])) {
+                flag = true;
+            }
+        }
+
+        if (flag === true) {
+            $('#error-wrong-hydrus').toast('show');
+        } else {
+            startUpload(e.dataTransfer.files);
+        }
     }
 
     dropZone.ondragover = function() {
