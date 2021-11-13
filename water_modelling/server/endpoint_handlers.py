@@ -209,7 +209,6 @@ def next_shape_redirect_handler(rch_shape_index):
         return redirect(endpoints.SIMULATION)
     else:
         current_model = util.get_current_model_by_id(rch_shape_index)
-        print("Current model ", current_model)
 
         return render_template(template.RCH_SHAPES, hydrus_models=util.loaded_project["hydrus_models"],
                                shape_mask=util.recharge_masks[rch_shape_index], rch_shape_index=rch_shape_index,
@@ -233,8 +232,6 @@ def assign_model_to_shape(req, rch_shape_index):
         util.models_masks_ids[hydrus_model_name] = [rch_shape_index]
     else:
         util.models_masks_ids[hydrus_model_name].append(rch_shape_index)
-
-    print("Assign " , hydrus_model_name , util.models_masks_ids[hydrus_model_name])
 
     return json.dumps({'status': 'OK'})
 

@@ -83,7 +83,6 @@ class AppUtils:
             self.models_masks_ids = {}
             self.loaded_shapes = {}
             self.current_method = method
-        print("SET method", self.current_method)
 
     def get_current_model_by_id(self, rch_shape_index):
         current_model = None
@@ -95,6 +94,14 @@ class AppUtils:
         return current_model
 
     def get_shapes_from_masks_ids(self):
+        """
+        models_masks_ids dictionary contains hydrus models names as a key and array of indexes as values.
+        Array stores indexes of shapes in the recharge_mask array.
+        This method for each hydrus model evaluates array of indexes to the shape mask and creates
+        ShapeFileData object.
+        :return: None
+        """
+
         for hydrus_model in self.loaded_shapes:
             shapes_count = -1
             if self.models_masks_ids[hydrus_model]:
@@ -110,5 +117,5 @@ class AppUtils:
 
                 self.loaded_shapes[hydrus_model] = ShapeFileData(shape_mask_array=shape_mask)
             else:
-                # TODO: better way to get shape of modflow model than np.shape(self.recharge_masks[0]))
-                self.loaded_shapes[hydrus_model] = ShapeFileData(shape_mask_array=np.zeros(np.shape(self.recharge_masks[0])))
+                shape = (self.loaded_project["rows"], self.loaded_project["cols"])
+                self.loaded_shapes[hydrus_model] = ShapeFileData(shape_mask_array=np.zeros(shape))
