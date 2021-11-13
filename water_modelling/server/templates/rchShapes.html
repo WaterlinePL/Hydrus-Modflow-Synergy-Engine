@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>HP4M | HYDRUS | Shapes </title>
+<link rel="stylesheet" href="/static/css/rchShapes.css">
+{% endblock %}
+
+{% block simulation_active %}active{% endblock %}
+
+{% block body %}
+<div class="container mt-5" id="define-shapes-content">
+    <div class="row justify-content-md-center">
+        {% include 'progressBar.html' %}
+
+        <div class="col-lg-9">
+            <div class="text-center">
+                <h1 class="display-4">Select Hydrus model for the selected shape</h1>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-center my-2">
+        <div class="col-2-auto">
+            <select id="hydrus-model" class="form-control form-control-sm">
+                <option disabled selected value> --- Select an option ---</option>
+                {% for model in hydrus_models%}
+                <option>{{model}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="row justify-content-center my-2">
+        <div class="col-2-auto mx-2">
+            <table class="table table-sm">
+                <caption>{{ key }}</caption>
+                <tbody>
+                {% for row in shape_mask %}
+                <tr>
+                    {% for cell in row %}
+                    <td class="{% if cell==1 %} bg-primary {%endif%} border border-1">
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row ">
+        <div class="col-md-1 offset-md-2">
+            <a type="button" class="btn btn-default" id="backButton"
+               onclick="handleBackButton('{{ rch_shape_index }}')">Back</a>
+
+        </div>
+        <div class="col-md-1 offset-md-6">
+            <button type="button" class="btn btn-secondary" id="submitButton"
+                    onclick="handleSubmit('{{ rch_shape_index }}')">Done
+
+            </button>
+        </div>
+    </div>
+</div>
+<div style="position: absolute; bottom: 20px; right: 20px;" class="w-25">
+    <div class="toast border border-success" role="alert" id="success-rch-shapes" aria-live="assertive" aria-atomic="true"
+         data-delay="2000" style="border-width: 4px !important;">
+        <div class="toast-header bg-success text-white">
+            <strong class="mr-auto">Success</strong>
+        </div>
+        <div class="toast-body">
+            Model has been correctly assign to the shape!
+        </div>
+    </div>
+    <div class="toast border border-danger" role="alert" id="error-rch-shapes" aria-live="assertive" aria-atomic="true"
+         data-delay="2000" style="border-width: 4px !important;">
+        <div class="toast-header bg-danger text-white">
+            <strong class="mr-auto">Error</strong>
+        </div>
+        <div class="toast-body" id="toast-body-error-rch-shapes">
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{%  block scripts %}
+<script src="/static/js/rchShapes.js"></script>
+{% endblock %}

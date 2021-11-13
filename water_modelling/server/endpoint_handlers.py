@@ -199,6 +199,36 @@ def next_model_redirect_handler(hydrus_model_index, error_flag):
         )
 
 
+def next_shape_redirect_handler(rch_shape_index):
+    if rch_shape_index >= len(util.recharge_masks):
+        for key in util.loaded_shapes:
+            print(key, '->\n', util.loaded_shapes[key].shape_mask)
+        return redirect(endpoints.SIMULATION)
+    else:
+        return render_template(template.RCH_SHAPES, hydrus_models=util.loaded_project["hydrus_models"],
+                               shape_mask=util.recharge_masks[rch_shape_index], rch_shape_index=rch_shape_index)
+
+
+def assign_model_to_shape(req, rch_shape_index):
+    if len(util.loaded_shapes) < len(util.loaded_project["hydrus_models"]):
+
+        for hydrus_model in util.loaded_project["hydrus_models"]:
+            util.loaded_shapes[hydrus_model] = None
+
+    hydrus_model_mame = req.json["hydrusModel"]
+
+    # TODO: back button, reassign mask to the different hydrus model name
+    if util.loaded_shapes[hydrus_model_mame] is None:
+        util.loaded_shapes[hydrus_model_mame] = ShapeFileData(
+            shape_mask_array=util.recharge_masks[rch_shape_index])
+    else:
+        updated_mask = np.logical_or(util.recharge_masks[rch_shape_index],
+                                     util.loaded_shapes[hydrus_model_mame].shape_mask)
+        util.loaded_shapes[hydrus_model_mame] = ShapeFileData(shape_mask_array=updated_mask)
+
+    return json.dumps({'status': 'OK'})
+
+
 def upload_new_configurations(req):
     modflow_exe = req.json['modflowExe']
     hydrus_exe = req.json['hydrusExe']
