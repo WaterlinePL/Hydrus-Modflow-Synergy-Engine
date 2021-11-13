@@ -19,6 +19,7 @@ def get_or_none(req, key):
     return req.form[key] if req.form[key] != "" else None
 
 
+# Ta klasa stała się reactowym state XD
 class AppUtils:
 
     def __init__(self):

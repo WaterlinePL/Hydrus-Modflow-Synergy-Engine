@@ -76,16 +76,20 @@ def upload_hydrus():
 
 @app.route(endpoints.DEFINE_METHOD, methods=['GET'])
 def define_method():
+    check_previous_steps = path_checker.path_check_hydrus_step(util)
+    if check_previous_steps:
+        return check_previous_steps
+
     return render_template(template.DEFINE_METHOD)
 
 
 @app.route(endpoints.DEFINE_SHAPES, methods=['GET', 'POST'])
 def define_shapes(hydrus_model_index):
-    util.set_method(endpoints.DEFINE_SHAPES)
-
     check_previous_steps = path_checker.path_check_hydrus_step(util)
     if check_previous_steps:
         return check_previous_steps
+
+    util.set_method(endpoints.DEFINE_SHAPES)
 
     if request.method == 'POST':
         return endpoint_handlers.upload_shape_handler(request, int(hydrus_model_index))
@@ -95,6 +99,10 @@ def define_shapes(hydrus_model_index):
 
 @app.route(endpoints.RCH_SHAPES, methods=['GET', 'POST'])
 def rch_shapes(rch_shape_index):
+    check_previous_steps = path_checker.path_check_hydrus_step(util)
+    if check_previous_steps:
+        return check_previous_steps
+
     util.set_method(endpoints.RCH_SHAPES)
 
     if request.method == 'POST':
@@ -105,7 +113,7 @@ def rch_shapes(rch_shape_index):
 
 @app.route(endpoints.SIMULATION, methods=['GET'])
 def simulation():
-    check_previous_steps = path_checker.path_check_define_shapes(util)
+    check_previous_steps = path_checker.path_check_define_shapes_method(util)
     if check_previous_steps:
         return check_previous_steps
 
@@ -118,7 +126,7 @@ def simulation():
 
 @app.route(endpoints.SIMULATION_RUN)
 def run_simulation():
-    check_previous_steps = path_checker.path_check_define_shapes(util)
+    check_previous_steps = path_checker.path_check_define_shapes_method(util)
     if check_previous_steps:
         return check_previous_steps
 
