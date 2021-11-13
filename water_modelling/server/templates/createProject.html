@@ -12,22 +12,36 @@
         <input type="text" name="name">
         <br>
         <label>Latitude:</label>
-        <input type="text" name="lat">
+        <input type="text" name="lat" value="{{ prev_lat if prev_lat else '' }}">
         <br>
         <label>Longitude:</label>
-        <input type="text" name="long">
+        <input type="text" name="long" value="{{ prev_long if prev_long else '' }}">
         <br>
         <label>Start date (YYYY-mm-dd):</label>
-        <input type="text" name="start_date">
+        <input type="text" name="start_date" value="{{ prev_start if prev_start else '' }}">
         <br>
         <label>End date (YYYY-mm-dd):</label>
-        <input type="text" name="end_date">
+        <input type="text" name="end_date" value="{{ prev_end if prev_end else '' }}">
         <br>
         <button type="submit">Create</button>
     </form>
+
+    {% if name_taken %}
+    <div class="toast border border-danger" role="alert" id="error-name" aria-live="assertive" aria-atomic="true"
+         data-delay="4000" style="border-width: 4px !important;">
+        <div class="toast-header bg-danger text-white">
+            <strong class="mr-auto">Name taken</strong>
+        </div>
+        <div class="toast-body" id="toast-body-error-name">
+            A project with this name already exists
+        </div>
+    </div>
+    {% endif %}
 
 </div>
 {% endblock %}
 
 {%  block scripts %}
+<script src="/static/js/createProject.js"></script>
 {% endblock %}
+
