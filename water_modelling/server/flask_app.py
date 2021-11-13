@@ -51,9 +51,14 @@ def upload_modflow():
     if request.method == 'POST' and request.files:
         return endpoint_handlers.upload_modflow_handler(request)
     else:
-        return render_template(template.UPLOAD_MODFLOW,
-                               model_name=util.loaded_project["modflow_model"],
-                               upload_error=util.get_error_flag())
+        if util.loaded_project is None:
+            return redirect(endpoints.PROJECT_LIST)
+        else:
+            return render_template(
+                template.UPLOAD_MODFLOW,
+                model_name=util.loaded_project["modflow_model"],
+                upload_error=util.get_error_flag()
+            )
 
 
 @app.route(endpoints.UPLOAD_HYDRUS, methods=['GET', 'POST'])
@@ -115,6 +120,7 @@ def run_simulation():
 
 @app.route(endpoints.SIMULATION_CHECK, methods=['GET'])
 def check_simulation_status(simulation_id: int):
-    hydrus_finished, passing_finished, modflow_finished = util.simulation_service.check_simulation_status(int(simulation_id))
+    hydrus_finished, passing_finished, modflow_finished = util.simulation_service.check_simulation_status(
+        int(simulation_id))
     response = {'hydrus': hydrus_finished, 'passing': passing_finished, 'modflow': modflow_finished}
     return jsonify(response)
