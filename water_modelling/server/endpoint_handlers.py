@@ -142,6 +142,13 @@ def upload_modflow_handler(req):
         return abort(500)
 
 
+def remove_modflow_handler(req):
+    body = json.loads(req.data)
+    if body['modelName']:
+        DAO.remove_model('modflow', body["modelName"], util)
+    return redirect(endpoints.UPLOAD_MODFLOW, code=303)
+
+
 def upload_hydrus_handler(req):
     model = req.files['archive-input']  # matches HTML input name
 

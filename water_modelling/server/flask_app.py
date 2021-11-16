@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, jsonify
 
 import endpoint_handlers
+import json
 from server import endpoints, template, path_checker
 import threading
 
@@ -53,10 +54,12 @@ def project(project_name):
     return endpoint_handlers.project_handler(project_name)
 
 
-@app.route(endpoints.UPLOAD_MODFLOW, methods=['GET', 'POST'])
+@app.route(endpoints.UPLOAD_MODFLOW, methods=['GET', 'POST', 'DELETE'])
 def upload_modflow():
     if request.method == 'POST' and request.files:
         return endpoint_handlers.upload_modflow_handler(request)
+    elif request.method == 'DELETE':
+        return endpoint_handlers.remove_modflow_handler(request)
     else:
         if util.loaded_project is None:
             return redirect(endpoints.PROJECT_LIST)
