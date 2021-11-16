@@ -32,7 +32,14 @@ def create_project():
     if request.method == 'POST':
         return endpoint_handlers.create_project_handler(request)
     else:
-        return render_template(template.CREATE_PROJECT)
+        return render_template(
+            template.CREATE_PROJECT,
+            name_taken=False,
+            prev_lat="",
+            prev_long="",
+            prev_start="",
+            prev_end=""
+        )
 
 
 @app.route(endpoints.PROJECT_LIST, methods=['GET'])

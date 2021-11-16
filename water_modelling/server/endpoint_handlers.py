@@ -17,11 +17,24 @@ util.setup()
 
 
 def create_project_handler(req):
+
     name = req.form['name']
     lat = get_or_none(req, "lat")
     long = get_or_none(req, "long")
     start_date = get_or_none(req, "start_date")
     end_date = get_or_none(req, "end_date")
+
+    # check for name collision
+    if name in DAO.read_all():
+        return render_template(
+            template.CREATE_PROJECT,
+            name_taken=True,
+            prev_lat=lat,
+            prev_long=long,
+            prev_start=start_date,
+            prev_end=end_date
+        )
+
     project = {
         "name": name,
         "lat": lat,
