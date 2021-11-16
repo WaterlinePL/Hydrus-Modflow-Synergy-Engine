@@ -183,6 +183,15 @@ def upload_hydrus_handler(req):
         return redirect(req.url)
 
 
+def remove_hydrus_handler(req):
+    body = json.loads(req.data)
+    print("received call")
+    print(body['modelName'])
+    if body['modelName']:
+        DAO.remove_model('hydrus', body["modelName"], util)
+    return redirect(endpoints.UPLOAD_HYDRUS, code=303)
+
+
 def upload_shape_handler(req, hydrus_model_index):
     # if not yet done, initialize the shape arrays list to the amount of models
     if len(util.loaded_shapes) < len(util.loaded_project["hydrus_models"]):

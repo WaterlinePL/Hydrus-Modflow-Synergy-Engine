@@ -105,4 +105,12 @@ def remove_model(model_type: str, model_name: str, util: AppUtils):
     model_path = os.path.join(WORKSPACE_PATH, util.loaded_project["name"], model_type, model_name)
     if os.path.isdir(model_path):
         shutil.rmtree(model_path)
-        update(util.loaded_project["name"], {"modflow_model": None}, util)
+        if model_type == 'modflow':
+            update(util.loaded_project["name"], {"modflow_model": None}, util)
+        else:
+            new_list = util.loaded_project["hydrus_models"]
+            new_list.remove(model_name)
+            print(new_list)
+            if new_list is None:
+                new_list = []
+            update(util.loaded_project["name"], {"hydrus_models": new_list}, util)

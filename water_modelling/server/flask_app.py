@@ -71,13 +71,17 @@ def upload_modflow():
             )
 
 
-@app.route(endpoints.UPLOAD_HYDRUS, methods=['GET', 'POST'])
+@app.route(endpoints.UPLOAD_HYDRUS, methods=['GET', 'POST', 'DELETE'])
 def upload_hydrus():
+
     check_previous_steps = path_checker.path_check_modflow_step(util)
     if check_previous_steps:
         return check_previous_steps
+
     if request.method == 'POST' and request.files:
         return endpoint_handlers.upload_hydrus_handler(request)
+    elif request.method == 'DELETE':
+        return endpoint_handlers.remove_hydrus_handler(request)
     else:
         return render_template(template.UPLOAD_HYDRUS,
                                model_names=util.loaded_project["hydrus_models"],

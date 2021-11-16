@@ -61,6 +61,7 @@
                 <ul id="models-list" class="list-group list-group-flush">
                     {% for name in model_names %}
                     <li class="list-group-item">{{ name }}</li>
+                    <button onClick="doDelete('{{ name }}')">Remove</button>
                     {% endfor %}
                 </ul>
             </div>
