@@ -23,8 +23,8 @@
             {% if current_model and current_model is defined%}
             <select id="hydrus-model" class="form-control form-control-sm">
                 <option>{{current_model}}</option>
+                <option value=""> --- Without Model ---</option>
                 {% for model in hydrus_models%}
-
                 {% if model != current_model %}
                 <option>{{model}}</option>
                 {% endif %}
@@ -34,7 +34,7 @@
 
             {% else %}
             <select id="hydrus-model" class="form-control form-control-sm">
-                <option disabled selected value> --- Select an option ---</option>
+                <option selected value=""> --- Without Model ---</option>
                 {% for model in hydrus_models%}
                 <option>{{model}}</option>
                 {% endfor %}
@@ -86,8 +86,7 @@
         <div class="toast-header bg-success text-white">
             <strong class="mr-auto">Success</strong>
         </div>
-        <div class="toast-body">
-            Model has been correctly assign to the shape!
+        <div class="toast-body" id="toast-body-success-rch-shapes">
         </div>
     </div>
     <div class="toast border border-danger" role="alert" id="error-rch-shapes" aria-live="assertive" aria-atomic="true"

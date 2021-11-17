@@ -57,7 +57,9 @@
             <div>
                 <h3 style="text-align: center">Models uploaded:</h3>
                 <ul class="list-group list-group-flush">
+                    {% if model_name and model_name is defined %}
                     <li class="list-group-item">{{ model_name }}</li>
+                    {% endif %}
                 </ul>
             </div>
         </div>

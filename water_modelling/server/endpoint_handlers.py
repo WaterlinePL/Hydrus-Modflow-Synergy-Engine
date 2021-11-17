@@ -216,17 +216,14 @@ def next_shape_redirect_handler(rch_shape_index):
 
 
 def assign_model_to_shape(req, rch_shape_index):
-    if len(util.loaded_shapes) < len(util.loaded_project["hydrus_models"]):
-
-        for hydrus_model in util.loaded_project["hydrus_models"]:
-            util.loaded_shapes[hydrus_model] = None
-            util.models_masks_ids[hydrus_model] = None
-
     hydrus_model_name = req.json["hydrusModel"]
     previos_hydrus_model_name = req.json["previousModel"]
 
     if previos_hydrus_model_name:
         util.models_masks_ids[previos_hydrus_model_name].remove(rch_shape_index)
+
+    if hydrus_model_name == "":
+        return json.dumps({'status': 'OK'})
 
     if util.models_masks_ids[hydrus_model_name] is None:
         util.models_masks_ids[hydrus_model_name] = [rch_shape_index]

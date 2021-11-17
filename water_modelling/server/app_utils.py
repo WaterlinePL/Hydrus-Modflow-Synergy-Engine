@@ -4,6 +4,7 @@ import os
 import numpy as np
 
 import version_contants
+from server.endpoints import RCH_SHAPES
 
 from simulation.simulation_service import SimulationService
 from datapassing.shape_data import ShapeFileData
@@ -83,6 +84,10 @@ class AppUtils:
             self.models_masks_ids = {}
             self.loaded_shapes = {}
             self.current_method = method
+            if (method == RCH_SHAPES) and (len(self.loaded_shapes) < len(self.loaded_project["hydrus_models"])):
+                for hydrus_model in self.loaded_project["hydrus_models"]:
+                    self.loaded_shapes[hydrus_model] = None
+                    self.models_masks_ids[hydrus_model] = None
 
     def get_current_model_by_id(self, rch_shape_index):
         current_model = None
