@@ -33,7 +33,8 @@ async function doDelete(modelName) {
             body: formData
         }).then(response => {
             if (response.status !== 200) {
-                $("#invalid-project-alert").toast('show');
+                $('#toast-message').html('Invalid Hydrus project structure');
+                $('#error-wrong-hydrus').toast('show');
             } else {
                 location.replace(response.url);
             }
@@ -52,6 +53,7 @@ async function doDelete(modelName) {
         }
 
         if (flag === true) {
+            $('#toast-message').html('Upload Hydrus model with different name');
             $('#error-wrong-hydrus').toast('show');
         } else {
             startUpload(e.dataTransfer.files);
