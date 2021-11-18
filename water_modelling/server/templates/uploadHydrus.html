@@ -60,8 +60,10 @@
                 <h3 style="text-align: center">Models uploaded:</h3>
                 <ul id="models-list" class="list-group list-group-flush">
                     {% for name in model_names %}
-                    <li class="list-group-item">{{ name }}</li>
-                    <button onClick="doDelete('{{ name }}')">Remove</button>
+                    <li class="list-group-item">
+                        <span class="slice-column left">{{ name }}</span>
+                        <button class="btn btn-secondary slice-column right" onClick="doDelete('{{ name }}')">Remove</button>
+                    </li>
                     {% endfor %}
                 </ul>
             </div>

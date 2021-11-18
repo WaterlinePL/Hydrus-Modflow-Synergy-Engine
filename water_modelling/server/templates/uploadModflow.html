@@ -58,8 +58,10 @@
             <div>
                 <h3 style="text-align: center">Models uploaded:</h3>
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item">{{ model_name }}</li>
-                    <button onClick="doDelete('{{model_name}}')">Remove</button>
+                    <li class="list-group-item">
+                        <span class="slice-column left">{{ model_name }}</span>
+                        <button class="btn btn-secondary slice-column right" onClick="doDelete('{{model_name}}')">Remove</button>
+                    </li>
                 </ul>
             </div>
         </div>
