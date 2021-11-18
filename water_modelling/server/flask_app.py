@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, redirect, jsonify
 import endpoint_handlers
 import json
 from server import endpoints, template, path_checker
+import local_configuration_dao as lcd
 import threading
 
 util = endpoint_handlers.util
@@ -25,7 +26,8 @@ def configuration():
     if request.method == 'POST':
         return endpoint_handlers.upload_new_configurations(request)
     else:
-        return render_template(template.CONFIGURATION, modflow_exe=util.modflow_exe, hydrus_exe=util.hydrus_exe)
+        config = lcd.read_configuration()
+        return render_template(template.CONFIGURATION, modflow_exe=config["modflow_exe"], hydrus_exe=config["hydrus_exe"])
 
 
 @app.route(endpoints.CREATE_PROJECT, methods=['GET', 'POST'])
