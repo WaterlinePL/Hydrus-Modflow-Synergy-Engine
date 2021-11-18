@@ -1,3 +1,16 @@
+// model removal
+async function doDelete(modelName) {
+    var url = Config.uploadModflow;
+    await fetch(url, {
+        method: "DELETE",
+        body: JSON.stringify({modelName: modelName})
+    }).then(response => {
+        if (response.status === 200) {
+            location.replace(response.url)
+        }
+    });
+}
+
 (function ($) {
     'use strict';
 

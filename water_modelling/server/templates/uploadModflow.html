@@ -51,19 +51,23 @@
         </div>
     </div>
 </div>
+{% if model_name != None %}
 <div class="container">
     <div class="row justify-content-md-center">
         <div class="col-lg-9">
             <div>
                 <h3 style="text-align: center">Models uploaded:</h3>
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item">{{ model_name }}</li>
+                    <li class="list-group-item">
+                        <span class="slice-column left">{{ model_name }}</span>
+                        <button class="btn btn-secondary slice-column right" onClick="doDelete('{{model_name}}')">Remove</button>
+                    </li>
                 </ul>
             </div>
         </div>
     </div>
 </div>
-
+{% endif %}
 
 <div style="position: absolute; bottom: 20px; right: 20px;" class="w-25">
     <div class="toast border border-danger" role="alert" id="invalid-project-alert" aria-live="assertive"

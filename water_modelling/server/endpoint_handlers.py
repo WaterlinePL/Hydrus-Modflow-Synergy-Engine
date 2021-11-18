@@ -142,6 +142,13 @@ def upload_modflow_handler(req):
         return abort(500)
 
 
+def remove_modflow_handler(req):
+    body = json.loads(req.data)
+    if body['modelName']:
+        DAO.remove_model('modflow', body["modelName"], util)
+    return redirect(endpoints.UPLOAD_MODFLOW, code=303)
+
+
 def upload_hydrus_handler(req):
     model = req.files['archive-input']  # matches HTML input name
 
@@ -174,6 +181,15 @@ def upload_hydrus_handler(req):
         print("Invalid archive format, must be one of: ", end='')
         print(util.allowed_types)
         return redirect(req.url)
+
+
+def remove_hydrus_handler(req):
+    body = json.loads(req.data)
+    print("received call")
+    print(body['modelName'])
+    if body['modelName']:
+        DAO.remove_model('hydrus', body["modelName"], util)
+    return redirect(endpoints.UPLOAD_HYDRUS, code=303)
 
 
 def upload_shape_handler(req, hydrus_model_index):
