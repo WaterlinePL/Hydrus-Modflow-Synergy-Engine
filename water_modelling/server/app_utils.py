@@ -29,8 +29,6 @@ class AppUtils:
         self.loaded_project = None
         self.simulation_service = None
         self.current_method = None
-        self.hydrus_exe = ""
-        self.modflow_exe = ""
         self.recharge_masks = []
         self.models_masks_ids = {}
         self.loaded_shapes = {}
