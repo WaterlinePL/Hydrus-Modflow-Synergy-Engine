@@ -51,26 +51,29 @@
         </div>
     </div>
 </div>
+{% if model_name != None %}
 <div class="container">
     <div class="row justify-content-md-center">
         <div class="col-lg-9">
             <div>
                 <h3 style="text-align: center">Models uploaded:</h3>
                 <ul class="list-group list-group-flush">
-                    {% if model_name and model_name is defined %}
-                    <li class="list-group-item">{{ model_name }}</li>
+                    <li class="list-group-item">
+                        <span class="slice-column left">{{ model_name }}</span>
+                        <button class="btn btn-secondary slice-column right" onClick="doDelete('{{model_name}}')">Remove</button>
+                    </li>
                     {% endif %}
                 </ul>
             </div>
         </div>
     </div>
 </div>
-
+{% endif %}
 
 <div style="position: absolute; bottom: 20px; right: 20px;" class="w-25">
     <div class="toast border border-danger" role="alert" id="invalid-project-alert" aria-live="assertive"
          aria-atomic="true"
-         data-delay="2000" style="border-width: 4px !important;">
+         data-delay="4000" style="border-width: 4px !important;">
         <div class="toast-header bg-danger text-white">
             <strong class="mr-auto">Error</strong>
         </div>
@@ -80,7 +83,7 @@
     </div>
     {% if upload_error %}
     <div class="toast border border-danger" role="alert" id="error-modflow" aria-live="assertive" aria-atomic="true"
-         data-delay="2000" style="border-width: 4px !important;">
+         data-delay="4000" style="border-width: 4px !important;">
         <div class="toast-header bg-danger text-white">
             <strong class="mr-auto">Error</strong>
         </div>

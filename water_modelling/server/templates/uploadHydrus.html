@@ -60,7 +60,10 @@
                 <h3 style="text-align: center">Models uploaded:</h3>
                 <ul id="models-list" class="list-group list-group-flush">
                     {% for name in model_names %}
-                    <li class="list-group-item">{{ name }}</li>
+                    <li class="list-group-item">
+                        <span class="slice-column left">{{ name }}</span>
+                        <button class="btn btn-secondary slice-column right" onClick="doDelete('{{ name }}')">Remove</button>
+                    </li>
                     {% endfor %}
                 </ul>
             </div>
@@ -70,7 +73,7 @@
 
 <div style="position: absolute; bottom: 20px; right: 20px;" class="w-25">
     <div class="toast border border-danger" role="alert" id="error-wrong-hydrus" aria-live="assertive" aria-atomic="true"
-         data-delay="2000" style="border-width: 4px !important;">
+         data-delay="4000" style="border-width: 4px !important;">
         <div class="toast-header bg-danger text-white">
             <strong class="mr-auto">Error</strong>
         </div>
@@ -80,7 +83,7 @@
     </div>
     {% if upload_error %}
     <div class="toast border border-danger" role="alert" id="error-hydrus" aria-live="assertive" aria-atomic="true"
-         data-delay="2000" style="border-width: 4px !important;">
+         data-delay="4000" style="border-width: 4px !important;">
         <div class="toast-header bg-danger text-white">
             <strong class="mr-auto">Error</strong>
         </div>

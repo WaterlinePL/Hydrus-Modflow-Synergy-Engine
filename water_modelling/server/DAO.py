@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 
 from app_utils import AppUtils
 
@@ -90,3 +91,26 @@ def update(project_name: str, changed_fields: dict, util: AppUtils):
     # write the updated project into the JSON file
     file = open(os.path.join(WORKSPACE_PATH, project_name, project_name+".json"), "w")
     json.dump(project, file)
+
+
+def remove_model(model_type: str, model_name: str, util: AppUtils):
+    """
+    Removes an already loaded model from the project.
+
+    :param model_type: string, the type of model to delete, "hydrus" or "modflow"
+    :param model_name: string, the name of the model to delete
+    :param util: the app utility
+    :return: None
+    """
+    model_path = os.path.join(WORKSPACE_PATH, util.loaded_project["name"], model_type, model_name)
+    if os.path.isdir(model_path):
+        shutil.rmtree(model_path)
+        if model_type == 'modflow':
+            update(util.loaded_project["name"], {"modflow_model": None}, util)
+        else:
+            new_list = util.loaded_project["hydrus_models"]
+            new_list.remove(model_name)
+            print(new_list)
+            if new_list is None:
+                new_list = []
+            update(util.loaded_project["name"], {"hydrus_models": new_list}, util)
