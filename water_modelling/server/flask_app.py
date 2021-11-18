@@ -88,8 +88,15 @@ def upload_hydrus():
                                upload_error=util.get_error_flag())
 
 
+@app.route(endpoints.DEFINE_METHOD, methods=['GET'])
+def define_method():
+    return render_template(template.DEFINE_METHOD)
+
+
 @app.route(endpoints.DEFINE_SHAPES, methods=['GET', 'POST'])
 def define_shapes(hydrus_model_index):
+    util.set_method(endpoints.DEFINE_SHAPES)
+
     check_previous_steps = path_checker.path_check_hydrus_step(util)
     if check_previous_steps:
         return check_previous_steps
@@ -98,6 +105,16 @@ def define_shapes(hydrus_model_index):
         return endpoint_handlers.upload_shape_handler(request, int(hydrus_model_index))
     else:
         return endpoint_handlers.next_model_redirect_handler(int(hydrus_model_index), util.get_error_flag())
+
+
+@app.route(endpoints.RCH_SHAPES, methods=['GET', 'POST'])
+def rch_shapes(rch_shape_index):
+    util.set_method(endpoints.RCH_SHAPES)
+
+    if request.method == 'POST':
+        return endpoint_handlers.assign_model_to_shape(request, int(rch_shape_index))
+    else:
+        return endpoint_handlers.next_shape_redirect_handler(int(rch_shape_index))
 
 
 @app.route(endpoints.SIMULATION, methods=['GET'])

@@ -51,7 +51,7 @@
         </div>
     </div>
 </div>
-{% if model_name != None %}
+{% if model_name and model_name is defined %}
 <div class="container">
     <div class="row justify-content-md-center">
         <div class="col-lg-9">
@@ -60,7 +60,9 @@
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item">
                         <span class="slice-column left">{{ model_name }}</span>
-                        <button class="btn btn-secondary slice-column right" onClick="doDelete('{{model_name}}')">Remove</button>
+                        <span  class="slice-column right" >
+                            <button type="button" class="btn btn-danger right" onClick="doDelete('{{model_name}}')">Remove</button>
+                        </span>
                     </li>
                 </ul>
             </div>

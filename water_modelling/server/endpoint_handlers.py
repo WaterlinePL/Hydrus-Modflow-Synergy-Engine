@@ -77,6 +77,8 @@ def project_handler(project_name):
             util.loaded_project = chosen_project
 
             # make sure to clear out any data entered for a previous project
+            util.current_method = None
+            util.models_masks_ids = {}
             util.recharge_masks = []
             util.loaded_shapes = {}
 
@@ -226,6 +228,38 @@ def next_model_redirect_handler(hydrus_model_index, error_flag):
             modelName=util.loaded_project["hydrus_models"][hydrus_model_index],
             upload_error=error_flag
         )
+
+
+def next_shape_redirect_handler(rch_shape_index):
+    if rch_shape_index >= len(util.recharge_masks):
+        util.get_shapes_from_masks_ids()
+        for key in util.loaded_shapes:
+            print(key, '->\n', util.loaded_shapes[key].shape_mask)
+        return redirect(endpoints.SIMULATION)
+    else:
+        current_model = util.get_current_model_by_id(rch_shape_index)
+
+        return render_template(template.RCH_SHAPES, hydrus_models=util.loaded_project["hydrus_models"],
+                               shape_mask=util.recharge_masks[rch_shape_index], rch_shape_index=rch_shape_index,
+                               current_model=current_model)
+
+
+def assign_model_to_shape(req, rch_shape_index):
+    hydrus_model_name = req.json["hydrusModel"]
+    previos_hydrus_model_name = req.json["previousModel"]
+
+    if previos_hydrus_model_name:
+        util.models_masks_ids[previos_hydrus_model_name].remove(rch_shape_index)
+
+    if hydrus_model_name == "":
+        return json.dumps({'status': 'OK'})
+
+    if util.models_masks_ids[hydrus_model_name] is None:
+        util.models_masks_ids[hydrus_model_name] = [rch_shape_index]
+    else:
+        util.models_masks_ids[hydrus_model_name].append(rch_shape_index)
+
+    return json.dumps({'status': 'OK'})
 
 
 def upload_new_configurations(req):

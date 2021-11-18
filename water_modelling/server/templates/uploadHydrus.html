@@ -48,7 +48,7 @@
                    {% else %}
                    class="btn btn-secondary disabled"
                    {% endif %}
-                   href="{{ url_for('define_shapes', hydrus_model_index='0') }}">Next</a>
+                   href="{{ url_for('define_method') }}">Next</a>
             </div>
         </div>
     </div>
@@ -62,7 +62,9 @@
                     {% for name in model_names %}
                     <li class="list-group-item">
                         <span class="slice-column left">{{ name }}</span>
-                        <button class="btn btn-secondary slice-column right" onClick="doDelete('{{ name }}')">Remove</button>
+                        <span  class="slice-column right" >
+                            <button type="button" class="btn btn-danger right" onClick="doDelete('{{name}}')">Remove</button>
+                        </span>
                     </li>
                     {% endfor %}
                 </ul>

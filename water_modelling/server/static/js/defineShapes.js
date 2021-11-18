@@ -54,7 +54,7 @@ function handleBackButton(modelIdx) {
     console.log(`redirect to last page`);
     let lastModelId = parseInt(modelIdx) - 1;
     if (lastModelId === -1) {
-        window.location.href = Config.uploadHydrus;
+        window.location.href = Config.defineMethod;
     } else {
         window.location.href = Config.defineShapes + lastModelId;
     }

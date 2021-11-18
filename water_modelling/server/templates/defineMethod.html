@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>HP4M | HYDRUS | Shape Method</title>
+<link rel="stylesheet" href="/static/css/defineMethod.css">
+{% endblock %}
+
+{% block simulation_active %}active{% endblock %}
+
+{% block body %}
+<div class="container mt-5" id="define-shapes-content">
+    <div class="row justify-content-md-center">
+        {% include 'progressBar.html' %}
+
+        <div class="col-lg-9">
+            <div class="text-center">
+                <h1 class="display-4">Select method for defining shapes</h1>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row justify-content-md-center">
+        <div class="col-lg-4">
+            <div class="card card-display">
+<!--                <img class="card-img-top" src="..." alt="Card RCH image">-->
+                <div class="card-body">
+                    <h4 class="card-title">Recharge RCH</h4>
+                    <p class="card-text">This method of defining shapes is prepared from recharge file. In this option
+                        you will be able to link hydrus models to the detected zones.</p>
+                </div>
+                <div class="card-footer">
+                    <a href="{{url_for('rch_shapes', rch_shape_index='0')}}" class="btn btn-secondary">Choose</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card card-display">
+<!--                <img class="card-img-top" src="..." alt="Card define shapes image">-->
+                <div class="card-body">
+                    <h4 class="card-title">Define shapes manually</h4>
+                    <p class="card-text">In this option you will be able to link hydrus models to the selected
+                        shapes.</p>
+                </div>
+                <div class="card-footer">
+                    <a href="{{url_for('define_shapes', hydrus_model_index='0')}}" class="btn btn-secondary">Choose</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row ">
+        <div class="col-md-1 offset-md-2" style="padding-top: 15px;">
+            <a type="button" class="btn btn-default" href="{{ url_for('upload_hydrus') }}" )>Back</a>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+{%  block scripts %}
+<script src="/static/js/defineMethod.js"></script>
+{% endblock %}

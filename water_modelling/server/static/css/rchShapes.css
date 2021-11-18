@@ -1,0 +1,11 @@
+.step.modflow, .bar-hp4m.modflow,
+.step.hydrus, .bar-hp4m.hydrus,
+.step.shapes, .bar-hp4m.shapes {
+	background-color: #007bff;
+}
+
+.step .label.modflow,
+.step .label.hydrus,
+.step .label.shapes {
+	color: white;
+}
