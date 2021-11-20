@@ -15,7 +15,7 @@
             isDateCorrect(endDate, 'endDate')){
 
             const formdata = {
-                "name": name,
+                "name": name.trim(),
                 "lat": lat,
                 "long": long,
                 "start_date": startDate,
@@ -71,7 +71,7 @@
     }
 
     function isTextCorrect(text, elementId) {
-        if (text.trim() !== "" && text !== null && text !== undefined){
+        if (text !== null && text !== undefined && text.trim() !== ""){
             removeInvalid(elementId);
             return true;
         } else {

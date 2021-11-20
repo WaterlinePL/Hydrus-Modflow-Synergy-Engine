@@ -16,7 +16,7 @@
 
             removeInvalid('modflowFile');
             removeInvalid('hydrusFile');
-            const formdata = {"modflowExe": modflowExe, "hydrusExe": hydrusExe};
+            const formdata = {"modflowExe": modflowExe.trim(), "hydrusExe": hydrusExe.trim()};
              $.ajax({
                         type: 'POST',
                         contentType: 'application/json',
