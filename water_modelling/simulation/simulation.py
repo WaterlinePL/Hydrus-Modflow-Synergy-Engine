@@ -39,7 +39,8 @@ class Simulation:
 
     def run_modflow(self, api_instance: CoreV1Api, modflow_dir: str, nam_file: str, pod_controller: PodController):
         modflow_pod_name = "modflow-2005-id." + str(self.simulation_id)
-        modflow_volumes_path = self.format_path_to_docker(dir_path=modflow_dir, project_name=self.modflow_project)
+        modflow_volumes_path = Simulation.format_path_to_docker(dir_path=os.path.abspath(modflow_dir),
+                                                                project_name=self.modflow_project)
         modflow_deployer = ModflowDeployer(api_instance=api_instance, path=modflow_volumes_path,
                                            name_file=nam_file, pod_name=modflow_pod_name)
         modflow_v1_pod = modflow_deployer.run()  # run modflow pod
@@ -70,7 +71,9 @@ class Simulation:
 
         hydrus_volumes_paths = []
         for key in self.loaded_shapes:
-            hydrus_volumes_paths.append(self.format_path_to_docker(dir_path=hydrus_dir, project_name=key))
+            # hydrus_volumes_paths.append(self.format_path_to_docker(dir_path=hydrus_dir, project_name=key))
+            volume_path = Simulation.format_path_to_docker(dir_path=os.path.abspath(hydrus_dir), project_name=key)
+            hydrus_volumes_paths.append(volume_path)
         multipod_deployer = HydrusMultiDeployer(api_instance=api_instance,
                                                 hydrus_projects_paths=hydrus_volumes_paths,
                                                 pods_names=hydrus_pod_names,

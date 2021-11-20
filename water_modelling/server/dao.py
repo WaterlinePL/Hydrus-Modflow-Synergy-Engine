@@ -2,7 +2,7 @@ import json
 import os
 import shutil
 
-from app_utils import AppUtils
+from app_utils import util
 
 """
 A project .json file contains the following:
@@ -22,8 +22,6 @@ A project .json file contains the following:
 }
 """
 
-WORKSPACE_PATH = "../../workspace"
-
 
 def create(project: dict):
     """
@@ -36,7 +34,7 @@ def create(project: dict):
     """
     # create catalogue structure
     # TODO - check for collision?
-    project_root = os.path.join(WORKSPACE_PATH, project['name'])
+    project_root = os.path.join(util.workspace_dir, project['name'])
     hydrus_folder = os.path.join(project_root, 'hydrus')
     modflow_folder = os.path.join(project_root, 'modflow')
     os.mkdir(project_root)
@@ -56,7 +54,7 @@ def read(project_name: str):
     :param project_name: string, the name of the project whose JSON file we want to retrieve
     :return: the project's JSON file
     """
-    return json.load(open(os.path.join(WORKSPACE_PATH, project_name, project_name+".json")))
+    return json.load(open(os.path.join(util.workspace_dir, project_name, project_name+".json")))
 
 
 def read_all():
@@ -65,17 +63,16 @@ def read_all():
 
     :return: a list of strings, the project names
     """
-    return [name for name in os.listdir(WORKSPACE_PATH) if os.path.isdir(os.path.join(WORKSPACE_PATH, name))]
+    return [name for name in os.listdir(util.workspace_dir) if os.path.isdir(os.path.join(util.workspace_dir, name))]
 
 
-def update(project_name: str, changed_fields: dict, util: AppUtils):
+def update(project_name: str, changed_fields: dict):
     """
     Updates the given fields in a given project, leaving the rest unchanged. The name field cannot be modified.
     If the project that was updated was currently loaded, the app utility will be given this updated object as well.
 
     :param project_name: string, the project whose fields to update
     :param changed_fields: dict, the fields to be updated
-    :param util: the app utility; this has to be passed as a parameter to avoid circular imports
     :return: None
     """
     # read and update project file
@@ -89,28 +86,27 @@ def update(project_name: str, changed_fields: dict, util: AppUtils):
         util.loaded_project = project
 
     # write the updated project into the JSON file
-    file = open(os.path.join(WORKSPACE_PATH, project_name, project_name+".json"), "w")
+    file = open(os.path.join(util.workspace_dir, project_name, project_name+".json"), "w")
     json.dump(project, file)
 
 
-def remove_model(model_type: str, model_name: str, util: AppUtils):
+def remove_model(model_type: str, model_name: str):
     """
     Removes an already loaded model from the project.
 
     :param model_type: string, the type of model to delete, "hydrus" or "modflow"
     :param model_name: string, the name of the model to delete
-    :param util: the app utility
     :return: None
     """
-    model_path = os.path.join(WORKSPACE_PATH, util.loaded_project["name"], model_type, model_name)
+    model_path = os.path.join(util.workspace_dir, util.loaded_project["name"], model_type, model_name)
     if os.path.isdir(model_path):
         shutil.rmtree(model_path)
         if model_type == 'modflow':
-            update(util.loaded_project["name"], {"modflow_model": None}, util)
+            update(util.loaded_project["name"], {"modflow_model": None})
         else:
             new_list = util.loaded_project["hydrus_models"]
             new_list.remove(model_name)
             print(new_list)
             if new_list is None:
                 new_list = []
-            update(util.loaded_project["name"], {"hydrus_models": new_list}, util)
+            update(util.loaded_project["name"], {"hydrus_models": new_list})

@@ -1,4 +1,4 @@
-from app_utils import AppUtils
+from app_utils import util, get_or_none
 from datapassing.shape_data import ShapeFileData
 from flask import render_template, redirect, abort, jsonify
 from flask_paginate import Pagination, get_page_args
@@ -6,16 +6,14 @@ from modflow import modflow_utils
 from server import endpoints, template
 from zipfile import ZipFile
 
-import DAO
+import dao
 import json
 import numpy as np
 import os
 import shutil
 
 
-util = AppUtils()
-util.setup()
-
+from hydrus import hydrus_utils
 
 def create_project_handler(req):
     name = req.json['name']
@@ -25,7 +23,7 @@ def create_project_handler(req):
     end_date = req.json["end_date"]
 
     # check for name collision
-    if name in DAO.read_all():
+    if name in dao.read_all():
         return jsonify(error=str("A project with this name already exists")), 404
 
     project = {
@@ -43,9 +41,9 @@ def create_project_handler(req):
         "modflow_model": None,
         "hydrus_models": []
     }
-    DAO.create(project)
+    dao.create(project)
     util.loaded_project = project
-    #TODO: czy powinnismy tutaj czyÅ›ciÄ‡ utils???
+    #TODO: czy powinnismy tutaj czyœciæ utils???
     return json.dumps({'status': 'OK'})
 
 
@@ -194,7 +192,7 @@ def upload_modflow_handler(req):
             "row_cells": model_data["row_cells"],
             "col_cells": model_data["col_cells"]
         }
-        DAO.update(util.loaded_project["name"], updates, util)
+        dao.update(util.loaded_project["name"], updates)
 
         print("Modflow model uploaded successfully")
         return redirect(endpoints.UPLOAD_MODFLOW)
@@ -208,7 +206,7 @@ def upload_modflow_handler(req):
 def remove_modflow_handler(req):
     body = json.loads(req.data)
     if body['modelName']:
-        DAO.remove_model('modflow', body["modelName"], util)
+        dao.remove_model('modflow', body["modelName"])
     return redirect(endpoints.UPLOAD_MODFLOW, code=303)
 
 
@@ -222,20 +220,27 @@ def upload_hydrus_handler(req):
         model.save(archive_path)
         with ZipFile(archive_path, 'r') as archive:
 
-            # get the model name and remember it
+            # get the project name and remember it
             model_name = model.filename.split('.')[0]
+            project_path = os.path.join(util.get_hydrus_dir(), model_name)
 
-            # create a dedicated catalogue and load the model into it
-            os.system('mkdir ' + os.path.join(util.get_hydrus_dir(), model_name))
-            archive.extractall(os.path.join(util.get_hydrus_dir(), model_name))
+            # create a dedicated catalogue and load the project into it
+            os.system('mkdir ' + project_path)
+            archive.extractall(project_path)
+
+            # validate model
+            invalid_model = not hydrus_utils.validate_model(project_path)
 
         os.remove(archive_path)
+        if invalid_model:
+            shutil.rmtree(project_path, ignore_errors=True)  # remove invalid project dir
+            return abort(500)
 
         # update project JSON
         updates = {
             "hydrus_models": util.loaded_project["hydrus_models"] + [model_name]
         }
-        DAO.update(util.loaded_project["name"], updates, util)
+        dao.update(util.loaded_project["name"], updates)
 
         print("Hydrus model uploaded successfully")
         return redirect(endpoints.UPLOAD_HYDRUS)
@@ -251,7 +256,7 @@ def remove_hydrus_handler(req):
     print("received call")
     print(body['modelName'])
     if body['modelName']:
-        DAO.remove_model('hydrus', body["modelName"], util)
+        dao.remove_model('hydrus', body["modelName"])
     return redirect(endpoints.UPLOAD_HYDRUS, code=303)
 
 
