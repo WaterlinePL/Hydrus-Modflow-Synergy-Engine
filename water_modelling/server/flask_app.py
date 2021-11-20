@@ -1,11 +1,11 @@
 from flask import Flask, render_template, request, redirect, jsonify
 
+from app_utils import util
 import endpoint_handlers
 import json
 from server import endpoints, template, path_checker
 import threading
 
-util = endpoint_handlers.util
 app = Flask("App")
 
 
