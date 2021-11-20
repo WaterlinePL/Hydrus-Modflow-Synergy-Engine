@@ -260,10 +260,10 @@ def upload_new_configurations(req):
     print(modflow_exe, hydrus_exe)
 
     if not os.path.exists(modflow_exe):
-        return jsonify(error=str("Incorrect Modflow exe path")), 404
+        return jsonify(error=str("Incorrect Modflow exe path"), model=str("modflow")), 404
 
     if not os.path.exists(hydrus_exe):
-        return jsonify(error=str("Incorrect Hydrus exe path")), 404
+        return jsonify(error=str("Incorrect Hydrus exe path"), model=str("hydrus")), 404
 
     util.modflow_exe = modflow_exe
     util.hydrus_exe = hydrus_exe

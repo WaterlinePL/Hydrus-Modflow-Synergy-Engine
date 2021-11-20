@@ -35,7 +35,6 @@ def create_project():
     else:
         return render_template(
             template.CREATE_PROJECT,
-            name_taken=False,
             prev_lat="",
             prev_long="",
             prev_start="",

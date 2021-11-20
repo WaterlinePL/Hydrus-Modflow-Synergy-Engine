@@ -1,4 +1,5 @@
 (function($) {
+    'use strict'
 
     document.getElementById("form-modflow-hydrus").onsubmit = function (e) {
         e.preventDefault()
@@ -13,6 +14,8 @@
         if (modflowExe !== null && modflowExe !== undefined && modflowExe.trim() !== "" &&
             hydrusExe !== null && hydrusExe !== undefined && hydrusExe.trim() !== ""){
 
+            removeInvalid('modflowFile');
+            removeInvalid('hydrusFile');
             const formdata = {"modflowExe": modflowExe, "hydrusExe": hydrusExe};
              $.ajax({
                         type: 'POST',
@@ -30,6 +33,13 @@
                         },
                         error: function(error) {
                             const errorMsg = error.responseJSON.error;
+                            const model = error.responseJSON.model;
+                            console.log(model);
+                            if(model === "modflow"){
+                                addInvalid('modflowFile');
+                            } else if (model === "hydrus"){
+                                addInvalid('hydrusFile');
+                            }
                             $('#toast-body-error-configuration').text(errorMsg);
                             $('#error-configuration').toast('show');
                     }
@@ -40,6 +50,17 @@
         }
     }
 
+    function removeInvalid(elementId){
+        if($(`#${elementId}`).hasClass('is-invalid')){
+            $(`#${elementId}`).removeClass('is-invalid');
+        }
+    }
+
+    function addInvalid(elementId){
+        if(!$(`#${elementId}`).hasClass('is-invalid')){
+                $(`#${elementId}`).addClass('is-invalid');
+        }
+    }
 
 
 })(jQuery);
