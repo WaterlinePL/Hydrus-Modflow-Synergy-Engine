@@ -2,6 +2,7 @@ from app_utils import util, get_or_none
 from datapassing.shape_data import ShapeFileData
 from flask import render_template, redirect, abort, jsonify
 from flask_paginate import Pagination, get_page_args
+from hydrus import hydrus_utils
 from modflow import modflow_utils
 from server import endpoints, template
 from zipfile import ZipFile
@@ -12,8 +13,6 @@ import numpy as np
 import os
 import shutil
 
-
-from hydrus import hydrus_utils
 
 def create_project_handler(req):
     name = req.json['name']
@@ -43,7 +42,7 @@ def create_project_handler(req):
     }
     dao.create(project)
     util.loaded_project = project
-    #TODO: czy powinnismy tutaj czyœciæ utils???
+    #TODO: czy powinnismy tutaj czyï¿½ciï¿½ utils???
     return json.dumps({'status': 'OK'})
 
 
@@ -52,7 +51,7 @@ def get_projects(projects, offset=0, per_page=10):
 
 
 def project_list_handler(search):
-    projects = DAO.read_all()
+    projects = dao.read_all()
 
     if search:
         projects = [p for p in projects if search.lower() in p.lower()]
@@ -87,7 +86,7 @@ def project_handler(project_name):
     # case 3 - we're selecting a new project
     else:
         try:
-            chosen_project = DAO.read(project_name)
+            chosen_project = dao.read(project_name)
         # case 3a - the project does not exist
         except FileNotFoundError:
             util.error_flag = True
@@ -107,7 +106,7 @@ def project_handler(project_name):
 
 def edit_project_handler(project_name):
     try:
-        project = DAO.read(project_name)
+        project = dao.read(project_name)
     except FileNotFoundError:
         util.error_flag = True
         return redirect(endpoints.PROJECT_LIST)
@@ -130,7 +129,7 @@ def update_project_settings(req):
     end_date = req.json["end_date"]
 
     try:
-        prev_project = DAO.read(name)
+        prev_project = dao.read(name)
     except FileNotFoundError:
         util.error_flag = True
         return redirect(endpoints.PROJECT_LIST)
@@ -141,7 +140,7 @@ def update_project_settings(req):
     prev_project["start_date"] = start_date
     prev_project["end_date"] = end_date
 
-    DAO.update(name, prev_project, util)
+    dao.update(name, prev_project)
     return json.dumps({'status': 'OK'})
 
 
