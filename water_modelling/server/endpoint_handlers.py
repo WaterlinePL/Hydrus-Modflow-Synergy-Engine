@@ -1,16 +1,17 @@
-from app_utils import AppUtils, get_or_none
-import numpy as np
-from flask import render_template, redirect, abort, jsonify
-from zipfile import ZipFile
+from app_utils import AppUtils
 from datapassing.shape_data import ShapeFileData
-import DAO
-import shutil
-
-import os
-import json
-
+from flask import render_template, redirect, abort, jsonify
+from flask_paginate import Pagination, get_page_args
 from modflow import modflow_utils
 from server import endpoints, template
+from zipfile import ZipFile
+
+import DAO
+import json
+import numpy as np
+import os
+import shutil
+
 
 util = AppUtils()
 util.setup()
@@ -44,11 +45,36 @@ def create_project_handler(req):
     }
     DAO.create(project)
     util.loaded_project = project
+    #TODO: czy powinnismy tutaj czyścić utils???
     return json.dumps({'status': 'OK'})
 
 
-def project_list_handler():
-    return render_template(template.PROJECT_LIST, projects=DAO.read_all())
+def get_projects(projects, offset=0, per_page=10):
+    return projects[offset: offset + per_page]
+
+
+def project_list_handler(search):
+    projects = DAO.read_all()
+
+    if search:
+        projects = [p for p in projects if search.lower() in p.lower()]
+
+    page, per_page, offset = get_page_args(page_parameter='page', per_page_parameter='per_page')
+    pagination_projects = get_projects(projects=projects, offset=offset, per_page=per_page)
+    pagination = Pagination(page=page,
+                            per_page=per_page,
+                            total=len(projects),
+                            record_name="projects",
+                            css_framework='bootstrap4')
+
+    return render_template(template.PROJECT_LIST,
+                           search_value=search,
+                           projects=pagination_projects,
+                           page=page,
+                           per_page=per_page,
+                           pagination=pagination,
+                           error_project_name=util.get_error_flag()
+                           )
 
 
 def project_handler(project_name):
@@ -58,12 +84,15 @@ def project_handler(project_name):
             return render_template(template.PROJECT, project=util.loaded_project)
         # case 2 - there is no project loaded, the user should be redirected to the project list to select a project
         else:
+            util.error_flag = True
             return redirect(endpoints.PROJECT_LIST)
     # case 3 - we're selecting a new project
     else:
-        chosen_project = DAO.read(project_name)
+        try:
+            chosen_project = DAO.read(project_name)
         # case 3a - the project does not exist
-        if chosen_project is None:
+        except FileNotFoundError:
+            util.error_flag = True
             return redirect(endpoints.PROJECT_LIST)
         else:
             util.loaded_project = chosen_project
@@ -76,6 +105,46 @@ def project_handler(project_name):
 
             print(util.loaded_project)
             return render_template(template.PROJECT, project=chosen_project)
+
+
+def edit_project_handler(project_name):
+    try:
+        project = DAO.read(project_name)
+    except FileNotFoundError:
+        util.error_flag = True
+        return redirect(endpoints.PROJECT_LIST)
+    else:
+        return render_template(
+            template.CREATE_PROJECT,
+            name=project_name,
+            prev_lat=project['lat'],
+            prev_long=project['long'],
+            prev_start=project['start_date'],
+            prev_end=project['end_date']
+        )
+
+
+def update_project_settings(req):
+    name = req.json['name']
+    lat = req.json['lat']
+    long = req.json["long"]
+    start_date = req.json["start_date"]
+    end_date = req.json["end_date"]
+
+    try:
+        prev_project = DAO.read(name)
+    except FileNotFoundError:
+        util.error_flag = True
+        return redirect(endpoints.PROJECT_LIST)
+
+    prev_project["name"] = name
+    prev_project["lat"] = lat
+    prev_project["long"] = long
+    prev_project["start_date"] = start_date
+    prev_project["end_date"] = end_date
+
+    DAO.update(name, prev_project, util)
+    return json.dumps({'status': 'OK'})
 
 
 def upload_modflow_handler(req):

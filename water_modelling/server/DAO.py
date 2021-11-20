@@ -85,7 +85,7 @@ def update(project_name: str, changed_fields: dict, util: AppUtils):
             project[field] = changed_fields[field]
 
     # if that project is currently loaded, and it probably is, update the record in the utility
-    if util.loaded_project["name"] == project_name:
+    if util.loaded_project and util.loaded_project["name"] == project_name:
         util.loaded_project = project
 
     # write the updated project into the JSON file
