@@ -96,7 +96,7 @@ def define_method():
     if check_previous_steps:
         return check_previous_steps
 
-    return render_template(template.DEFINE_METHOD)
+    return render_template(template.DEFINE_METHOD, error=util.get_error_flag())
 
 
 @app.route(endpoints.DEFINE_SHAPES, methods=['GET', 'POST'])

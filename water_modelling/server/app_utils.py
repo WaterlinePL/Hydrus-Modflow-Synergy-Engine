@@ -124,6 +124,7 @@ class AppUtils:
                 shape = (self.loaded_project["rows"], self.loaded_project["cols"])
                 self.loaded_shapes[hydrus_model] = ShapeFileData(shape_mask_array=np.zeros(shape))
 
+
 # Initiate singleton setup
 util = AppUtils()
 util.setup()

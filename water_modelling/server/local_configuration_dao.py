@@ -1,3 +1,5 @@
+from app_utils import util
+
 import json
 import os
 
@@ -9,7 +11,7 @@ Config .json file specification:
 }
 """
 
-CONFIG_PATH = "../app_config"
+CONFIG_PATH = util.project_root+"app_config"
 FILE_NAME = "config.json"
 
 
