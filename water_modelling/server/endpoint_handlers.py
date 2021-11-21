@@ -1,20 +1,18 @@
-from app_utils import AppUtils, get_or_none
+from app_utils import util, get_or_none
 import numpy as np
 from flask import render_template, redirect, abort, jsonify
 from zipfile import ZipFile
 from datapassing.shape_data import ShapeFileData
-import DAO
+import dao
 import shutil
 import local_configuration_dao as lcd
 
 import os
 import json
 
+from hydrus import hydrus_utils
 from modflow import modflow_utils
 from server import endpoints, template
-
-util = AppUtils()
-util.setup()
 
 
 def create_project_handler(req):
@@ -26,7 +24,7 @@ def create_project_handler(req):
     end_date = get_or_none(req, "end_date")
 
     # check for name collision
-    if name in DAO.read_all():
+    if name in dao.read_all():
         return render_template(
             template.CREATE_PROJECT,
             name_taken=True,
@@ -51,13 +49,13 @@ def create_project_handler(req):
         "modflow_model": None,
         "hydrus_models": []
     }
-    DAO.create(project)
+    dao.create(project)
     util.loaded_project = project
     return redirect(endpoints.PROJECT_NO_ID)
 
 
 def project_list_handler():
-    return render_template(template.PROJECT_LIST, projects=DAO.read_all())
+    return render_template(template.PROJECT_LIST, projects=dao.read_all())
 
 
 def project_handler(project_name):
@@ -70,7 +68,7 @@ def project_handler(project_name):
             return redirect(endpoints.PROJECT_LIST)
     # case 3 - we're selecting a new project
     else:
-        chosen_project = DAO.read(project_name)
+        chosen_project = dao.read(project_name)
         # case 3a - the project does not exist
         if chosen_project is None:
             return redirect(endpoints.PROJECT_LIST)
@@ -134,7 +132,7 @@ def upload_modflow_handler(req):
             "row_cells": model_data["row_cells"],
             "col_cells": model_data["col_cells"]
         }
-        DAO.update(util.loaded_project["name"], updates, util)
+        dao.update(util.loaded_project["name"], updates)
 
         print("Modflow model uploaded successfully")
         return redirect(endpoints.UPLOAD_MODFLOW)
@@ -148,7 +146,7 @@ def upload_modflow_handler(req):
 def remove_modflow_handler(req):
     body = json.loads(req.data)
     if body['modelName']:
-        DAO.remove_model('modflow', body["modelName"], util)
+        dao.remove_model('modflow', body["modelName"])
     return redirect(endpoints.UPLOAD_MODFLOW, code=303)
 
 
@@ -162,20 +160,27 @@ def upload_hydrus_handler(req):
         model.save(archive_path)
         with ZipFile(archive_path, 'r') as archive:
 
-            # get the model name and remember it
+            # get the project name and remember it
             model_name = model.filename.split('.')[0]
+            project_path = os.path.join(util.get_hydrus_dir(), model_name)
 
-            # create a dedicated catalogue and load the model into it
-            os.system('mkdir ' + os.path.join(util.get_hydrus_dir(), model_name))
-            archive.extractall(os.path.join(util.get_hydrus_dir(), model_name))
+            # create a dedicated catalogue and load the project into it
+            os.system('mkdir ' + project_path)
+            archive.extractall(project_path)
+
+            # validate model
+            invalid_model = not hydrus_utils.validate_model(project_path)
 
         os.remove(archive_path)
+        if invalid_model:
+            shutil.rmtree(project_path, ignore_errors=True)  # remove invalid project dir
+            return abort(500)
 
         # update project JSON
         updates = {
             "hydrus_models": util.loaded_project["hydrus_models"] + [model_name]
         }
-        DAO.update(util.loaded_project["name"], updates, util)
+        dao.update(util.loaded_project["name"], updates)
 
         print("Hydrus model uploaded successfully")
         return redirect(endpoints.UPLOAD_HYDRUS)
@@ -191,7 +196,7 @@ def remove_hydrus_handler(req):
     print("received call")
     print(body['modelName'])
     if body['modelName']:
-        DAO.remove_model('hydrus', body["modelName"], util)
+        dao.remove_model('hydrus', body["modelName"])
     return redirect(endpoints.UPLOAD_HYDRUS, code=303)
 
 

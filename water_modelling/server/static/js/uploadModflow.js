@@ -29,7 +29,8 @@ async function doDelete(modelName) {
             body: formData
         }).then(response => {
             if (response.status !== 200) {
-                $("#invalid-project-alert").toast('show');
+                $('#toast-message').html('Invalid modflow project');
+                $("#error-wrong-modflow").toast('show');
             } else {
                 location.replace(response.url)
             }

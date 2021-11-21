@@ -1,13 +1,13 @@
-
 import os
 
 import numpy as np
 
-import version_contants
 from server.endpoints import RCH_SHAPES
 
 from simulation.simulation_service import SimulationService
 from datapassing.shape_data import ShapeFileData
+
+PROJECT_ROOT = "../"
 
 
 def verify_dir_exists_or_create(path: str):
@@ -20,11 +20,12 @@ def get_or_none(req, key):
     return req.form[key] if req.form[key] != "" else None
 
 
+# Ta klasa stała się reactowym state XD
 class AppUtils:
 
     def __init__(self):
         self.allowed_types = ["ZIP", "RAR", "7Z"]
-        self.project_root = version_contants.PROJECT_ROOT
+        self.project_root = PROJECT_ROOT
         self.workspace_dir = os.path.join(self.project_root, 'workspace')
         self.loaded_project = None
         self.simulation_service = None
@@ -122,3 +123,7 @@ class AppUtils:
             else:
                 shape = (self.loaded_project["rows"], self.loaded_project["cols"])
                 self.loaded_shapes[hydrus_model] = ShapeFileData(shape_mask_array=np.zeros(shape))
+
+# Initiate singleton setup
+util = AppUtils()
+util.setup()
