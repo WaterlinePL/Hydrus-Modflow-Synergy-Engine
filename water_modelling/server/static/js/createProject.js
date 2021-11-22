@@ -11,8 +11,7 @@
         if( isTextCorrect(name,'name') &&
             isCoordCorrect(lat, 'lat') &&
             isCoordCorrect(long, 'long') &&
-            isDateCorrect(startDate, 'startDate') &&
-            isDateCorrect(endDate, 'endDate')){
+            checkDates(startDate, 'startDate', endDate, 'endDate')){
 
             const formdata = {
                 "name": name.trim(),
@@ -47,6 +46,25 @@
             $('#toast-body-error').text('Provide correct data')
             $('#error').toast('show');
         }
+    }
+
+    function checkDates(firstDate, firstDateId, secondDate, secondDateId) {
+        if( isDateCorrect(firstDate, firstDateId) &&
+            isDateCorrect(secondDate, secondDateId)){
+            const firstDateParse = new Date(firstDate);
+            const secondDateParse = new Date(secondDate);
+            console.log(firstDateParse, secondDateParse);
+
+            if(secondDateParse > firstDateParse){
+                removeInvalid(firstDateId);
+                removeInvalid(secondDateId);
+                return true;
+            } else {
+                addInvalid(firstDateId);
+                addInvalid(secondDateId);
+            }
+        }
+        return false;
     }
 
     function isDateCorrect(date, elementId) {
