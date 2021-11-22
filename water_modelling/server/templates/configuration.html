@@ -30,7 +30,7 @@
         </div>
     </div>
 
-    {% if modflow_exe != "" or hydrus_exe != "" %}
+    {% if (modflow_exe is defined and modflow_exe) or (hydrus_exe is defined and hydrus_exe) %}
     <div class="container">
         <div class="row justify-content-md-center">
             <div class="col-lg-9">

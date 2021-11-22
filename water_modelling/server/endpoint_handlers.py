@@ -5,6 +5,7 @@ from zipfile import ZipFile
 from datapassing.shape_data import ShapeFileData
 import dao
 import shutil
+import local_configuration_dao as lcd
 
 import os
 import json
@@ -278,7 +279,6 @@ def upload_new_configurations(req):
     if not os.path.exists(hydrus_exe):
         return jsonify(error=str("Incorrect Hydrus exe path")), 404
 
-    util.modflow_exe = modflow_exe
-    util.hydrus_exe = hydrus_exe
+    lcd.update_configuration(hydrus_exe, modflow_exe)
 
     return json.dumps({'status': 'OK'})
