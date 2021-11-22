@@ -80,6 +80,12 @@ def project_handler(project_name):
             util.recharge_masks = []
             util.loaded_shapes = {}
 
+            model_path = os.path.join(util.get_modflow_dir(), util.loaded_project["modflow_model"])
+            nam_file_name = modflow_utils.get_nam_file(model_path)
+            model_data = modflow_utils.get_model_data(model_path, nam_file_name)
+            util.recharge_masks = modflow_utils.get_shapes_from_rch(model_path, nam_file_name,
+                                                                    (model_data["rows"], model_data["cols"]))
+
             print(util.loaded_project)
             return render_template(template.PROJECT, project=chosen_project)
 
