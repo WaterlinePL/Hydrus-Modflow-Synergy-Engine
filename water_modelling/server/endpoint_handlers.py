@@ -16,23 +16,15 @@ from server import endpoints, template
 
 
 def create_project_handler(req):
-
-    name = req.form['name']
-    lat = get_or_none(req, "lat")
-    long = get_or_none(req, "long")
-    start_date = get_or_none(req, "start_date")
-    end_date = get_or_none(req, "end_date")
+    name = req.json['name']
+    lat = req.json['lat']
+    long = req.json["long"]
+    start_date = req.json["start_date"]
+    end_date = req.json["end_date"]
 
     # check for name collision
     if name in dao.read_all():
-        return render_template(
-            template.CREATE_PROJECT,
-            name_taken=True,
-            prev_lat=lat,
-            prev_long=long,
-            prev_start=start_date,
-            prev_end=end_date
-        )
+        return jsonify(error=str("A project with this name already exists")), 404
 
     project = {
         "name": name,
@@ -51,7 +43,7 @@ def create_project_handler(req):
     }
     dao.create(project)
     util.loaded_project = project
-    return redirect(endpoints.PROJECT_NO_ID)
+    return json.dumps({'status': 'OK'})
 
 
 def project_list_handler():
@@ -274,10 +266,10 @@ def upload_new_configurations(req):
     print(modflow_exe, hydrus_exe)
 
     if not os.path.exists(modflow_exe):
-        return jsonify(error=str("Incorrect Modflow exe path")), 404
+        return jsonify(error=str("Incorrect Modflow exe path"), model=str("modflow")), 404
 
     if not os.path.exists(hydrus_exe):
-        return jsonify(error=str("Incorrect Hydrus exe path")), 404
+        return jsonify(error=str("Incorrect Hydrus exe path"), model=str("hydrus")), 404
 
     lcd.update_configuration(hydrus_exe, modflow_exe)
 
