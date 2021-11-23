@@ -1,18 +1,18 @@
 from app_utils import util, get_or_none
-import numpy as np
-from flask import render_template, redirect, abort, jsonify, send_file
-from zipfile import ZipFile
 from datapassing.shape_data import ShapeFileData
-import dao
-import shutil
-import local_configuration_dao as lcd
-
-import os
-import json
-
+from flask import render_template, redirect, abort, jsonify, send_file
+from flask_paginate import Pagination, get_page_args
 from hydrus import hydrus_utils
 from modflow import modflow_utils
 from server import endpoints, template
+from zipfile import ZipFile
+
+import dao
+import json
+import numpy as np
+import os
+import shutil
+import local_configuration_dao as lcd
 
 
 def create_project_handler(req):
@@ -43,11 +43,36 @@ def create_project_handler(req):
     }
     dao.create(project)
     util.loaded_project = project
+    #TODO: czy powinnismy tutaj czy?ci? utils???
     return json.dumps({'status': 'OK'})
 
 
-def project_list_handler():
-    return render_template(template.PROJECT_LIST, projects=dao.read_all())
+def get_projects(projects, offset=0, per_page=10):
+    return projects[offset: offset + per_page]
+
+
+def project_list_handler(search):
+    projects = dao.read_all()
+
+    if search:
+        projects = [p for p in projects if search.lower() in p.lower()]
+
+    page, per_page, offset = get_page_args(page_parameter='page', per_page_parameter='per_page')
+    pagination_projects = get_projects(projects=projects, offset=offset, per_page=per_page)
+    pagination = Pagination(page=page,
+                            per_page=per_page,
+                            total=len(projects),
+                            record_name="projects",
+                            css_framework='bootstrap4')
+
+    return render_template(template.PROJECT_LIST,
+                           search_value=search,
+                           projects=pagination_projects,
+                           page=page,
+                           per_page=per_page,
+                           pagination=pagination,
+                           error_project_name=util.get_error_flag()
+                           )
 
 
 def project_handler(project_name):
@@ -57,12 +82,15 @@ def project_handler(project_name):
             return render_template(template.PROJECT, project=util.loaded_project)
         # case 2 - there is no project loaded, the user should be redirected to the project list to select a project
         else:
+            util.error_flag = True
             return redirect(endpoints.PROJECT_LIST)
     # case 3 - we're selecting a new project
     else:
-        chosen_project = dao.read(project_name)
+        try:
+            chosen_project = dao.read(project_name)
         # case 3a - the project does not exist
-        if chosen_project is None:
+        except FileNotFoundError:
+            util.error_flag = True
             return redirect(endpoints.PROJECT_LIST)
         else:
             util.loaded_project = chosen_project
@@ -73,10 +101,11 @@ def project_handler(project_name):
             util.recharge_masks = []
             util.loaded_shapes = {}
 
-            model_path = os.path.join(util.get_modflow_dir(), util.loaded_project["modflow_model"])
-            nam_file_name = modflow_utils.get_nam_file(model_path)
-            model_data = modflow_utils.get_model_data(model_path, nam_file_name)
-            util.recharge_masks = modflow_utils.get_shapes_from_rch(model_path, nam_file_name,
+            if util.loaded_project["modflow_model"]:
+                model_path = os.path.join(util.get_modflow_dir(), util.loaded_project["modflow_model"])
+                nam_file_name = modflow_utils.get_nam_file(model_path)
+                model_data = modflow_utils.get_model_data(model_path, nam_file_name)
+                util.recharge_masks = modflow_utils.get_shapes_from_rch(model_path, nam_file_name,
                                                                     (model_data["rows"], model_data["cols"]))
 
             print(util.loaded_project)
@@ -89,6 +118,46 @@ def project_download_handler():
         zip_file = shutil.make_archive(project_dir, 'zip', project_dir)
         return send_file(zip_file, as_attachment=True)
     return '', 204
+
+
+def edit_project_handler(project_name):
+    try:
+        project = dao.read(project_name)
+    except FileNotFoundError:
+        util.error_flag = True
+        return redirect(endpoints.PROJECT_LIST)
+    else:
+        return render_template(
+            template.CREATE_PROJECT,
+            name=project_name,
+            prev_lat=project['lat'],
+            prev_long=project['long'],
+            prev_start=project['start_date'],
+            prev_end=project['end_date']
+        )
+
+
+def update_project_settings(req):
+    name = req.json['name']
+    lat = req.json['lat']
+    long = req.json["long"]
+    start_date = req.json["start_date"]
+    end_date = req.json["end_date"]
+
+    try:
+        prev_project = dao.read(name)
+    except FileNotFoundError:
+        util.error_flag = True
+        return redirect(endpoints.PROJECT_LIST)
+
+    prev_project["name"] = name
+    prev_project["lat"] = lat
+    prev_project["long"] = long
+    prev_project["start_date"] = start_date
+    prev_project["end_date"] = end_date
+
+    dao.update(name, prev_project)
+    return json.dumps({'status': 'OK'})
 
 
 def upload_modflow_handler(req):

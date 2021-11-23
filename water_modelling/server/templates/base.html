@@ -23,10 +23,10 @@
                   <li class="nav-item {% block configuration_active %} {% endblock %}">
                     <a class="nav-link" href="{{ url_for('configuration')}}">Configure</a>
                   </li>
-                  <li class="nav-item">
+                  <li class="nav-item {% block project_list_active %} {% endblock %}">
                     <a class="nav-link" href="{{ url_for('project_list')}}">List of projects</a>
                   </li>
-                  <li class="nav-item">
+                  <li class="nav-item {% block create_project_active %} {% endblock %}">
                       <a class="nav-link" href="{{ url_for('project')}}">Current project</a>
                   </li>
                 </ul>

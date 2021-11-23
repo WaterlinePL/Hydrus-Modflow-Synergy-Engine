@@ -1,22 +1,103 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<title>All projects</title>
+<title>HP4M | Projects</title>
+<link rel="stylesheet" href="/static/css/projectList.css">
 {% endblock %}
 
+{% block project_list_active %}active{% endblock %}
+
 {% block body %}
-<div>
-    <h1>Choose an existing project</h1>
-    <ul>
-    {% for project_name in projects %}
-        <li>
-            <h3>{{ project_name }}</h3>
-            <a href="{{ url_for('project', project_name=project_name) }}">Open</a>
-        </li>
-    {% endfor %}
-    </ul>
-    <h3>or <a href="{{ url_for('create_project') }}">Create a new project</a></h3>
+<div class="container mt-5" id="configuration-content">
+    <div class="row justify-content-md-center">
+
+        <div class="col-lg-9">
+            <div class="text-center">
+                <h1 class="display-4">Choose source project</h1>
+                <p class="lead">Click "Open" to choose an existing project or click "Create a new project" to prepare a
+                    new one</p>
+                <a type="button" class="btn btn-default btn-lg bg-primary" style="color: white"
+                   href="{{ url_for('create_project') }}">Create a new
+                    project
+                </a>
+                <br>
+                <br>
+                <br>
+                <br>
+            </div>
+        </div>
+        <div class="col-lg-9">
+            <div class="text-center">
+                <div class="slice-column right">
+                    <form id="form-search">
+                        <div class="form-group" style="text-align: right">
+                            <input type="submit" class="right btn btn-secondary" value="Search" style="width: 20%">
+                            <input type="text" class="right form-control form-control-sm" id="search"
+                                   placeholder="e.g. Project Name" style="width: 60%"
+                                   value="{{ search_value if search_value else '' }}">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-9">
+            <div class="text-center">
+                <span class="right" style="margin-top: 1em;">{{ pagination.info }}</span>
+            </div>
+        </div>
+        <div class="col-lg-9">
+            <table class="table table-striped table-hover">
+                <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col" class="project-name-column">Name</th>
+                    <th scope="col">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for project_name in projects %}
+                <tr>
+                    <th scope="row">{{ loop.index + pagination.skip }}</th>
+                    <td class="project-name-column">{{ project_name }}</td>
+                    <td>
+                        <a type="button" class="btn btn-default"
+                           href="{{ url_for('project', project_name=project_name) }}">Open
+                        </a>
+                        <a type="button" class="btn btn-secondary"
+                           href="{{ url_for('edit_project', project_name=project_name) }}">
+                            Edit
+                        </a>
+                        <button type="button" class="btn btn-danger">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="col-lg-9">
+            <div class="text-center">
+                {{ pagination.links }}
+            </div>
+        </div>
+    </div>
 </div>
+
+{% if error_project_name %}
+<div style="position: absolute; bottom: 20px; right: 20px; width:20%" >
+    <div class="toast border border-danger" role="alert" id="error" aria-live="assertive" aria-atomic="true"
+         data-delay="4000" style="border-width: 4px !important;">
+        <div class="toast-header bg-danger text-white">
+            <strong class="mr-auto">Error</strong>
+        </div>
+        <div class="toast-body" id="toast-body-error">
+            Choose correct project
+        </div>
+    </div>
+</div>
+{% endif %}
+
 {% endblock %}
 
 {%  block scripts %}

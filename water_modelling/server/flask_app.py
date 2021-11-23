@@ -1,11 +1,10 @@
 from flask import Flask, render_template, request, redirect, jsonify
+from server import endpoints, template, path_checker
 
 from app_utils import util
-import endpoint_handlers
-import json
-from server import endpoints, template, path_checker
-import local_configuration_dao as lcd
 import threading
+import endpoint_handlers
+import local_configuration_dao as lcd
 
 app = Flask("App")
 
@@ -44,9 +43,19 @@ def create_project():
         )
 
 
-@app.route(endpoints.PROJECT_LIST, methods=['GET'])
-def project_list():
-    return endpoint_handlers.project_list_handler()
+@app.route(endpoints.EDIT_PROJECT, methods=['GET', 'POST'])
+def edit_project(project_name):
+
+    if request.method == 'POST':
+        return endpoint_handlers.update_project_settings(request)
+    else:
+        return endpoint_handlers.edit_project_handler(project_name)
+
+
+@app.route(endpoints.PROJECT_LIST, methods=['GET'], defaults={'search': None})
+@app.route(endpoints.PROJECT_LIST_SEARCH)
+def project_list(search):
+    return endpoint_handlers.project_list_handler(search)
 
 
 @app.route(endpoints.PROJECT, methods=['GET'])
@@ -68,6 +77,7 @@ def upload_modflow():
         return endpoint_handlers.remove_modflow_handler(request)
     else:
         if util.loaded_project is None:
+            util.error_flag = True
             return redirect(endpoints.PROJECT_LIST)
         else:
             return render_template(
