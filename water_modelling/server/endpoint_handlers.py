@@ -1,6 +1,6 @@
 from app_utils import util, get_or_none
 import numpy as np
-from flask import render_template, redirect, abort, jsonify
+from flask import render_template, redirect, abort, jsonify, send_file
 from zipfile import ZipFile
 from datapassing.shape_data import ShapeFileData
 import dao
@@ -83,8 +83,15 @@ def project_handler(project_name):
             return render_template(template.PROJECT, project=chosen_project)
 
 
-def upload_modflow_handler(req):
+def project_download_handler():
+    if util.loaded_project is not None:
+        project_dir = os.path.join(util.workspace_dir, util.loaded_project["name"])
+        zip_file = shutil.make_archive(project_dir, 'zip', project_dir)
+        return send_file(zip_file, as_attachment=True)
+    return '', 204
 
+
+def upload_modflow_handler(req):
     # every uploaded model needs to belong to a project;
     # if there is no active project, we cannot upload a model
     if util.loaded_project is None:
@@ -209,7 +216,8 @@ def upload_shape_handler(req, hydrus_model_index):
     # read the array from the request and store it
     shape_array = req.get_json(force=True)
     np_array_shape = np.array(shape_array)
-    util.loaded_shapes[util.loaded_project["hydrus_models"][hydrus_model_index]] = ShapeFileData(shape_mask_array=np_array_shape)
+    util.loaded_shapes[util.loaded_project["hydrus_models"][hydrus_model_index]] = ShapeFileData(
+        shape_mask_array=np_array_shape)
 
     return json.dumps({'status': 'OK'})
 

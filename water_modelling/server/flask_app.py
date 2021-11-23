@@ -55,6 +55,11 @@ def project(project_name):
     return endpoint_handlers.project_handler(project_name)
 
 
+@app.route(endpoints.PROJECT_DOWNLOAD, methods=['GET'])
+def project_download():
+    return endpoint_handlers.project_download_handler()
+
+
 @app.route(endpoints.UPLOAD_MODFLOW, methods=['GET', 'POST', 'DELETE'])
 def upload_modflow():
     if request.method == 'POST' and request.files:
@@ -74,7 +79,6 @@ def upload_modflow():
 
 @app.route(endpoints.UPLOAD_HYDRUS, methods=['GET', 'POST', 'DELETE'])
 def upload_hydrus():
-
     check_previous_steps = path_checker.path_check_modflow_step(util)
     if check_previous_steps:
         return check_previous_steps
