@@ -47,7 +47,7 @@ def path_check_define_shapes_method(util: AppUtils) -> Optional[Response]:
     if check_previous:
         return check_previous
 
-    if util.current_method is None:
+    if util.current_method is None or util.loaded_shapes is None:
         # redirect to define method page if method was not selected
         util.error_flag = True
         return redirect(endpoints.DEFINE_METHOD)
