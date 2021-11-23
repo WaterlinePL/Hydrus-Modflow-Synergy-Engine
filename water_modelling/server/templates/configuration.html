@@ -19,18 +19,17 @@
             </div>
             <form id="form-modflow-hydrus">
                 <div class="form-group">
-                    <label for="modflowFile">Provide path to modflow executable file (eg.
-                        C:\MF2005.1_12\bin\mf2005.exe)</label>
-                    <input type="text" class="form-control-file" id="modflowFile">
-                    <label for="hydrusFile">Provide path to hydrus executable file </label>
-                    <input type="text" class="form-control-file" id="hydrusFile">
+                    <label for="modflowFile">Provide path to modflow executable file: </label>
+                    <input type="text" class="form-control" id="modflowFile" placeholder="e.g. C:\MF2005.1_12\bin\mf2005.exe">
+                    <label for="hydrusFile">Provide path to hydrus executable file: </label>
+                    <input type="text" class="form-control" id="hydrusFile" placeholder="e.g. C:\Hydrus\bin\H1D_4_17.exe">
                 </div>
                 <input type="submit" class="btn btn-secondary" value="Submit">
             </form>
         </div>
     </div>
 
-    {% if modflow_exe != "" or hydrus_exe != "" %}
+    {% if (modflow_exe is defined and modflow_exe) or (hydrus_exe is defined and hydrus_exe) %}
     <div class="container">
         <div class="row justify-content-md-center">
             <div class="col-lg-9">

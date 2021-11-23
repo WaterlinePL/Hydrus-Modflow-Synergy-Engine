@@ -5,6 +5,7 @@ from zipfile import ZipFile
 from datapassing.shape_data import ShapeFileData
 import dao
 import shutil
+import local_configuration_dao as lcd
 
 import os
 import json
@@ -15,22 +16,15 @@ from server import endpoints, template
 
 
 def create_project_handler(req):
-    name = req.form['name']
-    lat = get_or_none(req, "lat")
-    long = get_or_none(req, "long")
-    start_date = get_or_none(req, "start_date")
-    end_date = get_or_none(req, "end_date")
+    name = req.json['name']
+    lat = req.json['lat']
+    long = req.json["long"]
+    start_date = req.json["start_date"]
+    end_date = req.json["end_date"]
 
     # check for name collision
     if name in dao.read_all():
-        return render_template(
-            template.CREATE_PROJECT,
-            name_taken=True,
-            prev_lat=lat,
-            prev_long=long,
-            prev_start=start_date,
-            prev_end=end_date
-        )
+        return jsonify(error=str("A project with this name already exists")), 404
 
     project = {
         "name": name,
@@ -49,7 +43,7 @@ def create_project_handler(req):
     }
     dao.create(project)
     util.loaded_project = project
-    return redirect(endpoints.PROJECT_NO_ID)
+    return json.dumps({'status': 'OK'})
 
 
 def project_list_handler():
@@ -78,6 +72,12 @@ def project_handler(project_name):
             util.models_masks_ids = {}
             util.recharge_masks = []
             util.loaded_shapes = {}
+
+            model_path = os.path.join(util.get_modflow_dir(), util.loaded_project["modflow_model"])
+            nam_file_name = modflow_utils.get_nam_file(model_path)
+            model_data = modflow_utils.get_model_data(model_path, nam_file_name)
+            util.recharge_masks = modflow_utils.get_shapes_from_rch(model_path, nam_file_name,
+                                                                    (model_data["rows"], model_data["cols"]))
 
             print(util.loaded_project)
             return render_template(template.PROJECT, project=chosen_project)
@@ -280,12 +280,11 @@ def upload_new_configurations(req):
     print(modflow_exe, hydrus_exe)
 
     if not os.path.exists(modflow_exe):
-        return jsonify(error=str("Incorrect Modflow exe path")), 404
+        return jsonify(error=str("Incorrect Modflow exe path"), model=str("modflow")), 404
 
     if not os.path.exists(hydrus_exe):
-        return jsonify(error=str("Incorrect Hydrus exe path")), 404
+        return jsonify(error=str("Incorrect Hydrus exe path"), model=str("hydrus")), 404
 
-    util.modflow_exe = modflow_exe
-    util.hydrus_exe = hydrus_exe
+    lcd.update_configuration(hydrus_exe, modflow_exe)
 
     return json.dumps({'status': 'OK'})
