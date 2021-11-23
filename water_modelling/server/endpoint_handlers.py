@@ -1,6 +1,6 @@
 from app_utils import util, get_or_none
 from datapassing.shape_data import ShapeFileData
-from flask import render_template, redirect, abort, jsonify
+from flask import render_template, redirect, abort, jsonify, send_file
 from flask_paginate import Pagination, get_page_args
 from hydrus import hydrus_utils
 from modflow import modflow_utils
@@ -12,6 +12,7 @@ import json
 import numpy as np
 import os
 import shutil
+import local_configuration_dao as lcd
 
 
 def create_project_handler(req):
@@ -42,7 +43,7 @@ def create_project_handler(req):
     }
     dao.create(project)
     util.loaded_project = project
-    #TODO: czy powinnismy tutaj czy�ci� utils???
+    #TODO: czy powinnismy tutaj czy?ci? utils???
     return json.dumps({'status': 'OK'})
 
 
@@ -100,8 +101,22 @@ def project_handler(project_name):
             util.recharge_masks = []
             util.loaded_shapes = {}
 
+            model_path = os.path.join(util.get_modflow_dir(), util.loaded_project["modflow_model"])
+            nam_file_name = modflow_utils.get_nam_file(model_path)
+            model_data = modflow_utils.get_model_data(model_path, nam_file_name)
+            util.recharge_masks = modflow_utils.get_shapes_from_rch(model_path, nam_file_name,
+                                                                    (model_data["rows"], model_data["cols"]))
+
             print(util.loaded_project)
             return render_template(template.PROJECT, project=chosen_project)
+
+
+def project_download_handler():
+    if util.loaded_project is not None:
+        project_dir = os.path.join(util.workspace_dir, util.loaded_project["name"])
+        zip_file = shutil.make_archive(project_dir, 'zip', project_dir)
+        return send_file(zip_file, as_attachment=True)
+    return '', 204
 
 
 def edit_project_handler(project_name):
@@ -145,7 +160,6 @@ def update_project_settings(req):
 
 
 def upload_modflow_handler(req):
-
     # every uploaded model needs to belong to a project;
     # if there is no active project, we cannot upload a model
     if util.loaded_project is None:
@@ -270,7 +284,8 @@ def upload_shape_handler(req, hydrus_model_index):
     # read the array from the request and store it
     shape_array = req.get_json(force=True)
     np_array_shape = np.array(shape_array)
-    util.loaded_shapes[util.loaded_project["hydrus_models"][hydrus_model_index]] = ShapeFileData(shape_mask_array=np_array_shape)
+    util.loaded_shapes[util.loaded_project["hydrus_models"][hydrus_model_index]] = ShapeFileData(
+        shape_mask_array=np_array_shape)
 
     return json.dumps({'status': 'OK'})
 
@@ -338,7 +353,6 @@ def upload_new_configurations(req):
     if not os.path.exists(hydrus_exe):
         return jsonify(error=str("Incorrect Hydrus exe path"), model=str("hydrus")), 404
 
-    util.modflow_exe = modflow_exe
-    util.hydrus_exe = hydrus_exe
+    lcd.update_configuration(hydrus_exe, modflow_exe)
 
     return json.dumps({'status': 'OK'})

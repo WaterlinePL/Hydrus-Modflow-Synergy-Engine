@@ -4,6 +4,7 @@ from server import endpoints, template, path_checker
 from app_utils import util
 import threading
 import endpoint_handlers
+import local_configuration_dao as lcd
 
 app = Flask("App")
 
@@ -24,7 +25,8 @@ def configuration():
     if request.method == 'POST':
         return endpoint_handlers.upload_new_configurations(request)
     else:
-        return render_template(template.CONFIGURATION, modflow_exe=util.modflow_exe, hydrus_exe=util.hydrus_exe)
+        config = lcd.read_configuration()
+        return render_template(template.CONFIGURATION, modflow_exe=config["modflow_exe"], hydrus_exe=config["hydrus_exe"])
 
 
 @app.route(endpoints.CREATE_PROJECT, methods=['GET', 'POST'])
@@ -62,6 +64,11 @@ def project(project_name):
     return endpoint_handlers.project_handler(project_name)
 
 
+@app.route(endpoints.PROJECT_DOWNLOAD, methods=['GET'])
+def project_download():
+    return endpoint_handlers.project_download_handler()
+
+
 @app.route(endpoints.UPLOAD_MODFLOW, methods=['GET', 'POST', 'DELETE'])
 def upload_modflow():
     if request.method == 'POST' and request.files:
@@ -82,7 +89,6 @@ def upload_modflow():
 
 @app.route(endpoints.UPLOAD_HYDRUS, methods=['GET', 'POST', 'DELETE'])
 def upload_hydrus():
-
     check_previous_steps = path_checker.path_check_modflow_step(util)
     if check_previous_steps:
         return check_previous_steps
@@ -103,7 +109,7 @@ def define_method():
     if check_previous_steps:
         return check_previous_steps
 
-    return render_template(template.DEFINE_METHOD)
+    return render_template(template.DEFINE_METHOD, error=util.get_error_flag())
 
 
 @app.route(endpoints.DEFINE_SHAPES, methods=['GET', 'POST'])
