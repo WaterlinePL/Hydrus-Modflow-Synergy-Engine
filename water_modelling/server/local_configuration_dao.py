@@ -11,7 +11,7 @@ Config .json file specification:
 }
 """
 
-CONFIG_PATH = util.project_root+"app_config"
+CONFIG_PATH = os.path.join(util.project_root, "app_config")
 FILE_NAME = "config.json"
 
 

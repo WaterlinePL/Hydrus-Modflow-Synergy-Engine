@@ -2,7 +2,7 @@ HELP.md
 misc.xml
 compiler.xml
 .idea/libraries/
-app_config/
+config.json
 target/
 workspace/
 !.mvn/wrapper/maven-wrapper.jar

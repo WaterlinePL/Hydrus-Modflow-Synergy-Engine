@@ -1,13 +1,23 @@
+from __future__ import annotations
+
+from sys import platform
+from typing import TYPE_CHECKING
+
 import os
 
 import numpy as np
 
 from server.endpoints import RCH_SHAPES
 
-from simulation.simulation_service import SimulationService
 from datapassing.shape_data import ShapeFileData
 
-PROJECT_ROOT = "..\\"
+if TYPE_CHECKING:
+    from simulation.simulation_service import SimulationService
+
+if platform == "linux" or platform == "linux2" or platform == "darwin":
+    PROJECT_ROOT = "../"
+elif platform == "win32":
+    PROJECT_ROOT = "..\\"
 
 
 def verify_dir_exists_or_create(path: str):
@@ -25,7 +35,7 @@ class AppUtils:
 
     def __init__(self):
         self.allowed_types = ["ZIP"]
-        self.project_root = PROJECT_ROOT
+        self.project_root = os.path.abspath(PROJECT_ROOT)
         self.workspace_dir = os.path.join(self.project_root, 'workspace')
         self.loaded_project = None
         self.simulation_service = None
@@ -79,9 +89,8 @@ class AppUtils:
         extension = filename.rsplit('.', 1)[1]
         return extension.upper() in self.allowed_types
 
-    def init_simulation_service(self):
-        if self.loaded_project is not None:
-            self.simulation_service = SimulationService(self.get_hydrus_dir(), self.get_modflow_dir())
+    def set_simulation_serivce(self, simulation_service: SimulationService):
+        self.simulation_service = simulation_service
 
     def set_method(self, method):
         if self.current_method != method:

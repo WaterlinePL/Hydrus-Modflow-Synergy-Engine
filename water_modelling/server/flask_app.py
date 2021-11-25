@@ -5,6 +5,7 @@ from app_utils import util
 import threading
 import endpoint_handlers
 import local_configuration_dao as lcd
+from simulation.simulation_service import SimulationService
 
 app = Flask("App")
 
@@ -152,7 +153,10 @@ def run_simulation():
     if check_previous_steps:
         return check_previous_steps
 
-    util.init_simulation_service()
+    if util.loaded_project is not None:
+        simulation_service = SimulationService(util.get_hydrus_dir(), util.get_modflow_dir())
+
+    util.set_simulation_serivce(simulation_service)
     sim = util.simulation_service.prepare_simulation()
 
     sim.set_modflow_project(modflow_project=util.loaded_project["modflow_model"])
@@ -160,7 +164,7 @@ def run_simulation():
 
     sim_id = sim.get_id()
 
-    thread = threading.Thread(target=util.simulation_service.run_simulation, args=(sim_id, "default"))
+    thread = threading.Thread(target=util.simulation_service.run_simulation, args=[sim_id])
     thread.start()
     return jsonify(id=sim_id)
 
