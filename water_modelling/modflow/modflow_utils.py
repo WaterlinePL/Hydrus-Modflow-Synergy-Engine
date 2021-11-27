@@ -5,6 +5,7 @@ import os
 import sys
 
 import numpy as np
+from collections import deque
 
 
 def get_model_data(project_path: str, nam_file_name: str) -> dict:
@@ -34,19 +35,35 @@ def get_model_data(project_path: str, nam_file_name: str) -> dict:
     }
 
 
-def get_cells_size(project_path: str, nam_file_name: str) -> Tuple[List[int], List[int]]:
+def get_cells_size(project_path: str, nam_file_name: str, max_width=None) -> Tuple[List[int], List[int]]:
     """
     Get cells size of modflow model
     @param project_path: Path to Modflow project main directory
     @param nam_file_name: Name of .nam file inside the Modflow project
+    @param max_width: Parameter for scaling purposes
     @return: Tuple with lists containing width of the Modflow project cells (rows_width, cols_height)
     """
 
     modflow_model = flopy.modflow.Modflow \
         .load(nam_file_name, model_ws=project_path, load_only=["dis"], forgive=True)
-    rows_width = modflow_model.dis.delr.array
-    cols_height = modflow_model.dis.delc.array
-    return rows_width.tolist(), cols_height.tolist()
+
+    rows_width = modflow_model.dis.delr.array.tolist()
+    cols_height = modflow_model.dis.delc.array.tolist()
+
+    if max_width is not None:
+        sum_width = sum(rows_width)
+        sum_height = sum(cols_height)
+
+        width = max_width
+        height = max_width * (sum_height / sum_width)
+
+        scaleX = sum_width / width
+        scaleY = sum_height / height
+
+        rows_width = np.divide(rows_width, scaleX)
+        cols_height = np.divide(cols_height, scaleY)
+
+    return rows_width, cols_height
 
 
 def validate_model(project_path: str, nam_file_name: str) -> bool:
@@ -89,7 +106,6 @@ def get_shapes_from_rch(project_path: str, nam_file_name: str, project_shape: Tu
     @return: List of shapes read from Modflow project
     """
 
-    sys.setrecursionlimit(10**6)
 
     modflow_model = flopy.modflow.Modflow \
         .load(nam_file_name, model_ws=project_path, load_only=["rch"], forgive=True)
@@ -106,7 +122,7 @@ def get_shapes_from_rch(project_path: str, nam_file_name: str, project_shape: Tu
         for col in range(modflow_cols):
             if not is_checked_array[row][col]:
                 recharge_masks.append(np.zeros(project_shape))
-                _fill_mask_recursive(mask=recharge_masks[-1], recharge_array=recharge_array,
+                _fill_mask_iterative(mask=recharge_masks[-1], recharge_array=recharge_array,
                                      is_checked_array=is_checked_array,
                                      project_shape=project_shape,
                                      row=row, col=col,
@@ -126,7 +142,7 @@ def get_nam_file(project_path: str) -> Optional[str]:
     return None
 
 
-def _fill_mask_recursive(mask: np.ndarray, recharge_array: np.ndarray, is_checked_array: np.ndarray,
+def _fill_mask_iterative(mask: np.ndarray, recharge_array: np.ndarray, is_checked_array: np.ndarray,
                          project_shape: Tuple[int, int], row: int, col: int, value: float):
     """
     Fill given mask with 1's according to recharge array (using DFS)
@@ -140,17 +156,24 @@ def _fill_mask_recursive(mask: np.ndarray, recharge_array: np.ndarray, is_checke
     @param value: Recharge value of current mask
     @return: None (result inside variable @mask)
     """
-
     modflow_rows, modflow_cols = project_shape
-    # return condition - out of bounds or given cell was already used
-    if row < 0 or row >= modflow_rows or col < 0 or col >= modflow_cols or is_checked_array[row][col]:
-        return
 
-    if recharge_array[row][col] == value:
-        is_checked_array[row][col] = True
-        mask[row][col] = 1
-        _fill_mask_recursive(mask, recharge_array, is_checked_array, project_shape, row - 1, col, value)
-        _fill_mask_recursive(mask, recharge_array, is_checked_array, project_shape, row + 1, col, value)
-        _fill_mask_recursive(mask, recharge_array, is_checked_array, project_shape, row, col - 1, value)
-        _fill_mask_recursive(mask, recharge_array, is_checked_array, project_shape, row, col + 1, value)
+    stack = deque()
+    stack.append((row, col))
+
+    while stack:
+        cur_row, cur_col = stack.pop()
+        # return condition - out of bounds or given cell was already used
+        if cur_row < 0 or cur_row >= modflow_rows or cur_col < 0 or cur_col >= modflow_cols or \
+                is_checked_array[cur_row][cur_col]:
+            continue
+
+        if recharge_array[cur_row][cur_col] == value:
+            is_checked_array[cur_row][cur_col] = True
+            mask[cur_row][cur_col] = 1
+            stack.append((cur_row - 1, cur_col))
+            stack.append((cur_row + 1, cur_col))
+            stack.append((cur_row, cur_col - 1))
+            stack.append((cur_row, cur_col + 1))
+
     return
