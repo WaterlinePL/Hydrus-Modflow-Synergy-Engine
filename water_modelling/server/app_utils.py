@@ -7,7 +7,7 @@ from server.endpoints import RCH_SHAPES
 from simulation.simulation_service import SimulationService
 from datapassing.shape_data import ShapeFileData
 
-PROJECT_ROOT = "../"
+PROJECT_ROOT = "..\\"
 
 
 def verify_dir_exists_or_create(path: str):
