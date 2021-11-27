@@ -14,10 +14,10 @@ class HydrusModflowPassing:
         self.nam_file = nam_file
         self.shapes = shapes
 
-    def update_rch(self, stress_period: int = 0) -> Optional[np.ndarray]:
+    def update_rch(self, spin_up=0) -> Optional[np.ndarray]:
         """
         Update recharge based on shapes containing results of Hydrus simulations.
-        @param stress_period: Number of stress period (timeline period?)
+        @param spin_up: hydrus spin up period (in days)
         @return: Numpy array representing recharge (in case if it's needed)
         """
         if len(self.shapes) < 1:
@@ -28,31 +28,40 @@ class HydrusModflowPassing:
                                                    load_only=["rch"],
                                                    forgive=True)
 
-        recharge = modflow_model.rch.rech[stress_period].array
+        # zero all recharge values present in hydrus masks (in all stress periods)
+        for idx in modflow_model.nper:  # i in stress periods
+            recharge_modflow_array = modflow_model.rch.rech[idx].array
+            for shape in self.shapes:
+                mask = (shape.mask_array == 1)
+                recharge_modflow_array[mask] = 0.0
 
         for shape in self.shapes:
-            mask = (shape.mask_array == 1)
-            recharge[mask] = 0.0
+            # get t_level values for each day excluding spin_up period
+            t_level = (-np.diff(shape.get_recharge()))[spin_up:]
 
-        for shape in self.shapes:
-            recharge += shape.get_recharge()
+            stress_period_begin = 0  # beginning of current stress period
+            for idx, stress_period_duration in enumerate(modflow_model.modeltime.perlen):
+                # modflow rch for given stress period
+                recharge_modflow_array = modflow_model.rch.rech[idx].array
 
+                # average from all hydrus t_level values during given stress period
+                t_level_stress_period = np.average(
+                    t_level[stress_period_begin:stress_period_begin + stress_period_duration])
 
-        # !! useful props:
-        # modflow_model.nper (stress period count),
-        # modflow_model.nrow (rows),
-        # modflow_model.ncol (cols) !!
-        rch_package = modflow_model.get_package("rch")  # get the RCH package
+                # add calculated hydrus average t_level to modflow recharge array
+                recharge_modflow_array += shape.mask_array * t_level_stress_period
+                modflow_model.rch.rech[idx] = recharge_modflow_array  # save calculated recharge to modflow model
 
-        # create new recharge array
-        modflow_model.rch.rech[stress_period] = recharge
+                stress_period_begin += stress_period_duration  # update beginning of current stress period
+
         new_recharge = modflow_model.rch.rech
+        rch_package = modflow_model.get_package("rch")  # get the RCH package
 
         # generate and save new RCH (same properties, different recharge)
         flopy.modflow.ModflowRch(modflow_model, nrchop=rch_package.nrchop, ipakcb=rch_package.ipakcb, rech=new_recharge,
                                  irch=rch_package.irch).write_file(check=False)
 
-        return recharge
+        return new_recharge
 
     @staticmethod
     def read_shapes_from_files(shape_info_files: List[ShapeFileData]) -> List[Shape]:

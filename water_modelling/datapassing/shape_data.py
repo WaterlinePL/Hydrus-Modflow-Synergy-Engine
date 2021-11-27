@@ -1,3 +1,5 @@
+from typing import List
+
 import numpy as np
 import phydrus as ph
 
@@ -17,7 +19,7 @@ class ShapeFileData:
             self.shape_mask = shape_mask_array
 
     @staticmethod
-    def read_hydrus_output(hydrus_output_filepath: str) -> float:
+    def read_hydrus_output(hydrus_output_filepath: str) -> List[float]:
         """
         Read Hydrus simulation output from file T_Level.out (read last entry of sum(vBot))
         @param hydrus_output_filepath: P
@@ -25,7 +27,7 @@ class ShapeFileData:
         """
         try:
             t_level = ph.read.read_tlevel(path=hydrus_output_filepath)
-            return t_level['sum(vBot)'].iat[-1]
+            return t_level['sum(vBot)']
         except FileNotFoundError as err:
             print(f"No file found containing hydrus output: {err}")
 
@@ -43,9 +45,12 @@ class ShapeFileData:
 
 class Shape:
 
-    def __init__(self, mask_array: np.array, value: float):
+    def __init__(self, mask_array: np.array, values: List[float]):
         self.mask_array = mask_array
-        self.value = value
+        self.values = values
+
+    def get_mask(self) -> np.array:
+        return self.mask_array
 
     def get_recharge(self) -> np.array:
-        return self.mask_array * self.value
+        return self.values
