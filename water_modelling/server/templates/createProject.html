@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>HP4M | Create Project</title>
+<link rel="stylesheet" href="/static/css/createProject.css">
+{% endblock %}
+
+{% block create_project_active %}active{% endblock %}
+
+{% block body %}
+<div class="container mt-5" id="configuration-content">
+    <div class="row justify-content-md-center">
+
+        <div class="col-lg-9">
+            <div class="text-center">
+                {% if name %}
+                <h1 class="display-4">Update project: {{name}}</h1>
+                <p class="lead">Click "Update" to submit edited form</p>
+                {% else %}
+                <h1 class="display-4">Create new project</h1>
+                <p class="lead">Click "Create" to submit form</p>
+                {% endif %}
+            </div>
+            <form id="form-create-project">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" class="form-control" name="name" id="name" placeholder="e.g. ProjectName"
+                           {% if name and name is defined%}
+                           disabled
+                           {% endif %}
+                           value="{{ name if name else '' }}">
+                    <br>
+                    <label for="lat">Latitude:</label>
+                    <input type="text" class="form-control" name="lat" id="lat"
+                           value="{{ prev_lat if prev_lat else '' }}" placeholder="e.g. 54.11">
+                    <br>
+                    <label for="long">Longitude:</label>
+                    <input type="text" class="form-control" name="long" id="long"
+                           value="{{ prev_long if prev_long else '' }}" placeholder="e.g. -1.121">
+                    <br>
+                    <label for="startDate">Start date (YYYY-mm-dd):</label>
+                    <input type="text" class="form-control" name="start_date" id="startDate"
+                           value="{{ prev_start if prev_start else '' }}" placeholder="e.g. 2021-02-12">
+                    <br>
+                    <label for="endDate">End date (YYYY-mm-dd):</label>
+                    <input type="text" class="form-control" name="end_date" id="endDate"
+                           value="{{ prev_end if prev_end else '' }}" placeholder="e.g. 2021-05-12">
+                </div>
+                {% if name %}
+                <div class="left slice-column">
+                    <a type="button" class="btn btn-default" href="{{ url_for('project_list') }}">Back</a>
+                </div>
+                <div class="right slice-column" style="text-align: right;">
+                    <input type="submit" class="btn btn-secondary" value="Update">
+                </div>
+                {% else %}
+                <input type="submit" class="btn btn-secondary" value="Create">
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>
+
+<div style="position: absolute; bottom: 20px; right: 20px; width: 20%" >
+    <div class="toast border border-success" role="alert" id="success-project-create" aria-live="assertive" aria-atomic="true"
+         data-delay="4000" style="border-width: 4px !important;">
+        <div class="toast-header bg-success text-white">
+            <strong class="mr-auto">Success</strong>
+        </div>
+        <div class="toast-body" id="toast-success">
+
+        </div>
+    </div>
+    <div class="toast border border-danger" role="alert" id="error" aria-live="assertive" aria-atomic="true"
+         data-delay="4000" style="border-width: 4px !important;">
+        <div class="toast-header bg-danger text-white">
+            <strong class="mr-auto">Error</strong>
+        </div>
+        <div class="toast-body" id="toast-body-error">
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{%  block scripts %}
+<script src="/static/js/createProject.js"></script>
+{% endblock %}
+

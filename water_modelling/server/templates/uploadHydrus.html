@@ -48,7 +48,7 @@
                    {% else %}
                    class="btn btn-secondary disabled"
                    {% endif %}
-                   href="{{ url_for('define_shapes', hydrus_model_index='0') }}">Next</a>
+                   href="{{ url_for('define_method') }}">Next</a>
             </div>
         </div>
     </div>
@@ -58,19 +58,33 @@
         <div class="col-lg-9">
             <div>
                 <h3 style="text-align: center">Models uploaded:</h3>
-                <ul class="list-group list-group-flush">
+                <ul id="models-list" class="list-group list-group-flush">
                     {% for name in model_names %}
-                    <li class="list-group-item">{{ name }}</li>
+                    <li class="list-group-item">
+                        <span class="slice-column left">{{ name }}</span>
+                        <span  class="slice-column right" >
+                            <button type="button" class="btn btn-danger right" onClick="doDelete('{{name}}')">Remove</button>
+                        </span>
+                    </li>
                     {% endfor %}
                 </ul>
             </div>
         </div>
     </div>
 </div>
-{% if upload_error %}
+
 <div style="position: absolute; bottom: 20px; right: 20px;" class="w-25">
+    <div class="toast border border-danger" role="alert" id="error-wrong-hydrus" aria-live="assertive"
+         aria-atomic="true"
+         data-delay="4000" style="border-width: 4px !important;">
+        <div class="toast-header bg-danger text-white">
+            <strong class="mr-auto">Error</strong>
+        </div>
+        <div class="toast-body" id="toast-message"><!-- Div for message content --> </div>
+    </div>
+    {% if upload_error %}
     <div class="toast border border-danger" role="alert" id="error-hydrus" aria-live="assertive" aria-atomic="true"
-         data-delay="2000" style="border-width: 4px !important;">
+         data-delay="4000" style="border-width: 4px !important;">
         <div class="toast-header bg-danger text-white">
             <strong class="mr-auto">Error</strong>
         </div>
@@ -78,8 +92,9 @@
             Upload HYDRUS model
         </div>
     </div>
+    {% endif %}
 </div>
-{% endif %}
+
 
 {% endblock %}
 

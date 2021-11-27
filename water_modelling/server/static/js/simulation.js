@@ -8,7 +8,7 @@
 
     _runButton.on("click", (e) => {
         e.preventDefault()
-        const url = "/simulation-run";
+        const url = Config.simulationRun;
 
         // setBusy(_container);
         ($).ajax({
@@ -31,7 +31,7 @@
     });
 
     function check_simulation_status(id) {
-        const url = "/simulation-check/" + id;
+        const url = Config.simulationCheck + id;
 
         ($).ajax({
             url: url,
@@ -57,7 +57,7 @@
                     _modflowCalc.addClass('text-success');
                     $('#modflow-tick').removeAttr('hidden');
                     $('#modflow-spinner').attr('hidden', true);
-                    //TODO Wizualizacja
+                    $('#download').removeAttr('hidden');
                 } else {
                     setTimeout(check_simulation_status, 2000,[id]);
                 }
