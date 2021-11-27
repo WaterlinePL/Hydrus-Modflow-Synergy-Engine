@@ -146,11 +146,7 @@ def simulation():
     if check_previous_steps:
         return check_previous_steps
 
-    return render_template(
-        template.SIMULATION,
-        modflow_proj=util.loaded_project["modflow_model"],
-        shapes=util.loaded_shapes
-    )
+    return endpoint_handlers.simulation_summary_handler()
 
 
 @app.route(endpoints.SIMULATION_RUN)

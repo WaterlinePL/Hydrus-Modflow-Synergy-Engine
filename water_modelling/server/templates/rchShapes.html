@@ -1,106 +1,108 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<title>HP4M | HYDRUS | Shapes </title>
-<link rel="stylesheet" href="/static/css/rchShapes.css">
+    <title>HP4M | HYDRUS | Shapes </title>
+    <link rel="stylesheet" href="/static/css/rchShapes.css">
 {% endblock %}
 
 {% block simulation_active %}active{% endblock %}
 
 {% block body %}
-<div class="container mt-5" id="define-shapes-content">
-    <div class="row justify-content-md-center">
-        {% include 'progressBar.html' %}
+    <div class="container mt-5" id="define-shapes-content">
+        <div class="row justify-content-md-center">
+            {% include 'progressBar.html' %}
 
-        <div class="col-lg-9">
-            <div class="text-center">
-                <h1 class="display-4">Select Hydrus model for the selected shape</h1>
+            <div class="col-lg-9">
+                <div class="text-center">
+                    <h1 class="display-4">Select Hydrus model for the selected shape</h1>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center my-2">
+            <div class="col-2-auto">
+                {% if current_model and current_model is defined %}
+                    <select id="hydrus-model" class="form-control form-control-sm">
+                        <option>{{ current_model }}</option>
+                        <option value=""> --- Without Model ---</option>
+                        {% for model in hydrus_models %}
+                            {% if model != current_model %}
+                                <option>{{ model }}</option>
+                            {% endif %}
+
+                        {% endfor %}
+                    </select>
+
+                {% else %}
+                    <select id="hydrus-model" class="form-control form-control-sm">
+                        <option selected value=""> --- Without Model ---</option>
+                        {% for model in hydrus_models %}
+                            <option>{{ model }}</option>
+                        {% endfor %}
+                    </select>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row justify-content-center my-2">
+            <div class="col-2-auto mx-2">
+                <span>{{ key }}</span><br>
+                <table class="table table-sm" style="width: 500px">
+                    <tbody>
+                    {% for row in shape_mask %}
+                        <tr style="height: {{ cols_height[loop.index0] }}px !important; padding:0 !important;">
+                            {% for cell in row %}
+                                <td class="{% if cell==1 %} bg-primary {% endif %} border border-1"
+                                    style="width:{{ rows_width[loop.index0] }}px !important; padding:0 !important;">
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row ">
+            <div class="col-md-1 offset-md-2">
+                <a type="button" class="btn btn-default" id="backButton"
+                   onclick="handleBackButton('{{ rch_shape_index }}')">Back</a>
+
+            </div>
+            <div class="col-md-1 offset-md-6">
+                <button type="button" class="btn btn-secondary" id="submitButton"
+                        {% if current_model and current_model is defined %}
+                        onclick="handleSubmit('{{ rch_shape_index }}', '{{ current_model }}')"
+                        {% else %}
+                        onclick="handleSubmit('{{ rch_shape_index }}', null)"
+                        {% endif %}
+                >Done
+
+                </button>
             </div>
         </div>
     </div>
-    <div class="row justify-content-center my-2">
-        <div class="col-2-auto">
-            {% if current_model and current_model is defined%}
-            <select id="hydrus-model" class="form-control form-control-sm">
-                <option>{{current_model}}</option>
-                <option value=""> --- Without Model ---</option>
-                {% for model in hydrus_models%}
-                {% if model != current_model %}
-                <option>{{model}}</option>
-                {% endif %}
-
-                {% endfor %}
-            </select>
-
-            {% else %}
-            <select id="hydrus-model" class="form-control form-control-sm">
-                <option selected value=""> --- Without Model ---</option>
-                {% for model in hydrus_models%}
-                <option>{{model}}</option>
-                {% endfor %}
-            </select>
-            {% endif %}
+    <div style="position: absolute; bottom: 20px; right: 20px;" class="w-25">
+        <div class="toast border border-success" role="alert" id="success-rch-shapes" aria-live="assertive"
+             aria-atomic="true"
+             data-delay="2000" style="border-width: 4px !important;">
+            <div class="toast-header bg-success text-white">
+                <strong class="mr-auto">Success</strong>
+            </div>
+            <div class="toast-body" id="toast-body-success-rch-shapes">
+            </div>
+        </div>
+        <div class="toast border border-danger" role="alert" id="error-rch-shapes" aria-live="assertive"
+             aria-atomic="true"
+             data-delay="2000" style="border-width: 4px !important;">
+            <div class="toast-header bg-danger text-white">
+                <strong class="mr-auto">Error</strong>
+            </div>
+            <div class="toast-body" id="toast-body-error-rch-shapes">
+            </div>
         </div>
     </div>
-
-    <div class="row justify-content-center my-2">
-        <div class="col-2-auto mx-2">
-            <table class="table table-sm">
-                <caption>{{ key }}</caption>
-                <tbody>
-                {% for row in shape_mask %}
-                <tr>
-                    {% for cell in row %}
-                    <td class="{% if cell==1 %} bg-primary {%endif%} border border-1">
-                    </td>
-                    {% endfor %}
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div class="row ">
-        <div class="col-md-1 offset-md-2">
-            <a type="button" class="btn btn-default" id="backButton"
-               onclick="handleBackButton('{{ rch_shape_index }}')">Back</a>
-
-        </div>
-        <div class="col-md-1 offset-md-6">
-            <button type="button" class="btn btn-secondary" id="submitButton"
-                    {% if current_model and current_model is defined%}
-                    onclick="handleSubmit('{{ rch_shape_index }}', '{{current_model}}')"
-                    {% else %}
-                    onclick="handleSubmit('{{ rch_shape_index }}', null)"
-                    {% endif %}
-            >Done
-
-            </button>
-        </div>
-    </div>
-</div>
-<div style="position: absolute; bottom: 20px; right: 20px;" class="w-25">
-    <div class="toast border border-success" role="alert" id="success-rch-shapes" aria-live="assertive"
-         aria-atomic="true"
-         data-delay="2000" style="border-width: 4px !important;">
-        <div class="toast-header bg-success text-white">
-            <strong class="mr-auto">Success</strong>
-        </div>
-        <div class="toast-body" id="toast-body-success-rch-shapes">
-        </div>
-    </div>
-    <div class="toast border border-danger" role="alert" id="error-rch-shapes" aria-live="assertive" aria-atomic="true"
-         data-delay="2000" style="border-width: 4px !important;">
-        <div class="toast-header bg-danger text-white">
-            <strong class="mr-auto">Error</strong>
-        </div>
-        <div class="toast-body" id="toast-body-error-rch-shapes">
-        </div>
-    </div>
-</div>
 
 {% endblock %}
 
-{%  block scripts %}
-<script src="/static/js/rchShapes.js"></script>
+{% block scripts %}
+    <script src="/static/js/rchShapes.js"></script>
 {% endblock %}
