@@ -112,13 +112,13 @@ def define_method():
     return render_template(template.DEFINE_METHOD, error=util.get_error_flag())
 
 
-@app.route(endpoints.DEFINE_SHAPES, methods=['GET', 'POST'])
-def define_shapes(hydrus_model_index):
+@app.route(endpoints.MANUAL_SHAPES, methods=['GET', 'POST'])
+def manual_shapes(hydrus_model_index):
     check_previous_steps = path_checker.path_check_hydrus_step(util)
     if check_previous_steps:
         return check_previous_steps
 
-    util.set_method(endpoints.DEFINE_SHAPES)
+    util.set_method(endpoints.MANUAL_SHAPES)
 
     if request.method == 'POST':
         return endpoint_handlers.upload_shape_handler(request, int(hydrus_model_index))

@@ -1,7 +1,7 @@
 var Config = {
     "configuration": "/configuration",
     "createProject": "/create-project",
-    "defineShapes": "/define-shapes/",
+    "manualShapes": "/manual-shapes/",
     "defineMethod": "/define-method",
     "editProject": "/edit-project/",
     "currentProject": "/project",
