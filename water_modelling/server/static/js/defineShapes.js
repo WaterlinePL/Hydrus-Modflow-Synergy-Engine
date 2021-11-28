@@ -31,7 +31,7 @@ function handleClick(row, col) {
 function handleSubmit(modelIdx) {
 
     let request = new XMLHttpRequest();
-    request.open("POST", Config.defineShapes+`${modelIdx}`, true);
+    request.open("POST", Config.manualShapes+`${modelIdx}`, true);
     request.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 
     request.onload = function() {
@@ -41,7 +41,7 @@ function handleSubmit(modelIdx) {
             let nextModelId = parseInt(modelIdx)+1;
             setTimeout(function(){
                 console.log("redirecting to next model...");
-                window.location.href = Config.defineShapes+nextModelId;
+                window.location.href = Config.manualShapes+nextModelId;
             }, 500);
 
         }
@@ -56,7 +56,7 @@ function handleBackButton(modelIdx) {
     if (lastModelId === -1) {
         window.location.href = Config.defineMethod;
     } else {
-        window.location.href = Config.defineShapes + lastModelId;
+        window.location.href = Config.manualShapes + lastModelId;
     }
 }
 
