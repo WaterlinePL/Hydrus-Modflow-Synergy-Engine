@@ -2,8 +2,10 @@ from typing import Tuple, Optional, List
 
 import flopy
 import os
+import sys
 
 import numpy as np
+from collections import deque
 
 
 def get_model_data(project_path: str, nam_file_name: str) -> dict:
@@ -31,6 +33,30 @@ def get_model_data(project_path: str, nam_file_name: str) -> dict:
         "col_cells": modflow_model.dis.delr.array.tolist(),
         "grid_unit": modflow_model.modelgrid.units
     }
+
+
+def scale_cells_size(row_cells: List[float], col_cells: List[float], max_width) -> Tuple[List[int], List[int]]:
+    """
+    Get cells size of modflow model
+    @param col_cells: list of modflow model cols width
+    @param row_cells: list of modflow model rows height
+    @param max_width: Parameter for scaling purposes
+    @return: Tuple with lists containing width of the Modflow project cells (row_cells, col_cells)
+    """
+
+    sum_width = sum(col_cells)
+    sum_height = sum(row_cells)
+
+    width = max_width
+    height = max_width * (sum_height / sum_width)
+
+    scaleX = sum_width / width
+    scaleY = sum_height / height
+
+    row_cells = np.divide(row_cells, scaleX)
+    col_cells = np.divide(col_cells, scaleY)
+
+    return row_cells, col_cells
 
 
 def validate_model(project_path: str, nam_file_name: str) -> bool:
@@ -73,6 +99,7 @@ def get_shapes_from_rch(project_path: str, nam_file_name: str, project_shape: Tu
     @return: List of shapes read from Modflow project
     """
 
+
     modflow_model = flopy.modflow.Modflow \
         .load(nam_file_name, model_ws=project_path, load_only=["rch"], forgive=True)
 
@@ -88,9 +115,9 @@ def get_shapes_from_rch(project_path: str, nam_file_name: str, project_shape: Tu
         for col in range(modflow_cols):
             if not is_checked_array[row][col]:
                 recharge_masks.append(np.zeros(project_shape))
-                _fill_mask_recursive(mask=recharge_masks[-1], recharge_array=recharge_array,
+                _fill_mask_iterative(mask=recharge_masks[-1], recharge_array=recharge_array,
                                      is_checked_array=is_checked_array,
-                                     project_shape = project_shape,
+                                     project_shape=project_shape,
                                      row=row, col=col,
                                      value=recharge_array[row][col])
 
@@ -108,7 +135,7 @@ def get_nam_file(project_path: str) -> Optional[str]:
     return None
 
 
-def _fill_mask_recursive(mask: np.ndarray, recharge_array: np.ndarray, is_checked_array: np.ndarray,
+def _fill_mask_iterative(mask: np.ndarray, recharge_array: np.ndarray, is_checked_array: np.ndarray,
                          project_shape: Tuple[int, int], row: int, col: int, value: float):
     """
     Fill given mask with 1's according to recharge array (using DFS)
@@ -122,17 +149,24 @@ def _fill_mask_recursive(mask: np.ndarray, recharge_array: np.ndarray, is_checke
     @param value: Recharge value of current mask
     @return: None (result inside variable @mask)
     """
-
     modflow_rows, modflow_cols = project_shape
-    # return condition - out of bounds or given cell was already used
-    if row < 0 or row >= modflow_rows or col < 0 or col >= modflow_cols or is_checked_array[row][col]:
-        return
 
-    if recharge_array[row][col] == value:
-        is_checked_array[row][col] = True
-        mask[row][col] = 1
-        _fill_mask_recursive(mask, recharge_array, is_checked_array, project_shape, row - 1, col, value)
-        _fill_mask_recursive(mask, recharge_array, is_checked_array, project_shape, row + 1, col, value)
-        _fill_mask_recursive(mask, recharge_array, is_checked_array, project_shape, row, col - 1, value)
-        _fill_mask_recursive(mask, recharge_array, is_checked_array, project_shape, row, col + 1, value)
+    stack = deque()
+    stack.append((row, col))
+
+    while stack:
+        cur_row, cur_col = stack.pop()
+        # return condition - out of bounds or given cell was already used
+        if cur_row < 0 or cur_row >= modflow_rows or cur_col < 0 or cur_col >= modflow_cols or \
+                is_checked_array[cur_row][cur_col]:
+            continue
+
+        if recharge_array[cur_row][cur_col] == value:
+            is_checked_array[cur_row][cur_col] = True
+            mask[cur_row][cur_col] = 1
+            stack.append((cur_row - 1, cur_col))
+            stack.append((cur_row + 1, cur_col))
+            stack.append((cur_row, cur_col - 1))
+            stack.append((cur_row, cur_col + 1))
+
     return
