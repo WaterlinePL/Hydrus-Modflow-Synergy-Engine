@@ -35,35 +35,28 @@ def get_model_data(project_path: str, nam_file_name: str) -> dict:
     }
 
 
-def get_cells_size(project_path: str, nam_file_name: str, max_width=None) -> Tuple[List[int], List[int]]:
+def scale_cells_size(row_cells: List[float], col_cells: List[float], max_width) -> Tuple[List[int], List[int]]:
     """
     Get cells size of modflow model
-    @param project_path: Path to Modflow project main directory
-    @param nam_file_name: Name of .nam file inside the Modflow project
+    @param col_cells: list of modflow model cols width
+    @param row_cells: list of modflow model rows height
     @param max_width: Parameter for scaling purposes
-    @return: Tuple with lists containing width of the Modflow project cells (rows_width, cols_height)
+    @return: Tuple with lists containing width of the Modflow project cells (row_cells, col_cells)
     """
 
-    modflow_model = flopy.modflow.Modflow \
-        .load(nam_file_name, model_ws=project_path, load_only=["dis"], forgive=True)
+    sum_width = sum(col_cells)
+    sum_height = sum(row_cells)
 
-    rows_width = modflow_model.dis.delr.array.tolist()
-    cols_height = modflow_model.dis.delc.array.tolist()
+    width = max_width
+    height = max_width * (sum_height / sum_width)
 
-    if max_width is not None:
-        sum_width = sum(rows_width)
-        sum_height = sum(cols_height)
+    scaleX = sum_width / width
+    scaleY = sum_height / height
 
-        width = max_width
-        height = max_width * (sum_height / sum_width)
+    row_cells = np.divide(row_cells, scaleX)
+    col_cells = np.divide(col_cells, scaleY)
 
-        scaleX = sum_width / width
-        scaleY = sum_height / height
-
-        rows_width = np.divide(rows_width, scaleX)
-        cols_height = np.divide(cols_height, scaleY)
-
-    return rows_width, cols_height
+    return row_cells, col_cells
 
 
 def validate_model(project_path: str, nam_file_name: str) -> bool:

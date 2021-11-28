@@ -27,11 +27,11 @@
                 <table class="table table-sm" style="width: 500px">
                     <tbody>
                     {% for row in rows %}
-                        <tr class="cell-row" style="height: {{ cols_height[loop.index0] }}px !important; padding:0 !important;">
+                        <tr class="cell-row" style="height: {{ rows_height[loop.index0] }}px !important; padding:0 !important;">
                             {% for col in cols %}
                                 <td class="cell border border-1" id="{{ 'cell_' + row + '_' + col }}"
                                     onclick="handleClick('{{ row }}','{{ col }}')"
-                                    style="width:{{ rows_width[loop.index0] }}px !important; padding:0 !important;">
+                                    style="width:{{ cols_width[loop.index0] }}px !important; padding:0 !important;">
                                 </td>
                             {% endfor %}
                         </tr>

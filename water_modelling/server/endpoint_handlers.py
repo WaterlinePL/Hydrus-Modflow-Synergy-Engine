@@ -43,7 +43,7 @@ def create_project_handler(req):
     }
     dao.create(project)
     util.loaded_project = project
-    #TODO: czy powinnismy tutaj czy?ci? utils???
+    # TODO: czy powinnismy tutaj czy?ci? utils???
     return json.dumps({'status': 'OK'})
 
 
@@ -106,7 +106,7 @@ def project_handler(project_name):
                 nam_file_name = modflow_utils.get_nam_file(model_path)
                 model_data = modflow_utils.get_model_data(model_path, nam_file_name)
                 util.recharge_masks = modflow_utils.get_shapes_from_rch(model_path, nam_file_name,
-                                                                    (model_data["rows"], model_data["cols"]))
+                                                                        (model_data["rows"], model_data["cols"]))
 
             print(util.loaded_project)
             return render_template(template.PROJECT, project=chosen_project)
@@ -299,16 +299,16 @@ def next_model_redirect_handler(hydrus_model_index, error_flag):
         return redirect(endpoints.SIMULATION)
 
     else:
-        model_path = os.path.join(util.get_modflow_dir(), util.loaded_project["modflow_model"])
-        rows_width, cols_height = modflow_utils.get_cells_size(model_path, modflow_utils.get_nam_file(model_path), 500)
+        rows_height, cols_width = modflow_utils.scale_cells_size(util.loaded_project['row_cells'],
+                                                                 util.loaded_project['col_cells'], 500)
         return render_template(
             template.DEFINE_SHAPES,
             rowAmount=util.loaded_project["rows"],
             colAmount=util.loaded_project["cols"],
             rows=[str(x) for x in range(util.loaded_project["rows"])],
             cols=[str(x) for x in range(util.loaded_project["cols"])],
-            rows_width=rows_width,
-            cols_height=cols_height,
+            cols_width=cols_width,
+            rows_height=rows_height,
             modelIndex=hydrus_model_index,
             modelName=util.loaded_project["hydrus_models"][hydrus_model_index],
             upload_error=error_flag
@@ -323,11 +323,11 @@ def next_shape_redirect_handler(rch_shape_index):
         return redirect(endpoints.SIMULATION)
     else:
         current_model = util.get_current_model_by_id(rch_shape_index)
-        model_path = os.path.join(util.get_modflow_dir(), util.loaded_project["modflow_model"])
-        rows_width, cols_height = modflow_utils.get_cells_size(model_path, modflow_utils.get_nam_file(model_path), 500)
+        rows_height, cols_width = modflow_utils.scale_cells_size(util.loaded_project['row_cells'],
+                                                                 util.loaded_project['col_cells'], 500)
         return render_template(template.RCH_SHAPES, hydrus_models=util.loaded_project["hydrus_models"],
                                shape_mask=util.recharge_masks[rch_shape_index], rch_shape_index=rch_shape_index,
-                               rows_width=rows_width, cols_height=cols_height, current_model=current_model)
+                               rows_height=rows_height, cols_width=cols_width, current_model=current_model)
 
 
 def assign_model_to_shape(req, rch_shape_index):
@@ -365,13 +365,13 @@ def upload_new_configurations(req):
 
 
 def simulation_summary_handler():
-    model_path = os.path.join(util.get_modflow_dir(), util.loaded_project["modflow_model"])
-    rows_width, cols_height = modflow_utils.get_cells_size(model_path, modflow_utils.get_nam_file(model_path), 500)
+    rows_height, cols_width = modflow_utils.scale_cells_size(util.loaded_project['row_cells'],
+                                                             util.loaded_project['col_cells'], 500)
 
     return render_template(
         template.SIMULATION,
         modflow_proj=util.loaded_project["modflow_model"],
         shapes=util.loaded_shapes,
-        rows_width=rows_width,
-        cols_height=cols_height,
+        cols_width=cols_width,
+        rows_height=rows_height,
     )
