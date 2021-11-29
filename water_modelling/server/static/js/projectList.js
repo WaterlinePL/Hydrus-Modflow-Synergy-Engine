@@ -12,8 +12,8 @@ async function doDelete(projectName, wasWarned) {
         });
     }
     else {
-        document.getElementById("deleteProjectButton").hidden = true
-        document.getElementById("areYouSureButton").hidden = false
+        document.getElementById("deleteProject" + projectName).hidden = true
+        document.getElementById("areYouSure" + projectName).hidden = false
     }
 }
 
