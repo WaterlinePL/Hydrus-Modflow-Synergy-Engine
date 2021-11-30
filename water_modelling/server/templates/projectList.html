@@ -66,14 +66,17 @@
                            href="{{ url_for('edit_project', project_name=project_name) }}">
                             Edit
                         </a>
-                        <button id="{{ 'deleteProject' + project_name }}" type="button" class="btn btn-danger btn-sm"
-                           onClick="doDelete('{{project_name}}', false)">
+<!--                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">-->
+<!--                          Launch demo modal-->
+<!--                        </button>-->
+                        <button id="{{ 'deleteProject' + project_name }}"  data-toggle="modal" data-target="#modalDeleteProject"
+                                type="button" class="btn btn-danger btn-sm" onClick="doDelete('{{project_name}}', false)">
                             Delete
                         </button>
-                        <button hidden id="{{ 'areYouSure' + project_name }}" type="button" class="btn btn-danger btn-sm"
-                           onClick="doDelete('{{project_name}}', true)">
-                            Confirm
-                        </button>
+<!--                        <button hidden id="{{ 'areYouSure' + project_name }}" type="button" class="btn btn-danger btn-sm"-->
+<!--                           onClick="doDelete('{{project_name}}', true)">-->
+<!--                            Confirm-->
+<!--                        </button>-->
                     </td>
                 </tr>
                 {% endfor %}
@@ -101,6 +104,27 @@
     </div>
 </div>
 {% endif %}
+
+<!-- Modal -->
+<div class="modal fade" id="modalDeleteProject" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="exampleModalCenterTitle">Confirmation</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          Would you like to delete project <b id="projectNameModal"></b>?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+        <button id="confirmDelete" type="button" class="btn btn-danger">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock %}
 
