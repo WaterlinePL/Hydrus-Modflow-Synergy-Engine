@@ -16,9 +16,8 @@
                 <h1 class="display-4">Choose source project</h1>
                 <p class="lead">Click "Open" to choose an existing project or click "Create a new project" to prepare a
                     new one</p>
-                <a type="button" class="btn btn-default btn-lg bg-primary" style="color: white"
-                   href="{{ url_for('create_project') }}">Create a new
-                    project
+                <a type="button" class="btn btn-primary btn-lg" href="{{ url_for('create_project') }}">
+                    Create a new project
                 </a>
                 <br>
                 <br>
@@ -31,7 +30,7 @@
                 <div class="slice-column right">
                     <form id="form-search">
                         <div class="form-group" style="text-align: right">
-                            <input type="submit" class="right btn btn-secondary" value="Search" style="width: 20%">
+                            <input type="submit" class="right btn btn-secondary btn-sm" value="Search" style="width: 20%">
                             <input type="text" class="right form-control form-control-sm" id="search"
                                    placeholder="e.g. Project Name" style="width: 60%"
                                    value="{{ search_value if search_value else '' }}">
@@ -60,14 +59,14 @@
                     <th scope="row">{{ loop.index + pagination.skip }}</th>
                     <td class="project-name-column">{{ project_name }}</td>
                     <td>
-                        <a type="button" class="btn btn-default"
+                        <a type="button" class="btn btn-primary btn-sm"
                            href="{{ url_for('project', project_name=project_name) }}">Open
                         </a>
-                        <a type="button" class="btn btn-secondary"
+                        <a type="button" class="btn btn-secondary btn-sm"
                            href="{{ url_for('edit_project', project_name=project_name) }}">
                             Edit
                         </a>
-                        <button type="button" class="btn btn-danger">
+                        <button type="button" class="btn btn-danger btn-sm">
                             Delete
                         </button>
                     </td>
@@ -76,10 +75,10 @@
                 </tbody>
             </table>
         </div>
-        <div class="col-lg-9">
-            <div class="text-center">
-                {{ pagination.links }}
-            </div>
+    </div>
+    <div class="row justify-content-md-center">
+        <div class="col-auto">
+            {{ pagination.links }}
         </div>
     </div>
 </div>

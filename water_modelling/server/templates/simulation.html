@@ -47,13 +47,14 @@
                 </div>
             {% endfor %}
         </div>
-
-    <div class="row ">
-        <div class="col-md-1 offset-md-2">
-            <a type="button" class="btn btn-default" href="{{url_for('define_method')}}">Back</a>
-            </div>
-            <div class="col-md-1 offset-md-6">
-                <button type="button" id="start-simulation" class="btn btn-secondary" href=""> Run</button>
+        <div class="row justify-content-md-center" >
+            <div class="col-lg-9" >
+                <span class="slice-column left" style="padding: 50px 15px;">
+                    <a type="button" class="btn btn-outline-secondary" href="{{url_for('define_method')}}">Back</a>
+                </span>
+                <span class="slice-column right" style="padding: 50px 15px;">
+                    <button type="button" id="start-simulation" class="btn btn-primary right" href=""> Run</button>
+                </span>
             </div>
         </div>
     </div> <!-- container -->
@@ -102,7 +103,7 @@
             </div>
         </div>
         <div class="row justify-content-center">
-            <a type="button" id="download" hidden class="btn btn-secondary mx-5 my-2" href="{{ url_for('project_download') }}">Download Results</a>
+            <a type="button" id="download" hidden class="btn btn-primary mx-5 my-2" href="{{ url_for('project_download') }}">Download Results</a>
         </div>
 
     </div> <!-- container -->

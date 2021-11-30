@@ -60,22 +60,22 @@
             </table>
         </div>
     </div>
-    <div class="row ">
-        <div class="col-md-1 offset-md-2">
-            <a type="button" class="btn btn-default" id="backButton"
-               onclick="handleBackButton('{{ rch_shape_index }}')">Back</a>
-
-        </div>
-        <div class="col-md-1 offset-md-6">
-            <button type="button" class="btn btn-secondary" id="submitButton"
+    <div class="row justify-content-md-center" >
+        <div class="col-lg-9">
+            <span class="slice-column left" style="padding: 50px 15px;">
+                <a type="button" class="btn btn-outline-secondary" id="backButton"
+                onclick="handleBackButton('{{ rch_shape_index }}')">Back</a>
+            </span>
+            <span class="slice-column right" style="padding: 50px 15px;">
+                <button type="button" class="btn btn-primary right" id="submitButton"
                     {% if current_model and current_model is defined%}
                     onclick="handleSubmit('{{ rch_shape_index }}', '{{current_model}}')"
                     {% else %}
                     onclick="handleSubmit('{{ rch_shape_index }}', null)"
-                    {% endif %}
-            >Done
-
-            </button>
+                    {% endif %}>
+                    Next
+                </button>
+            </span>
         </div>
     </div>
 </div>
