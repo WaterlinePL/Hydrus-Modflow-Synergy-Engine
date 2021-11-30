@@ -66,17 +66,10 @@
                            href="{{ url_for('edit_project', project_name=project_name) }}">
                             Edit
                         </a>
-<!--                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">-->
-<!--                          Launch demo modal-->
-<!--                        </button>-->
                         <button id="{{ 'deleteProject' + project_name }}"  data-toggle="modal" data-target="#modalDeleteProject"
                                 type="button" class="btn btn-danger btn-sm" onClick="doDelete('{{project_name}}', false)">
                             Delete
                         </button>
-<!--                        <button hidden id="{{ 'areYouSure' + project_name }}" type="button" class="btn btn-danger btn-sm"-->
-<!--                           onClick="doDelete('{{project_name}}', true)">-->
-<!--                            Confirm-->
-<!--                        </button>-->
                     </td>
                 </tr>
                 {% endfor %}
