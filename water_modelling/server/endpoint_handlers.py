@@ -42,8 +42,8 @@ def create_project_handler(req):
         "hydrus_models": []
     }
     dao.create(project)
+    util.reset_project_data()
     util.loaded_project = project
-    # TODO: czy powinnismy tutaj czy?ci? utils???
     return json.dumps({'status': 'OK'})
 
 
@@ -100,20 +100,18 @@ def project_handler(project_name):
             util.error_flag = True
             return redirect(endpoints.PROJECT_LIST)
         else:
-            util.loaded_project = chosen_project
 
-            # make sure to clear out any data entered for a previous project
-            util.current_method = None
-            util.models_masks_ids = {}
-            util.recharge_masks = []
-            util.loaded_shapes = {}
+            # clear old data and load new project
+            util.reset_project_data()
+            util.loaded_project = chosen_project
 
             if util.loaded_project["modflow_model"]:
                 model_path = os.path.join(util.get_modflow_dir(), util.loaded_project["modflow_model"])
                 nam_file_name = modflow_utils.get_nam_file(model_path)
                 model_data = modflow_utils.get_model_data(model_path, nam_file_name)
-                util.recharge_masks = modflow_utils.get_shapes_from_rch(model_path, nam_file_name,
-                                                                        (model_data["rows"], model_data["cols"]))
+                util.recharge_masks = modflow_utils.get_shapes_from_rch(
+                    model_path, nam_file_name, (model_data["rows"], model_data["cols"])
+                )
 
             print(util.loaded_project)
             return render_template(template.PROJECT, project=chosen_project)
