@@ -110,3 +110,21 @@ def remove_model(model_type: str, model_name: str):
             if new_list is None:
                 new_list = []
             update(util.loaded_project["name"], {"hydrus_models": new_list})
+
+
+def remove_project(project_name: str):
+    """
+    Removes an existing project from the workspace
+
+    :param project_name: the name of the project to be removed
+    :return: None
+    """
+    project_path = os.path.join(util.workspace_dir, project_name)
+
+    # remove project
+    if os.path.isdir(project_path):
+        shutil.rmtree(project_path)
+
+    # if project was currently loaded, remove it
+    if util.loaded_project is not None and util.loaded_project['name'] == project_name:
+        util.loaded_project = None

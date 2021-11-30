@@ -52,10 +52,13 @@ def edit_project(project_name):
         return endpoint_handlers.edit_project_handler(project_name)
 
 
-@app.route(endpoints.PROJECT_LIST, methods=['GET'], defaults={'search': None})
+@app.route(endpoints.PROJECT_LIST, methods=['GET', 'DELETE'], defaults={'search': None})
 @app.route(endpoints.PROJECT_LIST_SEARCH)
 def project_list(search):
-    return endpoint_handlers.project_list_handler(search)
+    if request.method == 'GET':
+        return endpoint_handlers.project_list_handler(search)
+    else:
+        return endpoint_handlers.remove_project_handler(request)
 
 
 @app.route(endpoints.PROJECT, methods=['GET'])
@@ -146,11 +149,7 @@ def simulation():
     if check_previous_steps:
         return check_previous_steps
 
-    return render_template(
-        template.SIMULATION,
-        modflow_proj=util.loaded_project["modflow_model"],
-        shapes=util.loaded_shapes
-    )
+    return endpoint_handlers.simulation_summary_handler()
 
 
 @app.route(endpoints.SIMULATION_RUN)

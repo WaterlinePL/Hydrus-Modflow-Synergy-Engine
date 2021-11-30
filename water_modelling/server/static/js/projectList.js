@@ -1,3 +1,22 @@
+// project removal
+async function doDelete(projectName, wasWarned) {
+    if (wasWarned) {
+        var url = Config.projectList;
+        await fetch(url, {
+            method: "DELETE",
+            body: JSON.stringify({projectName: projectName})
+        }).then(response => {
+            if (response.status === 200) {
+                location.replace(response.url)
+            }
+        });
+    }
+    else {
+        document.getElementById("deleteProject" + projectName).hidden = true
+        document.getElementById("areYouSure" + projectName).hidden = false
+    }
+}
+
 (function($) {
     'use strict'
 
