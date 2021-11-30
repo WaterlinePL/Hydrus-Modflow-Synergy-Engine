@@ -75,6 +75,13 @@ def project_list_handler(search):
                            )
 
 
+def remove_project_handler(req):
+    body = json.loads(req.data)
+    if body['projectName']:
+        dao.remove_project(body['projectName'])
+    return redirect(endpoints.PROJECT_LIST, code=303)
+
+
 def project_handler(project_name):
     if project_name is None:
         # case 1 - there is already a project loaded and we just want to see it
