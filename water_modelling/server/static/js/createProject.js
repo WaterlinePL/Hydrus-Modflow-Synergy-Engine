@@ -8,6 +8,9 @@
         const long = this.elements.long.value;
         const startDate = this.elements.startDate.value;
         const endDate = this.elements.endDate.value;
+        let spinUp = this.elements.spinUp.value;
+
+        if(!spinUp) spinUp = "0"
 
         if (isTextCorrect(name, 'name') &&
             isCoordCorrect(lat, 'lat') &&
@@ -19,12 +22,13 @@
                 "lat": lat,
                 "long": long,
                 "start_date": startDate,
-                "end_date": endDate
+                "end_date": endDate,
+                "spin_up": spinUp
             };
-
-            if (this.elements[5].value === "Create") {
+            
+            if (this.elements[6].value === "Create") {
                 createProject(formdata);
-            } else if(this.elements[5].value === "Update") {
+            } else if(this.elements[6].value === "Update") {
                 updateProject(formdata);
             }
 

@@ -39,7 +39,8 @@ def create_project():
             prev_lat="",
             prev_long="",
             prev_start="",
-            prev_end=""
+            prev_end="",
+            prev_spin_up=""
         )
 
 
