@@ -1,0 +1,19 @@
+.slice-column {
+	width: 50%
+}
+
+.left {
+	float: left;
+}
+
+.right {
+	float: right;
+}
+
+.button-edit {
+	margin: 20px 0;
+}
+
+.config-labels {
+	margin: 75px 0 100px;
+}
