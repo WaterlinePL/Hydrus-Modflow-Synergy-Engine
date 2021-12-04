@@ -25,7 +25,7 @@
         <div class="row justify-content-md-center">
             <div class="col-lg-9">
                 <div class="config-labels">
-                    <h3 style="text-align: center">Project Configuration:</h3>
+                    <h3 style="text-align: center">Project Configuration</h3>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item ">
                             <span class="slice-column left">Project Name</span>
@@ -47,6 +47,10 @@
                             <span class="slice-column left">Longitude</span>
                             <span class="slice-column right">{{project.long if project.long else '-'}}</span>
                         </li>
+                        <li class="list-group-item ">
+                            <span class="slice-column left">Spin Up </span>
+                            <span class="slice-column right">{{project.spin_up+' days' if project.spin_up else '-'}}</span>
+                        </li>
                     </ul>
                     <div class="button-edit">
                         <span class="right">
@@ -58,7 +62,7 @@
                     </div>
                 </div>
                 <div class="config-labels">
-                    <h3 style="text-align: center">Modflow model:</h3>
+                    <h3 style="text-align: center">Modflow model</h3>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item ">
                             <span class="slice-column left">Modflow Model</span>
@@ -79,7 +83,7 @@
                     </ul>
                 </div>
                 <div class="config-labels">
-                    <h3 style="text-align: center">Hydrus models:</h3>
+                    <h3 style="text-align: center">Hydrus models</h3>
                     <ul class="list-group list-group-flush">
                         {% if project.hydrus_models and project.hydrus_models is defined %}
                             {% for hydrus_model in project.hydrus_models %}
