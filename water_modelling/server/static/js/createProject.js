@@ -135,7 +135,7 @@
     }
 
     function isSpinUpCorrect(spinUp, elementId) {
-        if (spinUp.match(/^[\d.]+(?:e-?\d+)?$/g, spinUp)) {
+        if (spinUp.match(/^[\d]+(?:[.](e-)?\d+)?$/g, spinUp)) {
             removeInvalid(elementId);
             return true;
         } else {
