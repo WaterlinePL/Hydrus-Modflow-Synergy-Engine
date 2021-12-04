@@ -43,6 +43,10 @@
                     <label for="endDate">End date (YYYY-mm-dd):</label>
                     <input type="text" class="form-control" name="end_date" id="endDate"
                            value="{{ prev_end if prev_end else '' }}" placeholder="e.g. 2021-05-12">
+                    <br>
+                        <label for="spinUp">Spin Up Time (days):</label>
+                        <input type="text" class="form-control" name="spin_up" id="spinUp"
+                               value="{{ prev_spin_up if prev_spin_up else '' }}" placeholder="e.g. 365">
                 </div>
 
                 <div class="left slice-column" style="margin: 0 0 20px;">
