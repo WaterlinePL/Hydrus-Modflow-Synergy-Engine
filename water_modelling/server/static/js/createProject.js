@@ -8,13 +8,12 @@
         const long = this.elements.long.value;
         const startDate = this.elements.startDate.value;
         const endDate = this.elements.endDate.value;
-        let spinUp = this.elements.spinUp.value;
-
-        if(!spinUp) spinUp = "0"
+        const spinUp = this.elements.spinUp.value;
 
         if (isTextCorrect(name, 'name') &&
             isCoordCorrect(lat, 'lat') &&
             isCoordCorrect(long, 'long') &&
+            isSpinUpCorrect(spinUp, 'spinUp') &&
             checkDates(startDate, 'startDate', endDate, 'endDate')){
 
             const formdata = {
@@ -127,6 +126,16 @@
 
     function isTextCorrect(text, elementId) {
         if (text !== null && text !== undefined && text.trim() !== "") {
+            removeInvalid(elementId);
+            return true;
+        } else {
+            addInvalid(elementId);
+            return false;
+        }
+    }
+
+    function isSpinUpCorrect(spinUp, elementId) {
+        if (spinUp.match(/^[\d.]+(?:e-?\d+)?$/g, spinUp)) {
             removeInvalid(elementId);
             return true;
         } else {

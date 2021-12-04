@@ -12,6 +12,7 @@ A project .json file contains the following:
     "long": float - the longitude the model lies at,
     "start_date": string - the start date of the simulation, YYYY-mm-dd
     "end_date": string - the end date of the simulation, YYYY-mm-dd,
+    "spin_up": float - how many days of hydrus simulation should be ignored,
     "rows": int - the amount of rows in the model grid,
     "cols": int - the amount of columns in the model grid,
     "grid_unit": string - the unit in which the model grid size is represented; "feet", "meters", "centimeters" or null,
