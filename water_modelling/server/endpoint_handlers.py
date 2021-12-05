@@ -21,6 +21,7 @@ def create_project_handler(req):
     long = req.json["long"]
     start_date = req.json["start_date"]
     end_date = req.json["end_date"]
+    spin_up = req.json["spin_up"]
 
     # check for name collision
     lowercase_project_names = [name.lower() for name in dao.read_all()]
@@ -33,6 +34,7 @@ def create_project_handler(req):
         "long": long,
         "start_date": start_date,
         "end_date": end_date,
+        "spin_up": spin_up,
         # everything below here will be populated once modflow and hydrus models are loaded
         "rows": None,
         "cols": None,
@@ -139,7 +141,8 @@ def edit_project_handler(project_name):
             prev_lat=project['lat'],
             prev_long=project['long'],
             prev_start=project['start_date'],
-            prev_end=project['end_date']
+            prev_end=project['end_date'],
+            prev_spin_up=project['spin_up']
         )
 
 
@@ -149,6 +152,7 @@ def update_project_settings(req):
     long = req.json["long"]
     start_date = req.json["start_date"]
     end_date = req.json["end_date"]
+    spin_up = req.json['spin_up']
 
     try:
         prev_project = dao.read(name)
@@ -161,6 +165,7 @@ def update_project_settings(req):
     prev_project["long"] = long
     prev_project["start_date"] = start_date
     prev_project["end_date"] = end_date
+    prev_project['spin_up'] = spin_up
 
     dao.update(name, prev_project)
     return json.dumps({'status': 'OK'})
@@ -231,44 +236,46 @@ def remove_modflow_handler(req):
 
 
 def upload_hydrus_handler(req):
-    model = req.files['archive-input']  # matches HTML input name
+    models = req.files.getlist('archive-input')
 
-    if util.type_allowed(model.filename):
+    for model in models:
+        if util.type_allowed(model.filename):
 
-        # save, unzip, remove archive
-        archive_path = os.path.join(util.get_hydrus_dir(), model.filename)
-        model.save(archive_path)
-        with ZipFile(archive_path, 'r') as archive:
+            # save, unzip, remove archive
+            archive_path = os.path.join(util.get_hydrus_dir(), model.filename)
+            model.save(archive_path)
 
-            # get the project name and remember it
-            model_name = model.filename.split('.')[0]
-            project_path = os.path.join(util.get_hydrus_dir(), model_name)
+            with ZipFile(archive_path, 'r') as archive:
+                # get the project name and remember it
+                model_name = model.filename.split('.')[0]
+                project_path = os.path.join(util.get_hydrus_dir(), model_name)
 
-            # create a dedicated catalogue and load the project into it
-            os.system('mkdir ' + project_path)
-            archive.extractall(project_path)
+                # create a dedicated catalogue and load the project into it
+                os.system('mkdir ' + project_path)
+                archive.extractall(project_path)
 
-            # validate model
-            invalid_model = not hydrus_utils.validate_model(project_path)
+                # validate model
+                invalid_model = not hydrus_utils.validate_model(project_path)
 
-        os.remove(archive_path)
-        if invalid_model:
-            shutil.rmtree(project_path, ignore_errors=True)  # remove invalid project dir
-            return abort(500)
+            os.remove(archive_path)
+            if invalid_model:
+                shutil.rmtree(project_path, ignore_errors=True)  # remove invalid project dir
+                return jsonify(error=str("Invalid Hydrus project structure")), 500
 
-        # update project JSON
-        updates = {
-            "hydrus_models": util.loaded_project["hydrus_models"] + [model_name]
-        }
-        dao.update(util.loaded_project["name"], updates)
+            # update project JSON
+            updates = {
+                "hydrus_models": util.loaded_project["hydrus_models"] + [model_name]
+            }
+            dao.update(util.loaded_project["name"], updates)
 
-        print("Hydrus model uploaded successfully")
-        return redirect(endpoints.UPLOAD_HYDRUS)
+        else:
+            print("Invalid archive format, must be one of: ", end='')
+            print(util.allowed_types)
 
-    else:
-        print("Invalid archive format, must be one of: ", end='')
-        print(util.allowed_types)
-        return redirect(req.url)
+            return jsonify(error=str("Invalid file type. Accepted types: "+" ".join(util.allowed_types))), 500
+
+    print("Hydrus model uploaded successfully")
+    return redirect(endpoints.UPLOAD_HYDRUS)
 
 
 def remove_hydrus_handler(req):

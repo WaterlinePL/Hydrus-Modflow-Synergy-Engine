@@ -10,10 +10,11 @@ async function doDelete(projectName, wasWarned) {
                 location.replace(response.url)
             }
         });
-    }
-    else {
-        document.getElementById("deleteProject" + projectName).hidden = true
-        document.getElementById("areYouSure" + projectName).hidden = false
+    } else {
+        document.getElementById("projectNameModal").innerText=projectName;
+        document.getElementById("confirmDelete").onclick = function(){
+            doDelete(projectName, true);
+        };
     }
 }
 

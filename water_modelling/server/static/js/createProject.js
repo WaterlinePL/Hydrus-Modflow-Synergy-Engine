@@ -8,10 +8,12 @@
         const long = this.elements.long.value;
         const startDate = this.elements.startDate.value;
         const endDate = this.elements.endDate.value;
+        const spinUp = this.elements.spinUp.value;
 
         if (isTextCorrect(name, 'name') &&
             isCoordCorrect(lat, 'lat') &&
             isCoordCorrect(long, 'long') &&
+            isSpinUpCorrect(spinUp, 'spinUp') &&
             checkDates(startDate, 'startDate', endDate, 'endDate')){
 
             const formdata = {
@@ -19,12 +21,13 @@
                 "lat": lat,
                 "long": long,
                 "start_date": startDate,
-                "end_date": endDate
+                "end_date": endDate,
+                "spin_up": spinUp
             };
 
-            if (this.elements[5].value === "Create") {
+            if (this.elements[6].value === "Create") {
                 createProject(formdata);
-            } else if(this.elements[5].value === "Update") {
+            } else if(this.elements[6].value === "Update") {
                 updateProject(formdata);
             }
 
@@ -126,6 +129,16 @@
 
     function isTextCorrect(text, elementId) {
         if (text !== null && text !== undefined && text.trim() !== "" && !hasWhiteSpace(text)) {
+            removeInvalid(elementId);
+            return true;
+        } else {
+            addInvalid(elementId);
+            return false;
+        }
+    }
+
+    function isSpinUpCorrect(spinUp, elementId) {
+        if (spinUp.match(/^[\d]+(?:[.](e-)?\d+)?$/g, spinUp)) {
             removeInvalid(elementId);
             return true;
         } else {
