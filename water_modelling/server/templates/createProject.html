@@ -50,16 +50,17 @@
                         <input type="text" class="form-control" name="spin_up" id="spinUp"
                                value="{{ prev_spin_up if prev_spin_up else '' }}" placeholder="e.g. 365">
                 </div>
-                {% if name %}
-                <div class="left slice-column">
-                    <a type="button" class="btn btn-default" href="{{ url_for('project_list') }}">Back</a>
+
+                <div class="left slice-column" style="margin: 0 0 20px;">
+                    <a type="button" class="btn btn-outline-secondary" href="{{ url_for('project_list') }}">Back</a>
                 </div>
-                <div class="right slice-column" style="text-align: right;">
-                    <input type="submit" class="btn btn-secondary" value="Update">
+                <div class="right slice-column" style="text-align: right; margin: 0 0 20px;">
+                    {% if name %}
+                    <input type="submit" class="btn btn-primary" value="Update">
+                    {% else %}
+                    <input type="submit" class="btn btn-primary" value="Create">
+                    {% endif %}
                 </div>
-                {% else %}
-                <input type="submit" class="btn btn-secondary" value="Create">
-                {% endif %}
             </form>
         </div>
     </div>

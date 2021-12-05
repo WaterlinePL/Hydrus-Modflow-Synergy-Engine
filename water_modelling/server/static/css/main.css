@@ -6,9 +6,6 @@ body {
     padding:0 100px;
 }
 
-#navbarList {
-    float: right;
-}
 
 .nav-item {
     margin: 0 15px;
@@ -36,7 +33,7 @@ body {
 	position: relative;
 	width: 100px;
 	height: 10px;
-    top: -60px;
+    top: -65px;
 	margin-left: -5px;
 	margin-right: -5px;
 	border-width: 1px 0px;

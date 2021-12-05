@@ -13,3 +13,15 @@
 .step .label.shapes {
 	color: white;
 }
+
+.slice-column {
+	width: 50%
+}
+
+.left {
+	float: left;
+}
+
+.right {
+	float: right;
+}
