@@ -21,6 +21,7 @@ def create_project_handler(req):
     long = req.json["long"]
     start_date = req.json["start_date"]
     end_date = req.json["end_date"]
+    spin_up = req.json["spin_up"]
 
     # check for name collision
     if name in dao.read_all():
@@ -32,6 +33,7 @@ def create_project_handler(req):
         "long": long,
         "start_date": start_date,
         "end_date": end_date,
+        "spin_up": spin_up,
         # everything below here will be populated once modflow and hydrus models are loaded
         "rows": None,
         "cols": None,
@@ -138,7 +140,8 @@ def edit_project_handler(project_name):
             prev_lat=project['lat'],
             prev_long=project['long'],
             prev_start=project['start_date'],
-            prev_end=project['end_date']
+            prev_end=project['end_date'],
+            prev_spin_up=project['spin_up']
         )
 
 
@@ -148,6 +151,7 @@ def update_project_settings(req):
     long = req.json["long"]
     start_date = req.json["start_date"]
     end_date = req.json["end_date"]
+    spin_up = req.json['spin_up']
 
     try:
         prev_project = dao.read(name)
@@ -160,6 +164,7 @@ def update_project_settings(req):
     prev_project["long"] = long
     prev_project["start_date"] = start_date
     prev_project["end_date"] = end_date
+    prev_project['spin_up'] = spin_up
 
     dao.update(name, prev_project)
     return json.dumps({'status': 'OK'})
