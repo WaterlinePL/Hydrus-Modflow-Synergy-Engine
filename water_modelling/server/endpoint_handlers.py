@@ -23,8 +23,9 @@ def create_project_handler(req):
     end_date = req.json["end_date"]
 
     # check for name collision
-    if name in dao.read_all():
-        return jsonify(error=str("A project with this name already exists")), 404
+    lowercase_project_names = [name.lower() for name in dao.read_all()]
+    if name.lower() in lowercase_project_names:
+        return jsonify(error=str("A project with this name already exists (names are case-insensitive)")), 404
 
     project = {
         "name": name,
