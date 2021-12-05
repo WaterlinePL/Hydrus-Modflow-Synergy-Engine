@@ -125,6 +125,6 @@ def remove_project(project_name: str):
     if os.path.isdir(project_path):
         shutil.rmtree(project_path)
 
-    # if project was currently loaded, remove it
+    # if project was currently loaded, remove it and reset util fields
     if util.loaded_project is not None and util.loaded_project['name'] == project_name:
-        util.loaded_project = None
+        util.reset_project_data()

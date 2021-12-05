@@ -36,11 +36,16 @@ class AppUtils:
         self.error_flag = False
 
     def setup(self) -> None:
+        self.reset_project_data()
+        verify_dir_exists_or_create(self.workspace_dir)
+
+    def reset_project_data(self) -> None:
+        self.loaded_project = None
+        self.simulation_service = None
         self.current_method = None
         self.recharge_masks = []
         self.models_masks_ids = {}
         self.loaded_shapes = {}
-        verify_dir_exists_or_create(self.workspace_dir)
         self.error_flag = False
 
     def get_modflow_dir(self):
