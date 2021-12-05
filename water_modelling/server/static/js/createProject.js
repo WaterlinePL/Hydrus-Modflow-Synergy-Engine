@@ -125,13 +125,18 @@
     }
 
     function isTextCorrect(text, elementId) {
-        if (text !== null && text !== undefined && text.trim() !== "") {
+        if (text !== null && text !== undefined && text.trim() !== "" && !hasWhiteSpace(text)) {
             removeInvalid(elementId);
             return true;
         } else {
             addInvalid(elementId);
             return false;
         }
+    }
+
+    function hasWhiteSpace(text) {
+        const whitespaceChars = [' ', '\t', '\n'];
+        return whitespaceChars.some(char => text.includes(char));
     }
 
     function removeInvalid(elementId) {
