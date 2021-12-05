@@ -24,7 +24,7 @@ def get_or_none(req, key):
 class AppUtils:
 
     def __init__(self):
-        self.allowed_types = ["ZIP", "RAR", "7Z"]
+        self.allowed_types = ["ZIP"]
         self.project_root = PROJECT_ROOT
         self.workspace_dir = os.path.join(self.project_root, 'workspace')
         self.loaded_project = None
