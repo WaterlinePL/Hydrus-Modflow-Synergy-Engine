@@ -227,6 +227,12 @@ def upload_modflow_handler(req):
         return abort(500)
 
 
+def upload_weather_file_handler(req):
+    # TODO
+    model_name = req.form['model_name']
+    pass
+
+
 def remove_modflow_handler(req):
     body = json.loads(req.data)
     if body['modelName']:
