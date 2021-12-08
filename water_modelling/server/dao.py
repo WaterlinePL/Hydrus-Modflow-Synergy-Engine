@@ -129,3 +129,86 @@ def remove_project(project_name: str):
     # if project was currently loaded, remove it and reset util fields
     if util.loaded_project is not None and util.loaded_project['name'] == project_name:
         util.reset_project_data()
+
+
+def update_hydrus_model(model_name: str, data: dict):
+    """
+    Enriches the target hydrus model with weather file data.
+
+    :param model_name: the name of the model to modify
+    :param data: a dictionary with the loaded weather data
+    :return: None
+    """
+    model_dir = os.path.join(util.get_hydrus_dir(), model_name)
+    meteo_file_path = os.path.join(model_dir, "METEO.IN")
+    meteo_file = open(meteo_file_path, "rw")
+
+    old_file_lines = meteo_file.readlines()
+    new_file_lines = []
+
+    # update latitude and altitude
+    i = 0
+    while True:
+        curr_line = old_file_lines[i]
+        new_file_lines.append(curr_line)
+        if "Latitude" in curr_line:
+            # write the updated values and break
+            new_file_lines.append(f"   {data['Latitude']}   {data['Elevation']}\n")
+            i += 1
+            break
+
+    # update the day-by-day conditions
+    # check which fields we have data about
+    replace_rad = "Solar" in data.keys()
+    replace_tmax = "Max Temperature" in data.keys()
+    replace_tmin = "Min Temperature" in data.keys()
+    replace_rhmin = "Relative Humidity" in data.keys()
+    replace_wind = "Wind" in data.keys()
+    replace_rain = "Precipitation" in data.keys()
+    # navigate to table start
+    while True:
+        curr_line = old_file_lines[i]
+        new_file_lines.append(curr_line)
+        if "Daily values" in curr_line:
+            i += 1
+            new_file_lines.append(old_file_lines[i])  # skip field descriptions line
+            i += 1
+            new_file_lines.append(old_file_lines[i])  # skip units line
+            i += 1
+            break
+    # write new table values, only change columns for which we have data
+    while True:
+
+        # break if reached end of file
+        curr_line = old_file_lines[i]
+        if "end" in curr_line:
+            new_file_lines.append(curr_line)
+            break
+
+        curr_row = old_file_lines[i].split()
+        if replace_rad:
+            curr_row[1] = data["Solar"][i]
+        if replace_tmax:
+            curr_row[2] = data["Max Temperature"][i]
+        if replace_tmin:
+            curr_row[3] = data["Min temperature"][i]
+        if replace_rhmin:
+            curr_row[4] = data["Relative Humidity"][i]
+        if replace_wind:
+            curr_row[5] = data["Wind"][i]
+
+        new_line = "   "
+        for item in curr_row:
+            new_line += f"{item}    "
+        new_line += "\n"
+        new_file_lines.append(new_line)
+
+        i += 1
+
+    # overwrite meteo file
+    meteo_file.writelines(new_file_lines)
+    meteo_file.close()
+
+    # TODO - figure out where precipitation data goes and write it there
+    if replace_rain:
+        pass
