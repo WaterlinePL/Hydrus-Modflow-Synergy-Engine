@@ -4,7 +4,7 @@ function handleSubmit(rchShapeIdx, currentModel) {
     console.log(hydrusModel, currentModel);
     const nextIdx = parseInt(rchShapeIdx)+1;
 
-    if (hydrusModel !== null && hydrusModel !== undefined){
+    if (hydrusModel !== null && hydrusModel !== undefined && hydrusModel !== ''){
         const formdata = {"hydrusModel": hydrusModel, "previousModel": currentModel};
 
         $.ajax({
@@ -14,7 +14,7 @@ function handleSubmit(rchShapeIdx, currentModel) {
                     dataType: 'json',
                     url: Config.rchShapes + rchShapeIdx,
                     success: function (e) {
-                        $('#toast-body-success-rch-shapes').text("Model has been correctly assign to the shape!")
+                        $('#toast-body-success-rch-shapes').text("Model has been correctly assigned to the shape!")
                         $('#success-rch-shapes').toast('show');
                         setTimeout(function () {
                             window.location.href = Config.rchShapes+nextIdx;

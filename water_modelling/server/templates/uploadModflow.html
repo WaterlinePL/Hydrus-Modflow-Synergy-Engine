@@ -1,101 +1,88 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<link rel="stylesheet" href="/static/css/layout.css">
-<link rel="stylesheet" href="/static/css/uploadModflow.css">
-<title>HP4M | MODFLOW</title>
+    <link rel="stylesheet" href="/static/css/layout.css">
+    <link rel="stylesheet" href="/static/css/uploadModflow.css">
+    <title>HP4M | MODFLOW</title>
 {% endblock %}
 
 {% block simulation_active %}active{% endblock %}
 
 {% block body %}
-<div class="jumbotron">
-    <div class="container mt-5">
-        <div class="row justify-content-md-center">
-            {% include 'progressBar.html' %}
+    <div class="jumbotron">
+        <div class="container mt-5">
+            <div class="row justify-content-md-center">
+                {% include 'progressBar.html' %}
 
-            <div class="col-lg-9">
-                <div class="text-center">
-                    <h1 class="display-4">Upload modflow project</h1>
-                    <p class="lead">Drag and drop the modflow project you want to simulate, then click "Next"</p>
-                </div>
-                <hr class="my-4">
+                <div class="col-lg-9">
+                    <div class="text-center">
+                        <h1 class="display-4">Upload modflow project</h1>
+                        <p class="lead">Drag and drop the modflow project you want to simulate, then click "Next"</p>
+                    </div>
+                    <hr class="my-4">
 
-                <div class="container" style="background: white; padding: 2em; border-radius: 5px;">
-                    <div class="panel panel-default" >
-                        <div class="panel-heading"><strong>Upload Files</strong></div>
-                        <div class="panel-body">
+                    <div class="container" style="background: white; padding: 2em; border-radius: 5px;">
+                        <div class="panel panel-default">
+                            <div class="panel-heading"><strong>Upload Files</strong></div>
+                            <div class="panel-body">
 
-                            <!-- Drop Zone -->
-                            <h4>Drag and drop files below</h4>
-                            <div class="upload-drop-zone" id="drop-zone-modflow">
-                                Just drag and drop files here
+                                <!-- Drop Zone -->
+                                <h4>Drag and drop files below</h4>
+                                <div class="upload-drop-zone" id="drop-zone-modflow">
+                                    Just drag and drop files here
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row justify-content-end">
-                        <div class="col-auto">
-                            <a type="button"
-                               {% if (model_name is defined) and model_name %}
-                               class="btn btn-primary"
-                               {% else %}
-                               class="btn btn-primary disabled"
-                               {% endif %}
-                               href="{{ url_for('upload_hydrus') }}">Next</a>
+                        <div class="row justify-content-end">
+                            <div class="col-auto">
+                                <a type="button"
+                                        {% if (model_name is defined) and model_name %}
+                                   class="btn btn-primary"
+                                        {% else %}
+                                   class="btn btn-primary disabled"
+                                        {% endif %}
+                                   href="{{ url_for('upload_hydrus') }}">Next</a>
+                            </div>
+
                         </div>
+                    </div> <!-- /container -->
 
-                    </div>
-                </div> <!-- /container -->
-
+                </div>
             </div>
         </div>
     </div>
-</div>
-{% if model_name and model_name is defined %}
-<div class="container">
-    <div class="row justify-content-md-center">
-        <div class="col-lg-9">
-            <div>
-                <h3 style="text-align: center">Models uploaded:</h3>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">
-                        <span class="slice-column left">{{ model_name }}</span>
-                        <span  class="slice-column right" >
-                            <button type="button" class="btn btn-danger right" onClick="doDelete('{{model_name}}')">Remove</button>
+    {% if model_name and model_name is defined %}
+        <div class="container">
+            <div class="row justify-content-md-center">
+                <div class="col-lg-9">
+                    <div>
+                        <h3 style="text-align: center">Models uploaded:</h3>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <span class="slice-column left">{{ model_name }}</span>
+                                <span class="slice-column right">
+                            <button type="button" class="btn btn-danger right" onClick="doDelete('{{ model_name }}')">Remove</button>
                         </span>
-                    </li>
-                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-{% endif %}
-
-<div style="position: absolute; bottom: 20px; right: 20px;" class="w-25">
-    <div class="toast border border-danger" role="alert" id="error-wrong-modflow" aria-live="assertive"
-         aria-atomic="true"
-         data-delay="4000" style="border-width: 4px !important;">
-        <div class="toast-header bg-danger text-white">
-            <strong class="mr-auto">Error</strong>
-        </div>
-        <div class="toast-body" id="toast-message"><!-- Div for message content --> </div>
-    </div>
-    {% if upload_error %}
-    <div class="toast border border-danger" role="alert" id="error-modflow" aria-live="assertive" aria-atomic="true"
-         data-delay="4000" style="border-width: 4px !important;">
-        <div class="toast-header bg-danger text-white">
-            <strong class="mr-auto">Error</strong>
-        </div>
-        <div class="toast-body" id="toast-body-error-modflow">
-            Upload MODFLOW model
-        </div>
-    </div>
     {% endif %}
-</div>
+{% endblock %}
 
-
+{% block toasts %}
+    {% with background="bg-danger", body="", body_id="toast-message", id="error-wrong-modflow" %}
+        {% include "toast.html" %}
+    {% endwith %}
+    {% if upload_error %}
+        {% with background="bg-danger", body="Upload MODFLOW model", body_id="toast-body-error-modflow", id="error-modflow" %}
+            {% include "toast.html" %}
+        {% endwith %}
+    {% endif %}
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/uploadModflow.js"></script>
+    <script src="/static/js/uploadModflow.js"></script>
 {% endblock %}
