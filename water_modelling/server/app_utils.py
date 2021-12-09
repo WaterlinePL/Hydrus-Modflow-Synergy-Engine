@@ -43,7 +43,7 @@ class AppUtils:
         self.recharge_masks = []
         self.models_masks_ids = {}
         self.loaded_shapes = {}
-        self.error_flag = False
+        self._error_flag = False
 
     def setup(self) -> None:
         self.reset_project_data()
@@ -56,7 +56,7 @@ class AppUtils:
         self.recharge_masks = []
         self.models_masks_ids = {}
         self.loaded_shapes = {}
-        self.error_flag = False
+        self._error_flag = False
 
     def get_modflow_dir(self):
         if self.loaded_project is not None:
@@ -71,9 +71,12 @@ class AppUtils:
             return None
 
     def get_error_flag(self) -> bool:
-        error_flag = self.error_flag
-        self.error_flag = False
+        error_flag = self._error_flag
+        self._error_flag = False
         return error_flag
+
+    def activate_error_flag(self):
+        self._error_flag = True
 
     def type_allowed(self, filename: str) -> bool:
         """

@@ -27,7 +27,10 @@ def configuration():
         return endpoint_handlers.upload_new_configurations(request)
     else:
         config = lcd.read_configuration()
-        return render_template(template.CONFIGURATION, modflow_exe=config["modflow_exe"], hydrus_exe=config["hydrus_exe"])
+        return render_template(template.CONFIGURATION,
+                               modflow_exe=config["modflow_exe"],
+                               hydrus_exe=config["hydrus_exe"],
+                               paths_incorrect=util.get_error_flag())
 
 
 @app.route(endpoints.CREATE_PROJECT, methods=['GET', 'POST'])
@@ -75,9 +78,13 @@ def upload_modflow():
         return endpoint_handlers.remove_modflow_handler(request)
     else:
         if util.loaded_project is None:
-            util.error_flag = True
+            util.activate_error_flag()
             return redirect(endpoints.PROJECT_LIST)
         else:
+            check_previous_steps = path_checker.path_check_simulate_access(util)
+            if check_previous_steps:
+                return check_previous_steps
+
             return render_template(
                 template.UPLOAD_MODFLOW,
                 model_name=util.loaded_project["modflow_model"],
