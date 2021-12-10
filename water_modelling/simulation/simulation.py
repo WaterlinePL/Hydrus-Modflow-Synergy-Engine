@@ -18,6 +18,7 @@ ModflowDeployer = ModflowPodDeployer
 class Simulation:
     def __init__(self, simulation_id: int):
         self.simulation_id = simulation_id
+        self.spin_up = 0
         self.modflow_project = None
         self.loaded_shapes = None
         self.hydrus_finished = False
@@ -59,7 +60,7 @@ class Simulation:
         print("Nam file", nam_file)
         shapes = HydrusModflowPassing.read_shapes_from_files(list(self.loaded_shapes.values()))
         result = HydrusModflowPassing(os.path.join(modflow_dir, self.modflow_project), nam_file, shapes)
-        result.update_rch()
+        result.update_rch(spin_up=self.spin_up)
 
         self.passing_finished = True
         print("Passing successful")
@@ -91,6 +92,9 @@ class Simulation:
 
     def set_loaded_shapes(self, loaded_shapes) -> None:
         self.loaded_shapes = loaded_shapes
+
+    def set_spin_up(self, spin_up: int) -> None:
+        self.spin_up = spin_up
 
     def get_simulation_status(self) -> Tuple[bool, bool, bool]:
         return self.hydrus_finished, self.passing_finished, self.modflow_finished
