@@ -21,7 +21,7 @@ class ShapeFileData:
     @staticmethod
     def read_hydrus_output(hydrus_output_filepath: str) -> List[float]:
         """
-        Read Hydrus simulation output from file T_Level.out (read last entry of sum(vBot))
+        Read Hydrus simulation output from file T_Level.out (read all entries of sum(vBot))
         @param hydrus_output_filepath: P
         @return:
         """
@@ -52,5 +52,5 @@ class Shape:
     def get_mask(self) -> np.array:
         return self.mask_array
 
-    def get_recharge(self) -> np.array:
+    def get_recharge(self) -> List[float]:
         return self.values
