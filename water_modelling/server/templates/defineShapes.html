@@ -1,83 +1,85 @@
 {% extends 'base.html' %}
 
 {% block head %}
-    <title>HP4M | HYDRUS | {{ modelName }}</title>
-    <link rel="stylesheet" href="/static/css/defineShapes.css">
+<title>HP4M | HYDRUS | {{ modelName }}</title>
+<link rel="stylesheet" href="/static/css/defineShapes.css">
 {% endblock %}
 
 {% block simulation_active %}active{% endblock %}
 
 {% block body %}
-    <div class="container mt-5" id="define-shapes-content">
-        <div class="row justify-content-md-center">
-            {% include 'progressBar.html' %}
+<div class="container mt-5" id="define-shapes-content">
+    <div class="row justify-content-md-center">
+        {% include 'progressBar.html' %}
 
-            <div class="col-lg-9">
-                <div class="text-center">
-                    <h1 class="display-4">Select the fields covered by this Hydrus model</h1>
-                </div>
+        <div class="col-lg-9">
+            <div class="text-center">
+                <h1 class="display-4">Select the fields covered by this Hydrus model</h1>
             </div>
         </div>
-        <div class="row justify-content-center my-2">
-            <strong>Hydrus model: {{ modelName }}</strong>
-        </div>
+    </div>
+    <div class="row justify-content-center my-2">
+        <strong>Hydrus model: {{ modelName }}</strong>
+    </div>
 
-        <div class="row justify-content-center my-2">
-            <div class="col-2-auto mx-2">
-                <table class="table table-sm" style="width: 500px">
-                    <tbody>
-                    {% for row in rows %}
-                        <tr class="cell-row" style="height: {{ cols_height[loop.index0] }}px !important; padding:0 !important;">
-                            {% for col in cols %}
-                                <td class="cell border border-1" id="{{ 'cell_' + row + '_' + col }}"
-                                    onclick="handleClick('{{ row }}','{{ col }}')"
-                                    style="width:{{ rows_width[loop.index0] }}px !important; padding:0 !important;">
-                                </td>
-                            {% endfor %}
-                        </tr>
+    <div class="row justify-content-center my-2">
+        <div class="col-2-auto mx-2">
+            <table class="table table-sm" style="width: 500px">
+                <tbody>
+                {% for row in rows %}
+                <tr class="cell-row" style="height: {{ rows_height[loop.index0] }}px !important; padding:0 !important;">
+                    {% for col in cols %}
+                    <td class="cell border border-1" id="{{ 'cell_' + row + '_' + col }}"
+                        onclick="handleClick('{{ row }}','{{ col }}')"
+                        style="width:{{ cols_width[loop.index0] }}px !important; padding:0 !important;">
+                    </td>
                     {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div class="row ">
-            <div class="col-md-1 offset-md-2">
-                <a type="button" class="btn btn-default" onclick="handleBackButton('{{ modelIndex }}')">Back</a>
-            </div>
-            <div class="col-md-1 offset-md-6">
-                <button type="button" class="btn btn-secondary" id="submitButton"
-                        onclick="handleSubmit('{{ modelIndex }}')">Done
-                </button>
-            </div>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
-    <div style="position: absolute; bottom: 20px; right: 20px;" class="w-25">
-        <div class="toast border border-success" role="alert" id="successMessage" aria-live="assertive"
-             aria-atomic="true"
-             data-delay="4000" style="border-width: 4px !important;">
-            <div class="toast-header bg-success text-white">
-                <strong class="mr-auto">Success</strong>
-            </div>
-            <div class="toast-body">
-                Shape has been saved!
-            </div>
+
+    <div class="row justify-content-md-center">
+        <div class="col-lg-9">
+            <span class="slice-column left" style="padding: 50px 15px;">
+                <a type="button" class="btn btn-outline-secondary"
+                   onclick="handleBackButton('{{ modelIndex }}')">Back</a>
+            </span>
+            <span class="slice-column right" style="padding: 50px 15px;">
+                <button type="button" class="btn btn-primary right" id="submitButton"
+                        onclick="handleSubmit('{{ modelIndex }}')">Next</button>
+            </span>
         </div>
-        {% if upload_error %}
-            <div class="toast border border-danger" role="alert" id="error-shapes" aria-live="assertive"
-                 aria-atomic="true"
-                 data-delay="4000" style="border-width: 4px !important;">
-                <div class="toast-header bg-danger text-white">
-                    <strong class="mr-auto">Error</strong>
-                </div>
-                <div class="toast-body" id="toast-body-error-shapes">
-                    Define Shapes
-                </div>
-            </div>
-        {% endif %}
     </div>
+</div>
+<div style="position: absolute; bottom: 20px; right: 20px;" class="w-25">
+    <div class="toast border border-success" role="alert" id="successMessage" aria-live="assertive" aria-atomic="true"
+         data-delay="4000" style="border-width: 4px !important;">
+        <div class="toast-header bg-success text-white">
+            <strong class="mr-auto">Success</strong>
+        </div>
+        <div class="toast-body">
+            Shape has been saved!
+        </div>
+    </div>
+    {% if upload_error %}
+    <div class="toast border border-danger" role="alert" id="error-shapes" aria-live="assertive"
+         aria-atomic="true"
+         data-delay="4000" style="border-width: 4px !important;">
+        <div class="toast-header bg-danger text-white">
+            <strong class="mr-auto">Error</strong>
+        </div>
+        <div class="toast-body" id="toast-body-error-shapes">
+            Define Shapes
+        </div>
+    </div>
+    {% endif %}
+</div>
 
 {% endblock %}
 
 {% block scripts %}
-    <script src="/static/js/defineShapes.js"></script>
+<script src="/static/js/defineShapes.js"></script>
 {% endblock %}

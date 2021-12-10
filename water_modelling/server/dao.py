@@ -12,6 +12,7 @@ A project .json file contains the following:
     "long": float - the longitude the model lies at,
     "start_date": string - the start date of the simulation, YYYY-mm-dd
     "end_date": string - the end date of the simulation, YYYY-mm-dd,
+    "spin_up": float - how many days of hydrus simulation should be ignored,
     "rows": int - the amount of rows in the model grid,
     "cols": int - the amount of columns in the model grid,
     "grid_unit": string - the unit in which the model grid size is represented; "feet", "meters", "centimeters" or null,
@@ -110,3 +111,21 @@ def remove_model(model_type: str, model_name: str):
             if new_list is None:
                 new_list = []
             update(util.loaded_project["name"], {"hydrus_models": new_list})
+
+
+def remove_project(project_name: str):
+    """
+    Removes an existing project from the workspace
+
+    :param project_name: the name of the project to be removed
+    :return: None
+    """
+    project_path = os.path.join(util.workspace_dir, project_name)
+
+    # remove project
+    if os.path.isdir(project_path):
+        shutil.rmtree(project_path)
+
+    # if project was currently loaded, remove it and reset util fields
+    if util.loaded_project is not None and util.loaded_project['name'] == project_name:
+        util.reset_project_data()

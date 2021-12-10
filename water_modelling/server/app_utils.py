@@ -7,7 +7,7 @@ from server.endpoints import RCH_SHAPES
 from simulation.simulation_service import SimulationService
 from datapassing.shape_data import ShapeFileData
 
-PROJECT_ROOT = "../"
+PROJECT_ROOT = "..\\"
 
 
 def verify_dir_exists_or_create(path: str):
@@ -24,7 +24,7 @@ def get_or_none(req, key):
 class AppUtils:
 
     def __init__(self):
-        self.allowed_types = ["ZIP", "RAR", "7Z"]
+        self.allowed_types = ["ZIP"]
         self.project_root = PROJECT_ROOT
         self.workspace_dir = os.path.join(self.project_root, 'workspace')
         self.loaded_project = None
@@ -36,11 +36,16 @@ class AppUtils:
         self.error_flag = False
 
     def setup(self) -> None:
+        self.reset_project_data()
+        verify_dir_exists_or_create(self.workspace_dir)
+
+    def reset_project_data(self) -> None:
+        self.loaded_project = None
+        self.simulation_service = None
         self.current_method = None
         self.recharge_masks = []
         self.models_masks_ids = {}
         self.loaded_shapes = {}
-        verify_dir_exists_or_create(self.workspace_dir)
         self.error_flag = False
 
     def get_modflow_dir(self):

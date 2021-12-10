@@ -28,13 +28,24 @@ async function doDelete(modelName) {
         for (let i = 0; i < files.length; i++)
             formData.append('archive-input', files[i]);
         var url = Config.uploadHydrus;
+
+        console.log(formData);
         await fetch(url, {
             method : "POST",
             body: formData
         }).then(response => {
             if (response.status !== 200) {
-                $('#toast-message').html('Invalid Hydrus project structure');
-                $('#error-wrong-hydrus').toast('show');
+                console.log(response)
+                response.json().then(value => {
+                    if(value?.error !== undefined && value?.error !== null && value?.error !== "" ){
+                        $('#toast-message').text(value?.error);
+                        $('#error-wrong-hydrus').toast('show');
+                    }
+                    else {
+                        $('#toast-message').text('Invalid Hydrus project');
+                        $('#error-wrong-hydrus').toast('show');
+                    }
+                })
             } else {
                 location.replace(response.url);
             }

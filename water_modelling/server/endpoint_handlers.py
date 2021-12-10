@@ -21,6 +21,7 @@ def create_project_handler(req):
     long = req.json["long"]
     start_date = req.json["start_date"]
     end_date = req.json["end_date"]
+    spin_up = req.json["spin_up"]
 
     # check for name collision
     if name in dao.read_all():
@@ -32,6 +33,7 @@ def create_project_handler(req):
         "long": long,
         "start_date": start_date,
         "end_date": end_date,
+        "spin_up": spin_up,
         # everything below here will be populated once modflow and hydrus models are loaded
         "rows": None,
         "cols": None,
@@ -42,8 +44,8 @@ def create_project_handler(req):
         "hydrus_models": []
     }
     dao.create(project)
+    util.reset_project_data()
     util.loaded_project = project
-    #TODO: czy powinnismy tutaj czy?ci? utils???
     return json.dumps({'status': 'OK'})
 
 
@@ -75,6 +77,13 @@ def project_list_handler(search):
                            )
 
 
+def remove_project_handler(req):
+    body = json.loads(req.data)
+    if body['projectName']:
+        dao.remove_project(body['projectName'])
+    return redirect(endpoints.PROJECT_LIST, code=303)
+
+
 def project_handler(project_name):
     if project_name is None:
         # case 1 - there is already a project loaded and we just want to see it
@@ -93,20 +102,18 @@ def project_handler(project_name):
             util.error_flag = True
             return redirect(endpoints.PROJECT_LIST)
         else:
-            util.loaded_project = chosen_project
 
-            # make sure to clear out any data entered for a previous project
-            util.current_method = None
-            util.models_masks_ids = {}
-            util.recharge_masks = []
-            util.loaded_shapes = {}
+            # clear old data and load new project
+            util.reset_project_data()
+            util.loaded_project = chosen_project
 
             if util.loaded_project["modflow_model"]:
                 model_path = os.path.join(util.get_modflow_dir(), util.loaded_project["modflow_model"])
                 nam_file_name = modflow_utils.get_nam_file(model_path)
                 model_data = modflow_utils.get_model_data(model_path, nam_file_name)
-                util.recharge_masks = modflow_utils.get_shapes_from_rch(model_path, nam_file_name,
-                                                                    (model_data["rows"], model_data["cols"]))
+                util.recharge_masks = modflow_utils.get_shapes_from_rch(
+                    model_path, nam_file_name, (model_data["rows"], model_data["cols"])
+                )
 
             print(util.loaded_project)
             return render_template(template.PROJECT, project=chosen_project)
@@ -133,7 +140,8 @@ def edit_project_handler(project_name):
             prev_lat=project['lat'],
             prev_long=project['long'],
             prev_start=project['start_date'],
-            prev_end=project['end_date']
+            prev_end=project['end_date'],
+            prev_spin_up=project['spin_up']
         )
 
 
@@ -143,6 +151,7 @@ def update_project_settings(req):
     long = req.json["long"]
     start_date = req.json["start_date"]
     end_date = req.json["end_date"]
+    spin_up = req.json['spin_up']
 
     try:
         prev_project = dao.read(name)
@@ -155,6 +164,7 @@ def update_project_settings(req):
     prev_project["long"] = long
     prev_project["start_date"] = start_date
     prev_project["end_date"] = end_date
+    prev_project['spin_up'] = spin_up
 
     dao.update(name, prev_project)
     return json.dumps({'status': 'OK'})
@@ -225,44 +235,46 @@ def remove_modflow_handler(req):
 
 
 def upload_hydrus_handler(req):
-    model = req.files['archive-input']  # matches HTML input name
+    models = req.files.getlist('archive-input')
 
-    if util.type_allowed(model.filename):
+    for model in models:
+        if util.type_allowed(model.filename):
 
-        # save, unzip, remove archive
-        archive_path = os.path.join(util.get_hydrus_dir(), model.filename)
-        model.save(archive_path)
-        with ZipFile(archive_path, 'r') as archive:
+            # save, unzip, remove archive
+            archive_path = os.path.join(util.get_hydrus_dir(), model.filename)
+            model.save(archive_path)
 
-            # get the project name and remember it
-            model_name = model.filename.split('.')[0]
-            project_path = os.path.join(util.get_hydrus_dir(), model_name)
+            with ZipFile(archive_path, 'r') as archive:
+                # get the project name and remember it
+                model_name = model.filename.split('.')[0]
+                project_path = os.path.join(util.get_hydrus_dir(), model_name)
 
-            # create a dedicated catalogue and load the project into it
-            os.system('mkdir ' + project_path)
-            archive.extractall(project_path)
+                # create a dedicated catalogue and load the project into it
+                os.system('mkdir ' + project_path)
+                archive.extractall(project_path)
 
-            # validate model
-            invalid_model = not hydrus_utils.validate_model(project_path)
+                # validate model
+                invalid_model = not hydrus_utils.validate_model(project_path)
 
-        os.remove(archive_path)
-        if invalid_model:
-            shutil.rmtree(project_path, ignore_errors=True)  # remove invalid project dir
-            return abort(500)
+            os.remove(archive_path)
+            if invalid_model:
+                shutil.rmtree(project_path, ignore_errors=True)  # remove invalid project dir
+                return jsonify(error=str("Invalid Hydrus project structure")), 500
 
-        # update project JSON
-        updates = {
-            "hydrus_models": util.loaded_project["hydrus_models"] + [model_name]
-        }
-        dao.update(util.loaded_project["name"], updates)
+            # update project JSON
+            updates = {
+                "hydrus_models": util.loaded_project["hydrus_models"] + [model_name]
+            }
+            dao.update(util.loaded_project["name"], updates)
 
-        print("Hydrus model uploaded successfully")
-        return redirect(endpoints.UPLOAD_HYDRUS)
+        else:
+            print("Invalid archive format, must be one of: ", end='')
+            print(util.allowed_types)
 
-    else:
-        print("Invalid archive format, must be one of: ", end='')
-        print(util.allowed_types)
-        return redirect(req.url)
+            return jsonify(error=str("Invalid file type. Accepted types: "+" ".join(util.allowed_types))), 500
+
+    print("Hydrus model uploaded successfully")
+    return redirect(endpoints.UPLOAD_HYDRUS)
 
 
 def remove_hydrus_handler(req):
@@ -299,16 +311,16 @@ def next_model_redirect_handler(hydrus_model_index, error_flag):
         return redirect(endpoints.SIMULATION)
 
     else:
-        model_path = os.path.join(util.get_modflow_dir(), util.loaded_project["modflow_model"])
-        rows_width, cols_height = modflow_utils.get_cells_size(model_path, modflow_utils.get_nam_file(model_path), 500)
+        rows_height, cols_width = modflow_utils.scale_cells_size(util.loaded_project['row_cells'],
+                                                                 util.loaded_project['col_cells'], 500)
         return render_template(
             template.DEFINE_SHAPES,
             rowAmount=util.loaded_project["rows"],
             colAmount=util.loaded_project["cols"],
             rows=[str(x) for x in range(util.loaded_project["rows"])],
             cols=[str(x) for x in range(util.loaded_project["cols"])],
-            rows_width=rows_width,
-            cols_height=cols_height,
+            cols_width=cols_width,
+            rows_height=rows_height,
             modelIndex=hydrus_model_index,
             modelName=util.loaded_project["hydrus_models"][hydrus_model_index],
             upload_error=error_flag
@@ -323,11 +335,11 @@ def next_shape_redirect_handler(rch_shape_index):
         return redirect(endpoints.SIMULATION)
     else:
         current_model = util.get_current_model_by_id(rch_shape_index)
-        model_path = os.path.join(util.get_modflow_dir(), util.loaded_project["modflow_model"])
-        rows_width, cols_height = modflow_utils.get_cells_size(model_path, modflow_utils.get_nam_file(model_path), 500)
+        rows_height, cols_width = modflow_utils.scale_cells_size(util.loaded_project['row_cells'],
+                                                                 util.loaded_project['col_cells'], 500)
         return render_template(template.RCH_SHAPES, hydrus_models=util.loaded_project["hydrus_models"],
                                shape_mask=util.recharge_masks[rch_shape_index], rch_shape_index=rch_shape_index,
-                               rows_width=rows_width, cols_height=cols_height, current_model=current_model)
+                               rows_height=rows_height, cols_width=cols_width, current_model=current_model)
 
 
 def assign_model_to_shape(req, rch_shape_index):
@@ -365,13 +377,13 @@ def upload_new_configurations(req):
 
 
 def simulation_summary_handler():
-    model_path = os.path.join(util.get_modflow_dir(), util.loaded_project["modflow_model"])
-    rows_width, cols_height = modflow_utils.get_cells_size(model_path, modflow_utils.get_nam_file(model_path), 500)
+    rows_height, cols_width = modflow_utils.scale_cells_size(util.loaded_project['row_cells'],
+                                                             util.loaded_project['col_cells'], 500)
 
     return render_template(
         template.SIMULATION,
         modflow_proj=util.loaded_project["modflow_model"],
         shapes=util.loaded_shapes,
-        rows_width=rows_width,
-        cols_height=cols_height,
+        cols_width=cols_width,
+        rows_height=rows_height,
     )

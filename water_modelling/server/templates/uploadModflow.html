@@ -21,8 +21,8 @@
                 </div>
                 <hr class="my-4">
 
-                <div class="container">
-                    <div class="panel panel-default">
+                <div class="container" style="background: white; padding: 2em; border-radius: 5px;">
+                    <div class="panel panel-default" >
                         <div class="panel-heading"><strong>Upload Files</strong></div>
                         <div class="panel-body">
 
@@ -37,9 +37,9 @@
                         <div class="col-auto">
                             <a type="button"
                                {% if (model_name is defined) and model_name %}
-                               class="btn btn-secondary"
+                               class="btn btn-primary"
                                {% else %}
-                               class="btn btn-secondary disabled"
+                               class="btn btn-primary disabled"
                                {% endif %}
                                href="{{ url_for('upload_hydrus') }}">Next</a>
                         </div>

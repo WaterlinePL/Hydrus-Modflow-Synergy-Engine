@@ -34,13 +34,7 @@ def create_project():
     if request.method == 'POST':
         return endpoint_handlers.create_project_handler(request)
     else:
-        return render_template(
-            template.CREATE_PROJECT,
-            prev_lat="",
-            prev_long="",
-            prev_start="",
-            prev_end=""
-        )
+        return render_template(template.CREATE_PROJECT)
 
 
 @app.route(endpoints.EDIT_PROJECT, methods=['GET', 'POST'])
@@ -52,10 +46,13 @@ def edit_project(project_name):
         return endpoint_handlers.edit_project_handler(project_name)
 
 
-@app.route(endpoints.PROJECT_LIST, methods=['GET'], defaults={'search': None})
+@app.route(endpoints.PROJECT_LIST, methods=['GET', 'DELETE'], defaults={'search': None})
 @app.route(endpoints.PROJECT_LIST_SEARCH)
 def project_list(search):
-    return endpoint_handlers.project_list_handler(search)
+    if request.method == 'GET':
+        return endpoint_handlers.project_list_handler(search)
+    else:
+        return endpoint_handlers.remove_project_handler(request)
 
 
 @app.route(endpoints.PROJECT, methods=['GET'])
@@ -112,13 +109,13 @@ def define_method():
     return render_template(template.DEFINE_METHOD, error=util.get_error_flag())
 
 
-@app.route(endpoints.DEFINE_SHAPES, methods=['GET', 'POST'])
-def define_shapes(hydrus_model_index):
+@app.route(endpoints.MANUAL_SHAPES, methods=['GET', 'POST'])
+def manual_shapes(hydrus_model_index):
     check_previous_steps = path_checker.path_check_hydrus_step(util)
     if check_previous_steps:
         return check_previous_steps
 
-    util.set_method(endpoints.DEFINE_SHAPES)
+    util.set_method(endpoints.MANUAL_SHAPES)
 
     if request.method == 'POST':
         return endpoint_handlers.upload_shape_handler(request, int(hydrus_model_index))
