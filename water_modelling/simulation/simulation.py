@@ -36,6 +36,7 @@ class Simulation:
 
         # ===== RUN MODFLOW INSTANCE ======
         self.run_modflow(api_instance, modflow_dir, nam_file, pod_controller)
+        self.set_finished_flag(modflow_dir)
 
     def run_modflow(self, api_instance: CoreV1Api, modflow_dir: str, nam_file: str, pod_controller: PodController):
         modflow_pod_name = "modflow-2005-id." + str(self.simulation_id)
@@ -97,6 +98,11 @@ class Simulation:
 
     def get_id(self) -> int:
         return self.simulation_id
+
+    def set_finished_flag(self, modflow_dir: str) -> None:
+        finished_file_path = os.path.join(modflow_dir, 'finished.0')
+        finished_file = open(finished_file_path, "w")
+        finished_file.close()
 
     @staticmethod
     def format_path_to_docker(dir_path: str, project_name: str) -> str:
