@@ -29,11 +29,12 @@ class HydrusModflowPassing:
                                                    forgive=True)
 
         # zero all recharge values present in hydrus masks (in all stress periods)
-        for idx in modflow_model.nper:  # i in stress periods
+        for idx in range(modflow_model.nper):  # i in stress periods
             recharge_modflow_array = modflow_model.rch.rech[idx].array
             for shape in self.shapes:
                 mask = (shape.mask_array == 1)
                 recharge_modflow_array[mask] = 0.0
+                modflow_model.rch.rech[idx] = recharge_modflow_array
 
         for shape in self.shapes:
             # get t_level values for each day excluding spin_up period
@@ -41,6 +42,7 @@ class HydrusModflowPassing:
 
             stress_period_begin = 0  # beginning of current stress period
             for idx, stress_period_duration in enumerate(modflow_model.modeltime.perlen):
+                stress_period_duration = int(stress_period_duration)
                 # modflow rch for given stress period
                 recharge_modflow_array = modflow_model.rch.rech[idx].array
 
