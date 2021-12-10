@@ -100,6 +100,14 @@
                         {% endif %}
                     </ul>
                 </div>
+                <div class="button-edit">
+                        <span class="right">
+                            <a type="button" class="btn btn-secondary"
+                               href="{{ url_for('upload_weather_file', hydrus_models=project.hydrus_models, upload_error=False) }}">
+                                Upload weather files
+                            </a>
+                        </span>
+                </div>
             </div>
         </div>
     </div>

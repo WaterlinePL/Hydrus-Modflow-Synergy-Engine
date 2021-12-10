@@ -131,13 +131,35 @@ def remove_project(project_name: str):
         util.reset_project_data()
 
 
+def get_hydrus_length_unit(model_name: str):
+    """
+    Extracts the length unit used for a given hydrus model.
+
+    :param model_name: the model to get the unit fro
+    :return: unit, string - "m", "cm" or "mm"
+    """
+    filepath = os.path.join(util.get_hydrus_dir(), model_name, "SELECTOR.IN")
+    selector_file = open(filepath, 'r')
+
+    lines = selector_file.readlines()
+    i = 0
+
+    while True:
+        if i >= len(lines):
+            raise LookupError(f"ERROR: invalid SELECTOR.IN file for model {model_name}, no length unit found")
+        curr_line = lines[i]
+        if "LUnit" in curr_line:
+            unit = lines[i+1].strip()
+            return unit
+        i += 1
+
 def update_hydrus_model(model_name: str, data: dict):
     """
     Enriches the target hydrus model with weather file data.
 
     :param model_name: the name of the model to modify
     :param data: a dictionary with the loaded weather data
-    :return: None
+    :return: success - boolean, true if model was updated successfully, false otherwise
     """
     model_dir = os.path.join(util.get_hydrus_dir(), model_name)
     meteo_file_path = os.path.join(model_dir, "METEO.IN")
@@ -176,7 +198,13 @@ def update_hydrus_model(model_name: str, data: dict):
             new_file_lines.append(old_file_lines[i])  # skip units line
             i += 1
             break
+    # verify if weather file length is correct
+    data_lines = len(old_file_lines) - i - 1
+    if len(data["Date"]) != data_lines:
+        print(f"WARNING: weather file size mismatch - expected {data_lines} records, got {len(data['Date'])}")
+        return False
     # write new table values, only change columns for which we have data
+    data_row = 0
     while True:
 
         # break if reached end of file
@@ -187,15 +215,15 @@ def update_hydrus_model(model_name: str, data: dict):
 
         curr_row = old_file_lines[i].split()
         if replace_rad:
-            curr_row[1] = data["Solar"][i]
+            curr_row[1] = data["Solar"][data_row]
         if replace_tmax:
-            curr_row[2] = data["Max Temperature"][i]
+            curr_row[2] = data["Max Temperature"][data_row]
         if replace_tmin:
-            curr_row[3] = data["Min temperature"][i]
+            curr_row[3] = data["Min temperature"][data_row]
         if replace_rhmin:
-            curr_row[4] = data["Relative Humidity"][i]
+            curr_row[4] = data["Relative Humidity"][data_row]
         if replace_wind:
-            curr_row[5] = data["Wind"][i]
+            curr_row[5] = data["Wind"][data_row]
 
         new_line = "   "
         for item in curr_row:
@@ -204,6 +232,7 @@ def update_hydrus_model(model_name: str, data: dict):
         new_file_lines.append(new_line)
 
         i += 1
+        data_row += 1
 
     # overwrite meteo file
     meteo_file.writelines(new_file_lines)
@@ -212,3 +241,5 @@ def update_hydrus_model(model_name: str, data: dict):
     # TODO - figure out where precipitation data goes and write it there
     if replace_rain:
         pass
+
+    return True
