@@ -37,24 +37,31 @@ class HydrusModflowPassing:
                 modflow_model.rch.rech[idx] = recharge_modflow_array
 
         for shape in self.shapes:
-            # get t_level values for each day excluding spin_up period
-            t_level = (-np.diff(shape.get_recharge()))[spin_up:]
+            sum_v_bot = shape.get_recharge()  # get sum(vBot) values
+            spin_up = 0 if spin_up >= len(sum_v_bot) else spin_up  # safety
+            sum_v_bot = (-np.diff(sum_v_bot))[spin_up:]  # calc differance for each day (excluding spin_up period)
 
             stress_period_begin = 0  # beginning of current stress period
             for idx, stress_period_duration in enumerate(modflow_model.modeltime.perlen):
+                # float -> int indexing purposes
                 stress_period_duration = int(stress_period_duration)
-                # modflow rch for given stress period
+
+                # modflow rch array for given stress period
                 recharge_modflow_array = modflow_model.rch.rech[idx].array
 
-                # average from all hydrus t_level values during given stress period
-                t_level_stress_period = np.average(
-                    t_level[stress_period_begin:stress_period_begin + stress_period_duration])
+                # average from all hydrus sum(vBot) values during given stress period
+                stress_period_begin = min(stress_period_begin, len(sum_v_bot) - 1)  # safety
+                stress_period_end = min(stress_period_begin + stress_period_duration, len(sum_v_bot))  # safety
+                avg_v_bot_stress_period = np.average(sum_v_bot[stress_period_begin:stress_period_end])
 
-                # add calculated hydrus average t_level to modflow recharge array
-                recharge_modflow_array += shape.mask_array * t_level_stress_period
-                modflow_model.rch.rech[idx] = recharge_modflow_array  # save calculated recharge to modflow model
+                # add calculated hydrus average sum(vBot) to modflow recharge array
+                recharge_modflow_array += shape.mask_array * avg_v_bot_stress_period
 
-                stress_period_begin += stress_period_duration  # update beginning of current stress period
+                # save calculated recharge to modflow model
+                modflow_model.rch.rech[idx] = recharge_modflow_array
+
+                # update beginning of current stress period
+                stress_period_begin += stress_period_duration
 
         new_recharge = modflow_model.rch.rech
         rch_package = modflow_model.get_package("rch")  # get the RCH package

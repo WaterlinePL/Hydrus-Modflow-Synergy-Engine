@@ -70,6 +70,21 @@ class HydrusShapesTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(result.update_rch(spin_up=105).array[2][0], expected2)
         np.testing.assert_array_almost_equal(result.update_rch(spin_up=105).array[3][0], expected3)
 
+    @staticmethod
+    def test_bad_hydrus_length():
+        HydrusShapesTest.create_shape_files()
+        sample_shape_masks = ["masks/" + base_name for base_name in
+                              ["mask1.npy", "mask2.npy", "mask3.npy", "mask4.npy"]]
+
+        sample_hydrus_output = ["hydrus_out/" + base_name for base_name in
+                                ["t_level5.out", "t_level5.out", "t_level3.out", "t_level4.out"]]
+
+        shape_info_files = DataPassing.HydrusModflowPassing.create_shape_info_data(
+            list(zip(sample_shape_masks, sample_hydrus_output)))
+        shapes = DataPassing.HydrusModflowPassing.read_shapes_from_files(shape_info_files)
+
+        result = DataPassing.HydrusModflowPassing("./simple1", "simple1.nam", shapes)
+        result.update_rch(spin_up=105)
 
     @staticmethod
     def create_shape_files() -> None:
