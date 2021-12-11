@@ -53,7 +53,10 @@
                 }, 500);
             },
             error: function (error) {
-                const errorMsg = error.responseJSON.error;
+                const errorMsg = (error.responseJSON && error.responseJSON.error) ?
+                    error.responseJSON.error :
+                    "An unknown error occurred"
+                ;
                 addInvalid('name');
                 $('#toast-body-error').text(errorMsg);
                 $('#error').toast('show');
