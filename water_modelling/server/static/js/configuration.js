@@ -62,5 +62,13 @@
         }
     }
 
+    function containsOnlyWhitespaces(text) {
+        const pattern = /[\t\n ]/g;
+        return !text.replace(pattern, '').length;
+    }
+
+    if ( !containsOnlyWhitespaces( $('#error-configuration').text() ) ){
+        $('#error-configuration').toast('show');
+    }
 
 })(jQuery);

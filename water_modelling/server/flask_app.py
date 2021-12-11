@@ -5,6 +5,7 @@ from app_utils import util
 import threading
 import endpoint_handlers
 import local_configuration_dao as lcd
+from simulation.simulation_service import SimulationService
 
 app = Flask("App")
 
@@ -26,7 +27,10 @@ def configuration():
         return endpoint_handlers.upload_new_configurations(request)
     else:
         config = lcd.read_configuration()
-        return render_template(template.CONFIGURATION, modflow_exe=config["modflow_exe"], hydrus_exe=config["hydrus_exe"])
+        return render_template(template.CONFIGURATION,
+                               modflow_exe=config["modflow_exe"],
+                               hydrus_exe=config["hydrus_exe"],
+                               paths_incorrect=util.get_error_flag())
 
 
 @app.route(endpoints.CREATE_PROJECT, methods=['GET', 'POST'])
@@ -74,9 +78,13 @@ def upload_modflow():
         return endpoint_handlers.remove_modflow_handler(request)
     else:
         if util.loaded_project is None:
-            util.error_flag = True
+            util.activate_error_flag()
             return redirect(endpoints.PROJECT_LIST)
         else:
+            check_previous_steps = path_checker.path_check_simulate_access(util)
+            if check_previous_steps:
+                return check_previous_steps
+
             return render_template(
                 template.UPLOAD_MODFLOW,
                 model_name=util.loaded_project["modflow_model"],
@@ -152,7 +160,10 @@ def run_simulation():
     if check_previous_steps:
         return check_previous_steps
 
-    util.init_simulation_service()
+    if util.loaded_project is not None:
+        simulation_service = SimulationService(util.get_hydrus_dir(), util.get_modflow_dir())
+
+    util.set_simulation_serivce(simulation_service)
     sim = util.simulation_service.prepare_simulation()
 
     sim.set_modflow_project(modflow_project=util.loaded_project["modflow_model"])
@@ -160,7 +171,7 @@ def run_simulation():
 
     sim_id = sim.get_id()
 
-    thread = threading.Thread(target=util.simulation_service.run_simulation, args=(sim_id, "default"))
+    thread = threading.Thread(target=util.simulation_service.run_simulation, args=[sim_id])
     thread.start()
     return jsonify(id=sim_id)
 

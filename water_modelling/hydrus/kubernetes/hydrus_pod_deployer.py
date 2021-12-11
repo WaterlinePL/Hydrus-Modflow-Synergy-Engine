@@ -5,8 +5,8 @@ from hydrus.hydrus_deployer_interface import IHydrusDeployer
 from utils.yaml_data import YamlData
 from utils.yaml_generator import YamlGenerator
 
-
-class HydrusPodDeployer(IHydrusDeployer):
+# TODO: adapt to k8s cluster
+class _HydrusPodDeployer(IHydrusDeployer):
 
     def __init__(self, api_instance: client.CoreV1Api, path: str, pod_name: str, namespace: str = 'default'):
         self.api_instance = api_instance
