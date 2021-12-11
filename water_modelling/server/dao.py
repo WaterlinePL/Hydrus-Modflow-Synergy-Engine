@@ -154,6 +154,18 @@ def get_hydrus_length_unit(model_name: str):
         i += 1
 
 
+#  ----- SWAT data keys -----
+DATE = 'Date'
+LATITUDE = 'Latitude'
+ELEVATION = 'Elevation'
+RAD = 'Solar'
+T_MAX = 'Max Temperature'
+T_MIN = 'Min Temperature'
+RH_MEAN = 'Relative Humidity'
+WIND = 'Wind'
+PRECIPITATION = 'Precipitation'
+
+
 def update_hydrus_model(model_name: str, data: dict):
     """
     Enriches the target hydrus model with weather file data.
@@ -169,7 +181,7 @@ def update_hydrus_model(model_name: str, data: dict):
     if not meteo_file_modified:
         return False
 
-    replace_rain = "Precipitation" in data.keys()
+    replace_rain = PRECIPITATION in data.keys()
     if replace_rain:
         modify_atmosph_file(model_dir, data)
 
@@ -194,16 +206,16 @@ def modify_meteo_file(model_dir, data):
         i += 1
         if "Latitude" in curr_line:
             # write the updated values and break
-            new_file_lines.append(f"   {data['Latitude'][0]}   {data['Elevation'][0]}\n")
+            new_file_lines.append(f"   {data[LATITUDE][0]}   {data[ELEVATION][0]}\n")
             i += 1
             break
 
     # check which fields we have data about
-    replace_rad = "Solar" in data.keys()
-    replace_tmax = "Max Temperature" in data.keys()
-    replace_tmin = "Min Temperature" in data.keys()
-    replace_rhmin = "Relative Humidity" in data.keys()
-    replace_wind = "Wind" in data.keys()
+    replace_rad = RAD in data.keys()
+    replace_tmax = T_MAX in data.keys()
+    replace_tmin = T_MIN in data.keys()
+    replace_rhmean = RH_MEAN in data.keys()
+    replace_wind = WIND in data.keys()
 
     # navigate to table start
     while True:
@@ -236,21 +248,17 @@ def modify_meteo_file(model_dir, data):
 
         curr_row = old_file_lines[i].split()
         if replace_rad:
-            curr_row[1] = data["Solar"][data_row]
+            curr_row[1] = data[RAD][data_row]
         if replace_tmax:
-            curr_row[2] = data["Max Temperature"][data_row]
+            curr_row[2] = data[T_MAX][data_row]
         if replace_tmin:
-            curr_row[3] = data["Min Temperature"][data_row]
-        if replace_rhmin:
-            curr_row[4] = data["Relative Humidity"][data_row]
+            curr_row[3] = data[T_MIN][data_row]
+        if replace_rhmean:
+            curr_row[4] = data[RH_MEAN][data_row]
         if replace_wind:
-            curr_row[5] = data["Wind"][data_row]
+            curr_row[5] = data[WIND][data_row]
 
-        new_line = "   "
-        for item in curr_row:
-            new_line += f"{item}    "
-        new_line += "\n"
-        new_file_lines.append(new_line)
+        new_file_lines.append(build_line(curr_row))
 
         i += 1
         data_row += 1
@@ -296,13 +304,8 @@ def modify_atmosph_file(model_dir, data):
             break
 
         curr_row = old_file_lines[i].split()
-        curr_row[1] = data["Precipitation"][data_row]
-
-        new_line = "   "
-        for item in curr_row:
-            new_line += f"{item}    "
-        new_line += "\n"
-        new_file_lines.append(new_line)
+        curr_row[1] = data[PRECIPITATION][data_row]
+        new_file_lines.append(build_line(curr_row))
 
         i += 1
         data_row += 1
@@ -314,3 +317,11 @@ def modify_atmosph_file(model_dir, data):
     atmosph_file.close()
 
     return True
+
+
+def build_line(items: list):
+    line = "   "
+    for item in items:
+        line += f"{item}    "
+    line += "\n"
+    return line
