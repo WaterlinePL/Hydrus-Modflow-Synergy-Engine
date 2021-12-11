@@ -1,27 +1,22 @@
-from kubernetes import client, config
-from kubernetes_controller.pod_controller import PodController
+from app_config import deployment_config
 from simulation.simulation import Simulation
 
 
 class SimulationService:
     def __init__(self, hydrus_dir: str, modflow_dir: str):
-        config.load_kube_config()
-        self.api_instance = client.CoreV1Api()
         self.hydrus_dir = hydrus_dir
         self.modflow_dir = modflow_dir
-        self.pod_controller = PodController(self.api_instance)
+        self.deployer = deployment_config.DEPLOYER
         self.simulations = []
 
     def prepare_simulation(self) -> Simulation:
         sim_id = len(self.simulations)
-        simulation = Simulation(simulation_id=sim_id)
+        simulation = Simulation(simulation_id=sim_id, deployer=self.deployer)
         self.simulations.append({'simulation': simulation, 'is_finished': False})
         return simulation
 
-    def run_simulation(self, simulation_id: int, namespace: str) -> None:
-        self.simulations[simulation_id]['simulation'].run_simulation(self.api_instance, self.pod_controller,
-                                                                     self.modflow_dir,
-                                                                     self.hydrus_dir, namespace)
+    def run_simulation(self, simulation_id: int) -> None:
+        self.simulations[simulation_id]['simulation'].run_simulation(self.modflow_dir, self.hydrus_dir)
 
     def check_simulation_status(self, simulation_id: int):
         hydrus_done, passing_done, modflow_done = self.simulations[simulation_id]['simulation'].get_simulation_status()

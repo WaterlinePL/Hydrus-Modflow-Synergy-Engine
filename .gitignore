@@ -2,9 +2,10 @@ HELP.md
 misc.xml
 compiler.xml
 .idea/libraries/
-app_config/
+config.json
 target/
-workspace/
+water_modelling/workspace/**
+!water_modelling/workspace/.gitkeep
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/

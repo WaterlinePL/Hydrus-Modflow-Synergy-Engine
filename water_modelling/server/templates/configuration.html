@@ -1,79 +1,76 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<title>HP4M | Configuration</title>
-<link rel="stylesheet" href="/static/css/configuration.css">
+    <title>HP4M | Configuration</title>
+    <link rel="stylesheet" href="/static/css/configuration.css">
 {% endblock %}
 
 
-{% block configuration_active %} active {%endblock%}
+{% block configuration_active %} active {% endblock %}
 
 {% block body %}
-<div class="container mt-5" id="configuration-content">
-    <div class="row justify-content-md-center">
-
-        <div class="col-lg-9">
-            <div class="text-center">
-                <h1 class="display-4">Please provide correct paths to Modflow and Hydrus programs</h1>
-                <p class="lead">Click "Submit" to save your local paths</p>
-            </div>
-            <form id="form-modflow-hydrus">
-                <div class="form-group">
-                    <label for="modflowFile">Provide path to modflow executable file: </label>
-                    <input type="text" class="form-control" id="modflowFile" placeholder="e.g. C:\MF2005.1_12\bin\mf2005.exe">
-                    <label for="hydrusFile">Provide path to hydrus executable file: </label>
-                    <input type="text" class="form-control" id="hydrusFile" placeholder="e.g. C:\Hydrus\bin\H1D_4_17.exe">
-                </div>
-                <input type="submit" class="btn btn-primary right" value="Submit">
-            </form>
-        </div>
-    </div>
-
-    {% if (modflow_exe is defined and modflow_exe) or (hydrus_exe is defined and hydrus_exe) %}
-    <div class="container">
+    <div class="container mt-5" id="configuration-content">
         <div class="row justify-content-md-center">
+
             <div class="col-lg-9">
-                <div>
-                    <h3 style="text-align: center">Current setup:</h3>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item ">
-                            <span class="slice-column left">Modflow</span>
-                            <span class="slice-column right">{{modflow_exe}}</span>
-                        </li>
-                        <li class="list-group-item">
-                            <span class="slice-column left">Hydrus</span>
-                            <span class="slice-column right">{{hydrus_exe}}</span>
-                        </li>
-                    </ul>
+                <div class="text-center">
+                    <h1 class="display-4">Please provide correct paths to Modflow and Hydrus programs</h1>
+                    <p class="lead">Click "Submit" to save your local paths</p>
                 </div>
+                <form id="form-modflow-hydrus">
+                    <div class="form-group">
+                        <label for="modflowFile">Provide path to modflow executable file: </label>
+                        <input type="text" class="form-control" id="modflowFile"
+                               placeholder="e.g. C:\MF2005.1_12\bin\mf2005.exe">
+                        <label for="hydrusFile">Provide path to hydrus executable file: </label>
+                        <input type="text" class="form-control" id="hydrusFile"
+                               placeholder="e.g. C:\Hydrus\bin\H1D_4_17.exe">
+                    </div>
+                    <input type="submit" class="btn btn-primary right" value="Submit">
+                </form>
             </div>
         </div>
-    </div>
-    {% endif %}
-</div>
 
-<div style="position: absolute; bottom: 20px; right: 20px;" class="w-25">
-    <div class="toast border border-success" role="alert" id="success-configuration" aria-live="assertive" aria-atomic="true"
-         data-delay="4000" style="border-width: 4px !important;">
-        <div class="toast-header bg-success text-white">
-            <strong class="mr-auto">Success</strong>
-        </div>
-        <div class="toast-body">
-            Paths have been successfully saved!
-        </div>
+        {% if (modflow_exe is defined and modflow_exe) or (hydrus_exe is defined and hydrus_exe) %}
+            <div class="container">
+                <div class="row justify-content-md-center">
+                    <div class="col-lg-9">
+                        <div>
+                            <h3 style="text-align: center">Current setup:</h3>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item ">
+                                    <span class="slice-column left">Modflow</span>
+                                    <span class="slice-column right">{{ modflow_exe }}</span>
+                                </li>
+                                <li class="list-group-item">
+                                    <span class="slice-column left">Hydrus</span>
+                                    <span class="slice-column right">{{ hydrus_exe }}</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
     </div>
-    <div class="toast border border-danger" role="alert" id="error-configuration" aria-live="assertive"
-         aria-atomic="true"
-         data-delay="4000" style="border-width: 4px !important;">
-        <div class="toast-header bg-danger text-white">
-            <strong class="mr-auto">Error</strong>
-        </div>
-        <div class="toast-body" id="toast-body-error-configuration">
-        </div>
-    </div>
-</div>
+
+{% endblock %}
+
+{% block toasts %}
+    {% with background="bg-success", body="Paths have been successfully saved!", body_id="", id="success-configuration" %}
+        {% include "toast.html" %}
+    {% endwith %}
+    {% if paths_incorrect %}
+        {% with background="bg-danger", body="Please provide paths to hydrological software.", body_id="toast-body-error-configuration", id="error-configuration" %}
+            {% include "toast.html" %}
+        {% endwith %}
+    {% else %}
+        {% with background="bg-danger", body="", body_id="toast-body-error-configuration", id="error-configuration" %}
+            {% include "toast.html" %}
+        {% endwith %}
+    {% endif %}
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/configuration.js"></script>
+    <script src="/static/js/configuration.js"></script>
 {% endblock %}
