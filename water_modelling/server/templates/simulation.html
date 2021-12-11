@@ -48,10 +48,10 @@
                 </div>
             {% endfor %}
         </div>
-        <div class="row justify-content-md-center" >
-            <div class="col-lg-9" >
+        <div class="row justify-content-md-center">
+            <div class="col-lg-9">
                 <span class="slice-column left" style="padding: 50px 15px;">
-                    <a type="button" class="btn btn-outline-secondary" href="{{url_for('define_method')}}">Back</a>
+                    <a type="button" class="btn btn-outline-secondary" href="{{ url_for('define_method') }}">Back</a>
                 </span>
                 <span class="slice-column right" style="padding: 50px 15px;">
                     <button type="button" id="start-simulation" class="btn btn-primary right" href=""> Run</button>
@@ -104,36 +104,22 @@
             </div>
         </div>
         <div class="row justify-content-center">
-            <a type="button" id="download" hidden class="btn btn-primary mx-5 my-2" href="{{ url_for('project_download') }}">Download Results</a>
+            <a type="button" id="download" hidden class="btn btn-primary mx-5 my-2"
+               href="{{ url_for('project_download') }}">Download Results</a>
         </div>
 
     </div> <!-- container -->
-
-    <div style="position: absolute; bottom: 20px; right: 20px;" class="w-25">
-        <div class="toast border border-success" role="alert" id="start-alert" aria-live="assertive" aria-atomic="true"
-             data-delay="4000" style="border-width: 4px !important;">
-            <div class="toast-header bg-success text-white">
-                <strong class="mr-auto">Success</strong>
-            </div>
-            <div class="toast-body">
-                Simulation has been started!
-            </div>
-        </div>
-
-
-        <div class="toast border border-danger" role="alert" id="error-alert" aria-live="assertive" aria-atomic="true"
-             data-delay="4000" style="border-width: 4px !important;">
-            <div class="toast-header bg-danger text-white">
-                <strong class="mr-auto">Error</strong>
-            </div>
-            <div class="toast-body" id="toast-body-error">
-
-            </div>
-        </div>
-    </div>
-
-
 {% endblock %}
+
+{% block toasts %}
+    {% with background="bg-success", body="Simulation has been started!", body_id="", id="start-alert" %}
+        {% include "toast.html" %}
+    {% endwith %}
+    {% with background="bg-danger", body="", body_id="toast-body-error", id="error-alert" %}
+        {% include "toast.html" %}
+    {% endwith %}
+{% endblock %}
+
 
 {% block scripts %}
     <script src="/static/js/simulation.js"></script>
