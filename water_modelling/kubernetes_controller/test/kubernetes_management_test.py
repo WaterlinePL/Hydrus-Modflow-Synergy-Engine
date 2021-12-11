@@ -1,7 +1,7 @@
 import unittest
 from kubernetes import client, config
-from hydrus.hydrus_pod_deployer import HydrusPodDeployer
-from hydrus.hydrus_multi_deployer import HydrusMultiDeployer
+from hydrus.kubernetes.hydrus_pod_deployer import _HydrusPodDeployer
+from hydrus.desktop.hydrus_multi_deployer import HydrusLocalMultiDeployer
 from modflow.modflow_pod_deployer import ModflowPodDeployer
 from constants import HYDRUS_ROOT_DOCKER
 from kubernetes_controller.pod_controller import PodController
@@ -24,7 +24,7 @@ class KubernetesManagementTest(unittest.TestCase):
         config.load_kube_config()
         api_instance = client.CoreV1Api()
 
-        hydrus_deployer = HydrusPodDeployer(api_instance=api_instance, path=HYDRUS_ROOT_DOCKER, pod_name='hydrus-1d')
+        hydrus_deployer = _HydrusPodDeployer(api_instance=api_instance, path=HYDRUS_ROOT_DOCKER, pod_name='hydrus-1d')
         hydrus_pod = hydrus_deployer.run()  # returns V1Pod instance
 
         pod_controller = PodController(api_instance)
@@ -41,7 +41,7 @@ class KubernetesManagementTest(unittest.TestCase):
         pod_controller.wait_for_pod_termination(modflow_v1_pod.metadata.name)
 
         print("Deploying hydrus container")
-        hydrus_deployer = HydrusPodDeployer(api_instance=api_instance, path=HYDRUS_ROOT_DOCKER, pod_name='hydrus-1d')
+        hydrus_deployer = _HydrusPodDeployer(api_instance=api_instance, path=HYDRUS_ROOT_DOCKER, pod_name='hydrus-1d')
         hydrus_pod = hydrus_deployer.run()  # returns V1Pod instance
         pod_controller.wait_for_pod_termination(hydrus_pod.metadata.name)
 
@@ -55,7 +55,7 @@ class KubernetesManagementTest(unittest.TestCase):
         hydrus_project_path = HYDRUS_ROOT_DOCKER
         hydrus_projects = [hydrus_project_path for _ in range(4)]
 
-        multipod_deployer = HydrusMultiDeployer(api_instance, hydrus_projects, sample_pod_names, namespace=namespace)
+        multipod_deployer = HydrusLocalMultiDeployer(api_instance, hydrus_projects, sample_pod_names, namespace=namespace)
         multipod_deployer.run()
         with ThreadPoolExecutor(max_workers=4) as exe:
             exe.map(pod_controller.wait_for_pod_termination, sample_pod_names)
@@ -80,8 +80,8 @@ class KubernetesManagementTest(unittest.TestCase):
         api_instance = client.CoreV1Api()
         pod_controller = PodController(api_instance)
 
-        hydrus_deployer = HydrusPodDeployer(api_instance=api_instance, path=HYDRUS_ROOT_DOCKER,
-                                            pod_name='hydrus-1d' + str(n))
+        hydrus_deployer = _HydrusPodDeployer(api_instance=api_instance, path=HYDRUS_ROOT_DOCKER,
+                                             pod_name='hydrus-1d' + str(n))
         hydrus_pod = hydrus_deployer.run()  # returns V1Pod instance
         pod_controller.wait_for_pod_termination(hydrus_pod.metadata.name)
 

@@ -5,3 +5,4 @@ phydrus>=0.2.0
 flopy>=3.3.3
 Flask>=2.0.1
 flask-paginate>=2.0.1
+docker>=5.0.3

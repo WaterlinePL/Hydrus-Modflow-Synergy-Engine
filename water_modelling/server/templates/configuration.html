@@ -60,9 +60,15 @@
     {% with background="bg-success", body="Paths have been successfully saved!", body_id="", id="success-configuration" %}
         {% include "toast.html" %}
     {% endwith %}
-    {% with background="bg-danger", body="", body_id="toast-body-error-configuration", id="error-configuration" %}
-        {% include "toast.html" %}
-    {% endwith %}
+    {% if paths_incorrect %}
+        {% with background="bg-danger", body="Please provide paths to hydrological software.", body_id="toast-body-error-configuration", id="error-configuration" %}
+            {% include "toast.html" %}
+        {% endwith %}
+    {% else %}
+        {% with background="bg-danger", body="", body_id="toast-body-error-configuration", id="error-configuration" %}
+            {% include "toast.html" %}
+        {% endwith %}
+    {% endif %}
 {% endblock %}
 
 {% block scripts %}

@@ -91,7 +91,7 @@ def project_handler(project_name):
             return render_template(template.PROJECT, project=util.loaded_project)
         # case 2 - there is no project loaded, the user should be redirected to the project list to select a project
         else:
-            util.error_flag = True
+            util.activate_error_flag()
             return redirect(endpoints.PROJECT_LIST)
     # case 3 - we're selecting a new project
     else:
@@ -99,7 +99,7 @@ def project_handler(project_name):
             chosen_project = dao.read(project_name)
         # case 3a - the project does not exist
         except FileNotFoundError:
-            util.error_flag = True
+            util.activate_error_flag()
             return redirect(endpoints.PROJECT_LIST)
         else:
 
@@ -156,7 +156,7 @@ def edit_project_handler(project_name):
     try:
         project = dao.read(project_name)
     except FileNotFoundError:
-        util.error_flag = True
+        util.activate_error_flag()
         return redirect(endpoints.PROJECT_LIST)
     else:
         return render_template(
@@ -181,7 +181,7 @@ def update_project_settings(req):
     try:
         prev_project = dao.read(name)
     except FileNotFoundError:
-        util.error_flag = True
+        util.activate_error_flag()
         return redirect(endpoints.PROJECT_LIST)
 
     prev_project["name"] = name
