@@ -38,7 +38,8 @@ class HydrusModflowPassing:
 
         for shape in self.shapes:
             sum_v_bot = shape.get_recharge()  # get sum(vBot) values
-            spin_up = 0 if spin_up >= len(sum_v_bot) else spin_up  # safety
+            if spin_up >= len(sum_v_bot):
+                raise ValueError('Spin up is longer than hydrus model time')
             sum_v_bot = (-np.diff(sum_v_bot))[spin_up:]  # calc differance for each day (excluding spin_up period)
 
             stress_period_begin = 0  # beginning of current stress period
@@ -50,8 +51,9 @@ class HydrusModflowPassing:
                 recharge_modflow_array = modflow_model.rch.rech[idx].array
 
                 # average from all hydrus sum(vBot) values during given stress period
-                stress_period_begin = min(stress_period_begin, len(sum_v_bot) - 1)  # safety
-                stress_period_end = min(stress_period_begin + stress_period_duration, len(sum_v_bot))  # safety
+                stress_period_end = stress_period_begin + stress_period_duration
+                if stress_period_begin >= len(sum_v_bot) or stress_period_end >= len(sum_v_bot):
+                    raise ValueError("Stress period " + str(idx+1) + " is out of hydrus model time")
                 avg_v_bot_stress_period = np.average(sum_v_bot[stress_period_begin:stress_period_end])
 
                 # add calculated hydrus average sum(vBot) to modflow recharge array

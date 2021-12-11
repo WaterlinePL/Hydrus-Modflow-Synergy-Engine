@@ -84,7 +84,8 @@ class HydrusShapesTest(unittest.TestCase):
         shapes = DataPassing.HydrusModflowPassing.read_shapes_from_files(shape_info_files)
 
         result = DataPassing.HydrusModflowPassing("./simple1", "simple1.nam", shapes)
-        result.update_rch(spin_up=105)
+        np.testing.assert_raises(ValueError, result.update_rch, 105)
+        np.testing.assert_raises(ValueError, result.update_rch, 0)
 
     @staticmethod
     def create_shape_files() -> None:
