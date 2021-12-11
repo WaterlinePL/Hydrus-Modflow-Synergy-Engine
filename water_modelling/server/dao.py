@@ -171,7 +171,7 @@ def update_hydrus_model(model_name: str, data: dict):
 
     replace_rain = "Precipitation" in data.keys()
     if replace_rain:
-        pass #modify_atmosph_file(model_dir, data)
+        modify_atmosph_file(model_dir, data)
 
     return True
 
@@ -255,10 +255,62 @@ def modify_meteo_file(model_dir, data):
         i += 1
         data_row += 1
 
-    # overwrite meteo file
+    # overwrite file
     meteo_file.seek(0)
     meteo_file.writelines(new_file_lines)
     meteo_file.truncate()
     meteo_file.close()
+
+    return True
+
+
+def modify_atmosph_file(model_dir, data):
+
+    atmosph_file_path = os.path.join(model_dir, "ATMOSPH.IN")
+    atmosph_file = open(atmosph_file_path, "r+")
+
+    old_file_lines = atmosph_file.readlines()
+    # remove trailing empty lines from end of file
+    while old_file_lines[len(old_file_lines)-1].strip() == "":
+        old_file_lines.pop()
+    new_file_lines = []
+
+    i = 0
+
+    # navigate to table start
+    while True:
+        curr_line = old_file_lines[i]
+        new_file_lines.append(curr_line)
+        i += 1
+        if "Prec" in curr_line:
+            break
+
+    # modify table
+    data_row = 0
+    while True:
+
+        # break if reached end of file
+        curr_line = old_file_lines[i]
+        if "end" in curr_line:
+            new_file_lines.append(curr_line)
+            break
+
+        curr_row = old_file_lines[i].split()
+        curr_row[1] = data["Precipitation"][data_row]
+
+        new_line = "   "
+        for item in curr_row:
+            new_line += f"{item}    "
+        new_line += "\n"
+        new_file_lines.append(new_line)
+
+        i += 1
+        data_row += 1
+
+    # overwrite file
+    atmosph_file.seek(0)
+    atmosph_file.writelines(new_file_lines)
+    atmosph_file.truncate()
+    atmosph_file.close()
 
     return True
