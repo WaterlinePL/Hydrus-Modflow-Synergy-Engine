@@ -8,8 +8,8 @@ from utils.yaml_generator import YamlGenerator
 
 class ModflowPodDeployer(IModflowDeployer):
 
-    def __init__(self, api_instance: client.CoreV1Api, path: str, name_file: str, pod_name, modflow_version="mf2005",
-                 namespace='default'):
+    def __init__(self, api_instance: client.CoreV1Api, path: str, name_file: str,
+                 pod_name: str, modflow_version: str = "mf2005", namespace: str = 'default'):
         self.api_instance = api_instance
         self.path = path
         self.pod_name = pod_name

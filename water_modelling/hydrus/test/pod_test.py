@@ -6,7 +6,7 @@ from kubernetes import client, config
 from kubernetes.client import V1Pod
 
 from constants import HYDRUS_ROOT_DOCKER
-from hydrus.hydrus_multi_deployer import HydrusMultiDeployer
+from hydrus.desktop.hydrus_multi_deployer import HydrusLocalMultiDeployer
 
 CONTAINER_NAME = "hydrus1d_linux:latest"
 
@@ -21,7 +21,7 @@ class HydrusPodsTest(unittest.TestCase):
         hydrus_project_path = HYDRUS_ROOT_DOCKER
         hydrus_projects = [hydrus_project_path for _ in range(4)]
 
-        multipod_deployer = HydrusMultiDeployer(api_instance, hydrus_projects, sample_pod_names, namespace=namespace)
+        multipod_deployer = HydrusLocalMultiDeployer(api_instance, hydrus_projects, sample_pod_names, namespace=namespace)
         multipod_deployer.run()
 
         print("Waiting for all pods to complete their jobs")
