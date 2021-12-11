@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: water-config
+data:
+  hydrus_image: "observer46/water_modeling_agh:hydrus1d_linux"
+  modflow_image: "mjstealey/docker-modflow"
