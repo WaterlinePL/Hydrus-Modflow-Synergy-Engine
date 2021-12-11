@@ -153,6 +153,7 @@ def get_hydrus_length_unit(model_name: str):
             return unit
         i += 1
 
+
 def update_hydrus_model(model_name: str, data: dict):
     """
     Enriches the target hydrus model with weather file data.
@@ -162,10 +163,27 @@ def update_hydrus_model(model_name: str, data: dict):
     :return: success - boolean, true if model was updated successfully, false otherwise
     """
     model_dir = os.path.join(util.get_hydrus_dir(), model_name)
+
+    # modify meteo file, return if encountered issues
+    meteo_file_modified = modify_meteo_file(model_dir, data)
+    if not meteo_file_modified:
+        return False
+
+    replace_rain = "Precipitation" in data.keys()
+    if replace_rain:
+        pass #modify_atmosph_file(model_dir, data)
+
+    return True
+
+
+def modify_meteo_file(model_dir, data):
     meteo_file_path = os.path.join(model_dir, "METEO.IN")
-    meteo_file = open(meteo_file_path, "rw")
+    meteo_file = open(meteo_file_path, "r+")
 
     old_file_lines = meteo_file.readlines()
+    # remove trailing empty lines from end of file
+    while old_file_lines[len(old_file_lines)-1].strip() == "":
+        old_file_lines.pop()
     new_file_lines = []
 
     # update latitude and altitude
@@ -173,36 +191,39 @@ def update_hydrus_model(model_name: str, data: dict):
     while True:
         curr_line = old_file_lines[i]
         new_file_lines.append(curr_line)
+        i += 1
         if "Latitude" in curr_line:
             # write the updated values and break
-            new_file_lines.append(f"   {data['Latitude']}   {data['Elevation']}\n")
+            new_file_lines.append(f"   {data['Latitude'][0]}   {data['Elevation'][0]}\n")
             i += 1
             break
 
-    # update the day-by-day conditions
     # check which fields we have data about
     replace_rad = "Solar" in data.keys()
     replace_tmax = "Max Temperature" in data.keys()
     replace_tmin = "Min Temperature" in data.keys()
     replace_rhmin = "Relative Humidity" in data.keys()
     replace_wind = "Wind" in data.keys()
-    replace_rain = "Precipitation" in data.keys()
+
     # navigate to table start
     while True:
         curr_line = old_file_lines[i]
         new_file_lines.append(curr_line)
+        i += 1
         if "Daily values" in curr_line:
-            i += 1
             new_file_lines.append(old_file_lines[i])  # skip field descriptions line
             i += 1
             new_file_lines.append(old_file_lines[i])  # skip units line
             i += 1
             break
-    # verify if weather file length is correct
-    data_lines = len(old_file_lines) - i - 1
-    if len(data["Date"]) != data_lines:
-        print(f"WARNING: weather file size mismatch - expected {data_lines} records, got {len(data['Date'])}")
+
+    # verify if weather file length is at least the same as data;
+    # i+1 for 0-indexing, +1 for the sum to be correct, then -1 for the EOF line
+    data_lines = len(old_file_lines) - (i+1)
+    if len(data["Date"]) < data_lines:
+        print(f"WARNING: insufficient weather file size - expected at least {data_lines} records, got {len(data['Date'])}")
         return False
+
     # write new table values, only change columns for which we have data
     data_row = 0
     while True:
@@ -219,7 +240,7 @@ def update_hydrus_model(model_name: str, data: dict):
         if replace_tmax:
             curr_row[2] = data["Max Temperature"][data_row]
         if replace_tmin:
-            curr_row[3] = data["Min temperature"][data_row]
+            curr_row[3] = data["Min Temperature"][data_row]
         if replace_rhmin:
             curr_row[4] = data["Relative Humidity"][data_row]
         if replace_wind:
@@ -235,11 +256,9 @@ def update_hydrus_model(model_name: str, data: dict):
         data_row += 1
 
     # overwrite meteo file
+    meteo_file.seek(0)
     meteo_file.writelines(new_file_lines)
+    meteo_file.truncate()
     meteo_file.close()
-
-    # TODO - figure out where precipitation data goes and write it there
-    if replace_rain:
-        pass
 
     return True
