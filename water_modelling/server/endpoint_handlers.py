@@ -247,10 +247,7 @@ def upload_weather_file_handler(req):
     if not success:
         return jsonify(error=str("Length mismatch between project data and file data")), 400
 
-    return render_template(
-        template.UPLOAD_WEATHER_FILE,
-        hydrus_models=util.loaded_project["hydrus_models"]
-    )
+    return "Success", 200
 
 
 def remove_modflow_handler(req):

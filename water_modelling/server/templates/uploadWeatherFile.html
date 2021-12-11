@@ -40,30 +40,15 @@
   </div>
 </div>
 
+{% endblock %}
 
-<div style="position: absolute; bottom: 20px; right: 20px;" class="w-25">
-  <div class="toast border border-danger" role="alert" id="error-wrong-modflow" aria-live="assertive"
-       aria-atomic="true"
-       data-delay="4000" style="border-width: 4px !important;">
-    <div class="toast-header bg-danger text-white">
-      <strong class="mr-auto">Error</strong>
-    </div>
-    <div class="toast-body" id="toast-message"><!-- Div for message content --> </div>
-  </div>
-  {% if upload_error %}
-  <div class="toast border border-danger" role="alert" id="error-modflow" aria-live="assertive" aria-atomic="true"
-       data-delay="4000" style="border-width: 4px !important;">
-    <div class="toast-header bg-danger text-white">
-      <strong class="mr-auto">Error</strong>
-    </div>
-    <div class="toast-body" id="toast-body-error-modflow">
-      Upload MODFLOW model
-    </div>
-  </div>
-  {% endif %}
-</div>
-
-
+{% block toasts %}
+  {% with background="bg-success", body="Model updated successfully", body_id="success-toast-message", id="success-toast" %}
+    {% include "toast.html" %}
+  {% endwith %}
+  {% with background="bg-danger", body="", body_id="error-toast-message", id="error-toast" %}
+    {% include "toast.html" %}
+  {% endwith %}
 {% endblock %}
 
 {% block scripts %}
