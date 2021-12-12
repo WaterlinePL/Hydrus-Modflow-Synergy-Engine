@@ -43,7 +43,6 @@ def create_project():
 
 @app.route(endpoints.EDIT_PROJECT, methods=['GET', 'POST'])
 def edit_project(project_name):
-
     if request.method == 'POST':
         return endpoint_handlers.update_project_settings(request)
     else:
@@ -65,9 +64,16 @@ def project(project_name):
     return endpoint_handlers.project_handler(project_name)
 
 
+@app.route(endpoints.PROJECT_FINISHED, methods=['GET'])
+@app.route(endpoints.PROJECT_FINISHED_NO_ID, defaults={'project_name': None})
+def project_is_finished(project_name):
+    return endpoint_handlers.project_is_finished_handler(project_name)
+
+
 @app.route(endpoints.PROJECT_DOWNLOAD, methods=['GET'])
-def project_download():
-    return endpoint_handlers.project_download_handler()
+@app.route(endpoints.PROJECT_DOWNLOAD_NO_ID, defaults={'project_name': None})
+def project_download(project_name):
+    return endpoint_handlers.project_download_handler(project_name)
 
 
 @app.route(endpoints.UPLOAD_MODFLOW, methods=['GET', 'POST', 'DELETE'])
