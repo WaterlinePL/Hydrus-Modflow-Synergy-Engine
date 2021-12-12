@@ -352,7 +352,8 @@ def assign_model_to_shape(req, rch_shape_index):
     if hydrus_model_name == "":
         return json.dumps({'status': 'OK'})
 
-    if util.models_masks_ids[hydrus_model_name] is None:
+    if hydrus_model_name not in util.models_masks_ids or util.models_masks_ids[hydrus_model_name] is None:
+        util.loaded_shapes[hydrus_model_name] = None
         util.models_masks_ids[hydrus_model_name] = [rch_shape_index]
     else:
         util.models_masks_ids[hydrus_model_name].append(rch_shape_index)
