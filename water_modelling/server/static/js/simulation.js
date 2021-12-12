@@ -25,7 +25,8 @@
             error: function (e) {
                 $('#error-alert').toast('show')
                 const rsp = JSON.parse(e.responseText);
-                $('#toast-body-error').text(rsp["message"])
+                const msg = rsp["message"] ? rsp["message"] : "An unknown error occurred";
+                $('#toast-body-error').text(msg)
             }
         });
     });
@@ -67,5 +68,21 @@
             }
         });
     }
+
+    $(document).ready(function () {
+        const url = Config.projectFinished;
+        ($).ajax({
+            url: url,
+            type: "GET",
+            dataType: "json",
+            context: this,
+            success: function (content) {
+                if(content["status"] === "OK")
+                {
+                    $("#download").removeAttr('hidden');
+                }
+            }
+        });
+    });
 
 })(jQuery);

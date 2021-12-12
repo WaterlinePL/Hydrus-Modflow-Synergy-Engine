@@ -1,0 +1,25 @@
+.slice-column {
+    width: 50%
+}
+
+.left {
+    float: left;
+}
+
+.right {
+    float: right;
+}
+
+.text-box {
+    border-bottom: 1px solid #6c757d;
+    margin: 25px 0;
+}
+
+img {
+    margin: 25px 0;
+}
+
+.button-text-box {
+	margin: 0 0 75px;
+}
+

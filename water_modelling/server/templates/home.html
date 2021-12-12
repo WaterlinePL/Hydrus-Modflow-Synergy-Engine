@@ -2,10 +2,133 @@
 
 {% block head %}
 <title>HP4M</title>
+<link rel="stylesheet" href="/static/css/home.css">
 {% endblock %}
 
 {% block home_active %}active{%endblock%}
 
 {% block body %}
-<h1>HOME - something about project</h1>
+<div class="container mt-5" id="configuration-content">
+    <div class="row justify-content-md-center">
+        <div class="col-lg-9">
+            <div class="text-center">
+                <h1 class="display-4">[Application Name]</h1>
+                <h2>an easy way to configure Hydrus-Modflow integration</h2>
+                <p class="lead">click "Create Project" to configure a new simulation</p>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-md-center">
+        <div class="col-auto">
+            <a type="button" class="btn btn-primary btn-lg" href="{{ url_for('create_project') }}"
+               style="margin: 0 0 75px;">
+                Create Project
+            </a>
+        </div>
+    </div>
+    <!--    TODO: Add condition if it is a local version-->
+    {% include "homeLocalVersion.html" %}
+
+    <div class="row justify-content-md-center">
+        <div class="col-lg-9 text-left">
+            <div class="text-box">
+                <h2>Select Project</h2>
+                <h5>Create a new project</h5>
+                <p>
+                    &emsp;To prepare a simulation you need to <b>create a new project</b> and
+                    <b>fill out the form</b> to define additional configuration. You can later access
+                    the project you created through the "List of projects" tab.
+                    <br>
+                    To create a new project, click "Create Project".
+                </p>
+                <div class="button-text-box">
+                  <span class="right">
+                      <a class="btn btn-secondary" href="{{ url_for('create_project') }}"
+                         type="button">
+                          Create Project
+                      </a>
+                  </span>
+                </div>
+                <h5>Choose an existing project</h5>
+                <p>
+                    &emsp;<b>All existing projects can be found in the "List of projects" tab</b> in the navigation
+                    bar at the top of the page. From there you can manage your projects, simulate them, and download
+                    results of simulations that have already been completed.
+                    <br>
+                    Click "Choose Project" to go to the list of projects.
+                </p>
+                <div class="button-text-box">
+                  <span class="right">
+                      <a class="btn btn-secondary" href="{{ url_for('project_list') }}"
+                         type="button">
+                          Choose Project
+                      </a>
+                  </span>
+                </div>
+                <h5>Project summary</h5>
+                <p>
+                    &emsp;After choosing a project for simulation you will be redirected to the <b>project summary</b>.
+                    This summary can also be found in <b>the "Current Project" tab in the topbar</b>. From here you can
+                    run a simulation, edit project details, or modify Hydrus models with weather data files.
+                </p>
+                <img src="/static/images/summary_project.png" class="img-fluid" alt="Responsive image">
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-md-center">
+        <div class="col-lg-9 text-left">
+            <div class="text-box">
+                <h2>Configure Simulation</h2>
+                <p>
+                    &emsp;After choosing a project for simulation you can click the "Simulate" tab on the topbar
+                    to configure and run a simulation. First you will be asked to upload Modflow and Hydrus models.
+                </p>
+                <h5>Upload Modflow model</h5>
+                <p>
+                    &emsp;The first step of configuring a simulation is to upload a valid Modflow model.
+                    You need to provide a <b>.rar or .zip archive with the model files placed directly
+                    into its root</b>. You can upload the archive by simply dragging and dropping it
+                    into the designated area.
+                </p>
+                <img src="/static/images/upload_modflow.png" class="img-fluid" alt="Responsive image">
+                <h5>Upload Hydrus models</h5>
+                <p>
+                    &emsp;The second step is to upload valid Hydrus models. Like for the Modflow model,
+                    you need provide a <b>.rar or .zip archive with the model files placed directly
+                    in the root</b>. As previously, you upload the model by dragging and dropping it into
+                    the provided drop zone. You can upload more than one Hydrus model.
+                </p>
+                <img src="/static/images/upload_hydrus.png" class="img-fluid" alt="Responsive image">
+                <h5>Define method</h5>
+                <p>
+                    &emsp;The third step is to split the Modflow model into areas and assign the Hydrus models to
+                    them. To do that you need to <b>choose a method for defining shapes</b>. There are two options -
+                    "Recharge RCH" and "Define shapes manually". The first option does the work for you, detecting
+                    shapes in the .rch file of the provided Modflow model. The second one allows you to define custom
+                    shapes manually. Choose the approach that's best for your simulation.
+                </p>
+                <img src="/static/images/define_method.png" class="img-fluid" alt="Responsive image">
+                <h5>Recharge RCH method</h5>
+                <p>
+                </p>
+                <img src="/static/images/rch_method.png" class="img-fluid" alt="Responsive image">
+                <h5>Manual method</h5>
+                <p>
+                </p>
+                <img src="/static/images/manual_method.png" class="img-fluid" alt="Responsive image">
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-md-center">
+        <div class="col-lg-9 text-left">
+            <h2>Run Simulation</h2>
+            <p>&emsp;After defining all shapes you will be redirected to the <b>Simulation Summary</b>. From here,
+                <b>click "Run" to start the simulation</b>. If it completes successfully, a button to download
+                the results will appear at the bottom of the screen. As mentioned above, you will also be able
+                to download results at any time from the list of projects.
+            </p>
+            <img src="/static/images/simulation_ready.png" class="img-fluid" alt="Responsive image">
+        </div>
+    </div>
+</div>
 {% endblock %}
