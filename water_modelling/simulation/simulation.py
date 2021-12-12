@@ -27,6 +27,7 @@ class Simulation:
 
         # ===== RUN MODFLOW INSTANCE ======
         self.run_modflow(modflow_dir, nam_file)
+        self.set_finished_flag(modflow_dir)
 
     def run_modflow(self, modflow_dir: str, nam_file: str):
         assert self.modflow_project is not None
@@ -67,3 +68,8 @@ class Simulation:
 
     def get_id(self) -> int:
         return self.simulation_id
+
+    def set_finished_flag(self, modflow_dir: str) -> None:
+        finished_file_path = os.path.join(modflow_dir, 'finished.0')
+        finished_file = open(finished_file_path, "w")
+        finished_file.close()

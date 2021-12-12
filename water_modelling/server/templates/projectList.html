@@ -47,7 +47,7 @@
                     <tr>
                         <th scope="col"></th>
                         <th scope="col" class="project-name-column">Name</th>
-                        <th scope="col">Actions</th>
+                        <th scope="col" class="text-center">Actions</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -55,7 +55,9 @@
                         <tr>
                             <th scope="row">{{ loop.index + pagination.skip }}</th>
                             <td class="project-name-column">{{ project_name }}</td>
-                            <td>
+                            <td class="text-right">
+                                <a type="button" hidden id="{{ project_name }}" class="btn btn-success btn-sm download"
+                                   href="{{ url_for('project_download', project_name=project_name) }}">Results</a>
                                 <a type="button" class="btn btn-primary btn-sm"
                                    href="{{ url_for('project', project_name=project_name) }}">Open
                                 </a>

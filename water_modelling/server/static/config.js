@@ -6,6 +6,8 @@ var Config = {
     "editProject": "/edit-project/",
     "currentProject": "/project",
     "projectList": '/project-list',
+    "projectDownload": '/project-download',
+    "projectFinished": '/project-finished',
     "rchShapes": "/rch-shapes/",
     "simulation": "/simulation",
     "simulationCheck": "/simulation-check/",

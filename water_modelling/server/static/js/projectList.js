@@ -11,14 +11,14 @@ async function doDelete(projectName, wasWarned) {
             }
         });
     } else {
-        document.getElementById("projectNameModal").innerText=projectName;
-        document.getElementById("confirmDelete").onclick = function(){
+        document.getElementById("projectNameModal").innerText = projectName;
+        document.getElementById("confirmDelete").onclick = function () {
             doDelete(projectName, true);
         };
     }
 }
 
-(function($) {
+(function ($) {
     'use strict'
 
     document.getElementById("form-search").onsubmit = function (e) {
@@ -26,13 +26,31 @@ async function doDelete(projectName, wasWarned) {
 
         const search = this.elements.search.value;
         console.log(this.elements.search.value);
-        if( search !== null && search !== undefined && search.trim() !== "") {
-            window.location.href = Config.projectList+"/"+search;
+        if (search !== null && search !== undefined && search.trim() !== "") {
+            window.location.href = Config.projectList + "/" + search;
         } else {
             window.location.href = Config.projectList;
         }
     }
 
     $('#error').toast('show');
+
+    $(document).ready(function () {
+        $(".download").each(function (i, obj) {
+            const url = Config.projectFinished + "/" + obj.id;
+            ($).ajax({
+                url: url,
+                type: "GET",
+                dataType: "json",
+                context: this,
+                success: function (content) {
+                    if(content["status"] === "OK")
+                    {
+                        $(this).removeAttr('hidden')
+                    }
+                }
+            });
+        });
+    });
 
 })(jQuery);
