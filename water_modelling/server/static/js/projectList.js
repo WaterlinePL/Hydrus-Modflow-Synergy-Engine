@@ -12,7 +12,7 @@ async function doDelete(projectName, wasWarned) {
         });
     } else {
         document.getElementById("projectNameModal").innerText = projectName;
-        document.getElementById("confirmDelete").onclick = function () {
+        document.getElementById("confirmDelete").onclick = function() {
             doDelete(projectName, true);
         };
     }
