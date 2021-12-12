@@ -11,7 +11,7 @@ console.log("columns: " + columns_total);
 
 let shapeArray = initializeArray(rows_total,columns_total);
 
-if ( $('#error-shapes').length ){
+if ( $('#error-shapes') && $('#error-shapes').length ){
     showToast('error-shapes');
 }
 
@@ -36,7 +36,7 @@ function handleSubmit(modelIdx) {
 
     request.onload = function() {
         let response = JSON.parse(this.responseText);
-        if (response.status === "OK") {
+        if (response && response.status === "OK") {
             showToast('successMessage');
             let nextModelId = parseInt(modelIdx)+1;
             setTimeout(function(){

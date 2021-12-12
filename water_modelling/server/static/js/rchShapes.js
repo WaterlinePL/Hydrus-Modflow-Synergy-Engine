@@ -2,9 +2,9 @@ function handleSubmit(rchShapeIdx, currentModel) {
 
     const hydrusModel = $("#hydrus-model").val();
     console.log(hydrusModel, currentModel);
-    const nextIdx = parseInt(rchShapeIdx)+1;
+    const nextIdx = parseInt(rchShapeIdx) + 1;
 
-    if (hydrusModel !== null && hydrusModel !== undefined && hydrusModel !== ''){
+    if (hydrusModel !== null && hydrusModel !== undefined && hydrusModel !== '') {
         const formdata = {"hydrusModel": hydrusModel, "previousModel": currentModel};
 
         $.ajax({
@@ -17,7 +17,7 @@ function handleSubmit(rchShapeIdx, currentModel) {
                         $('#toast-body-success-rch-shapes').text("Model has been correctly assigned to the shape!")
                         $('#success-rch-shapes').toast('show');
                         setTimeout(function () {
-                            window.location.href = Config.rchShapes+nextIdx;
+                            window.location.href = Config.rchShapes + nextIdx;
                         }, 500);
 
                     },
@@ -30,7 +30,7 @@ function handleSubmit(rchShapeIdx, currentModel) {
         $('#toast-body-success-rch-shapes').text("Shape skipped. Redirecting to next shape!")
         $('#success-rch-shapes').toast('show');
         setTimeout(function () {
-            window.location.href = Config.rchShapes+nextIdx;
+            window.location.href = Config.rchShapes + nextIdx;
         }, 500);
 
     }
