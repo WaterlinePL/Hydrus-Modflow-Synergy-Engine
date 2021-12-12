@@ -96,12 +96,16 @@ def upload_modflow():
 def upload_weather_file():
     if request.method == 'POST' and request.files:
         return endpoint_handlers.upload_weather_file_handler(request)
-    else:
-        return render_template(
-            template.UPLOAD_WEATHER_FILE,
-            hydrus_models=util.loaded_project["hydrus_models"],
-            upload_error=False
-        )
+    else:  # GET
+        if util.loaded_project is not None:
+            return render_template(
+                template.UPLOAD_WEATHER_FILE,
+                hydrus_models=util.loaded_project["hydrus_models"],
+                upload_error=False
+            )
+        else:
+            util.activate_error_flag()
+            return redirect(endpoints.PROJECT_LIST)
 
 
 @app.route(endpoints.UPLOAD_HYDRUS, methods=['GET', 'POST', 'DELETE'])
