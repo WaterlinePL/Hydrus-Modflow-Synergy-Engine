@@ -13,6 +13,7 @@ def path_check_simulate_access(util: AppUtils) -> Optional[Response]:
     @return: Optional redirect to configuration if no paths for Hydrus and Modflow are specified.
     """
 
+    # TODO: add some condition if its a local version
     if not lcd.read_configuration()["modflow_exe"] or not lcd.read_configuration()["hydrus_exe"]:
         util.activate_error_flag()
         return redirect(endpoints.CONFIGURATION)

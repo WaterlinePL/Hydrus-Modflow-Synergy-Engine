@@ -13,8 +13,8 @@
         if (isTextCorrect(name, 'name') &&
             isCoordCorrect(lat, 'lat') &&
             isCoordCorrect(long, 'long') &&
-            isSpinUpCorrect(spinUp, 'spinUp') &&
-            checkDates(startDate, 'startDate', endDate, 'endDate')){
+            checkDates(startDate, 'startDate', endDate, 'endDate') &&
+            isSpinUpCorrect(spinUp, 'spinUp')){
 
             const formdata = {
                 "name": name.trim(),
@@ -31,9 +31,6 @@
                 updateProject(formdata);
             }
 
-        } else {
-            $('#toast-body-error').text('Provide correct data')
-            $('#error').toast('show');
         }
     }
 
@@ -103,7 +100,7 @@
                 return true;
             } else {
                 addInvalid(firstDateId);
-                addInvalid(secondDateId);
+                addInvalid(secondDateId, "End date should be after Start date");
             }
         }
         return false;
@@ -114,7 +111,7 @@
             removeInvalid(elementId);
             return true;
         } else {
-            addInvalid(elementId);
+            addInvalid(elementId,"Date should be in format YYYY-MM-DD");
             return false;
         }
     }
@@ -124,35 +121,36 @@
             removeInvalid(elementId);
             return true;
         } else {
-            addInvalid(elementId);
+            addInvalid(elementId,
+                    "Geographical coordinate should be the real number");
             return false;
         }
 
     }
 
     function isTextCorrect(text, elementId) {
-        if (text !== null && text !== undefined && text.trim() !== "" && !hasWhiteSpace(text)) {
+        if (text !== null && text !== undefined && text.trim() !== "" && containsCorrectChars(text.trim())) {
             removeInvalid(elementId);
             return true;
         } else {
-            addInvalid(elementId);
+            addInvalid(elementId,
+                "Text should contains only letters \"a-z\", \"A-Z\" and sings such as \"-\" and \"_\" ");
             return false;
         }
     }
 
     function isSpinUpCorrect(spinUp, elementId) {
-        if (spinUp.match(/^[\d]+(?:[.](e-)?\d+)?$/g, spinUp)) {
+        if (spinUp.match(/^[\d]+$/g, spinUp)) {
             removeInvalid(elementId);
             return true;
         } else {
-            addInvalid(elementId);
+            addInvalid(elementId,"Spin Up time should be a number of days.");
             return false;
         }
     }
 
-    function hasWhiteSpace(text) {
-        const whitespaceChars = [' ', '\t', '\n'];
-        return whitespaceChars.some(char => text.includes(char));
+    function containsCorrectChars(text) {
+        return text.match(/^([a-zA-z0-9\-_])+$/g, text) && !(text.match(/^([\-_])+$/g, text));
     }
 
     function removeInvalid(elementId) {
@@ -161,9 +159,12 @@
         }
     }
 
-    function addInvalid(elementId) {
+    function addInvalid(elementId, errorText) {
         if (!$(`#${elementId}`).hasClass('is-invalid')) {
             $(`#${elementId}`).addClass('is-invalid');
         }
+
+        $('#toast-body-error').text(errorText)
+        $('#error').toast('show');
     }
 })(jQuery);
