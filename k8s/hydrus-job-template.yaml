@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: hydrus-job
+spec:
+  template:
+    spec:
+      containers:
+      - name: hydrus-job
+        image: observer46/water_modeling_agh:hydrus1d_linux
+        volumeMounts:
+        - name: local-volume
+          mountPath: /workspace/hydrus
+          subPath: boi/hydrus/chojnic
+      restartPolicy: Never
+      volumes:
+      - name: local-volume
+        persistentVolumeClaim:
+          claimName: local-pvc
+  backoffLimit: 2

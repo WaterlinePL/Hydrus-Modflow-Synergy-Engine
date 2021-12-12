@@ -27,7 +27,7 @@ class ModflowPodDeployer(IModflowDeployer):
                 exit(1)
 
         if not resp:
-            yaml_data = YamlData(pod_name=self.pod_name,
+            yaml_data = YamlData(job_name=self.pod_name,
                                  container_image='mjstealey/docker-modflow',
                                  container_name='kicajki',
                                  mount_path='/workspace',
@@ -36,7 +36,7 @@ class ModflowPodDeployer(IModflowDeployer):
                                  volumes_host_path=self.path)
 
             yaml_gen = YamlGenerator(yaml_data)
-            pod_manifest = yaml_gen.prepare_kubernetes_pod()
+            pod_manifest = yaml_gen.prepare_kubernetes_job()
 
             print("Pod %s does not exist. Creating it..." % self.pod_name)
             resp = self.api_instance.create_namespaced_pod(body=pod_manifest, namespace=self.namespace)

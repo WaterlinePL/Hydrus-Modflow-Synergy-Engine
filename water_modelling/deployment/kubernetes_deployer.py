@@ -12,7 +12,6 @@ from modflow.modflow_pod_deployer import ModflowPodDeployer
 from utils import path_formatter as PathFormatter
 
 
-# TODO: adapt to kubernetes cluster
 class KubernetesDeployer(IAppDeployer):
 
     def __init__(self, modflow_image: str = "observer46/water_modeling_agh:hydrus1d_linux",

@@ -24,7 +24,7 @@ class KubernetesManagementTest(unittest.TestCase):
         config.load_kube_config()
         api_instance = client.CoreV1Api()
 
-        hydrus_deployer = _HydrusPodDeployer(api_instance=api_instance, path=HYDRUS_ROOT_DOCKER, pod_name='hydrus-1d')
+        hydrus_deployer = _HydrusPodDeployer(api_instance=api_instance, sub_path=HYDRUS_ROOT_DOCKER, job_name='hydrus-1d')
         hydrus_pod = hydrus_deployer.run()  # returns V1Pod instance
 
         pod_controller = PodController(api_instance)
@@ -41,7 +41,7 @@ class KubernetesManagementTest(unittest.TestCase):
         pod_controller.wait_for_pod_termination(modflow_v1_pod.metadata.name)
 
         print("Deploying hydrus container")
-        hydrus_deployer = _HydrusPodDeployer(api_instance=api_instance, path=HYDRUS_ROOT_DOCKER, pod_name='hydrus-1d')
+        hydrus_deployer = _HydrusPodDeployer(api_instance=api_instance, sub_path=HYDRUS_ROOT_DOCKER, job_name='hydrus-1d')
         hydrus_pod = hydrus_deployer.run()  # returns V1Pod instance
         pod_controller.wait_for_pod_termination(hydrus_pod.metadata.name)
 
@@ -80,8 +80,8 @@ class KubernetesManagementTest(unittest.TestCase):
         api_instance = client.CoreV1Api()
         pod_controller = PodController(api_instance)
 
-        hydrus_deployer = _HydrusPodDeployer(api_instance=api_instance, path=HYDRUS_ROOT_DOCKER,
-                                             pod_name='hydrus-1d' + str(n))
+        hydrus_deployer = _HydrusPodDeployer(api_instance=api_instance, sub_path=HYDRUS_ROOT_DOCKER,
+                                             job_name='hydrus-1d' + str(n))
         hydrus_pod = hydrus_deployer.run()  # returns V1Pod instance
         pod_controller.wait_for_pod_termination(hydrus_pod.metadata.name)
 
