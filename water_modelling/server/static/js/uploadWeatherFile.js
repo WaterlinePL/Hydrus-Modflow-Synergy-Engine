@@ -19,7 +19,7 @@
         }).then(response => {
             if (response.status !== 200) {
                 response.json().then(function(data) {
-                    if (data.error) $('#error-toast-message').html(data.error);
+                    if (data && data.error) $('#error-toast-message').html(data.error);
                     else $('#error-toast-message').html('An unknown error occurred');
                     $("#error-toast").toast('show');
                 });

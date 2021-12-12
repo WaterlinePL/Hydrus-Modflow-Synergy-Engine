@@ -176,13 +176,15 @@ def update_hydrus_model(model_name: str, data: dict):
     """
     model_dir = os.path.join(util.get_hydrus_dir(), model_name)
 
-    # modify meteo file, return if encountered issues
-    meteo_file_modified = modify_meteo_file(model_dir, data)
-    if not meteo_file_modified:
-        return False
+    # modify meteo file if it exists, return if encountered issues
+    if os.path.isfile(os.path.join(model_dir, "METEO.IN")):
+        meteo_file_modified = modify_meteo_file(model_dir, data)
+        if not meteo_file_modified:
+            return False
 
+    # modify atmosph file is it exists
     replace_rain = PRECIPITATION in data.keys()
-    if replace_rain:
+    if replace_rain and os.path.isfile(os.path.join(model_dir, "ATMOSPH.IN")):
         modify_atmosph_file(model_dir, data)
 
     return True
