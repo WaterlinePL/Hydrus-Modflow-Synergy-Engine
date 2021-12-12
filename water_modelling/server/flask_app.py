@@ -174,6 +174,7 @@ def run_simulation():
 
     sim.set_modflow_project(modflow_project=util.loaded_project["modflow_model"])
     sim.set_loaded_shapes(loaded_shapes=util.loaded_shapes)
+    sim.set_spin_up(spin_up=int(util.loaded_project["spin_up"]))
 
     sim_id = sim.get_id()
 
