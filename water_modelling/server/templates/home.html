@@ -121,6 +121,37 @@
     </div>
     <div class="row justify-content-md-center">
         <div class="col-lg-9 text-left">
+            <div class="text-box">
+                <h2>Load Weather Data</h2>
+                <p>&emsp;You can modify the Hydrus models you have loaded into your project by <strong>uploading
+                weather data</strong>. To do this, navigate to the upload page, select the model you want to modify
+                in the dropdown, and drag-and-drop a <strong>.csv file</strong> with the data you want the model to
+                contain. You can access the upload page from the <strong>Upload Hydrus</strong> view during simulation
+                configuration, and also from the <strong>Project Summary</strong> found under the "Current Project"
+                tab on the topbar.
+                </p>
+                <h5>File format</h5>
+                <p>&emsp;For the modification to succeed, the uploaded weather data file must contain <strong>at least
+                as many</strong> daily records as the Hydrus model you want to modify. The file can be longer than the
+                model - if that is the case, the model will be updated with the first rows of the uploaded file, and the
+                remaining rows will be ignored.
+                </p>
+                <p>The uploaded data file may contain the following data, under the keys specified below:
+                    <ul>
+                        <li>TO, keyed as "DO"</li>
+                    </ul>
+                All rows of data <strong>must contain all values</strong>, gaps are not allowed.
+                </p>
+                <p>
+                Files following this format can be downloaded for free from <a href="https://globalweather.tamu.edu/">
+                this site</a>, courtesy of the <em>Texas Agricultural and Mechanical University</em>. Use these files
+                to modify your models or for reference while preparing your own data.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-md-center">
+        <div class="col-lg-9 text-left">
             <h2>Run Simulation</h2>
             <p>&emsp;After defining all shapes you will be redirected to the <b>Simulation Summary</b>. From here,
                 <b>click "Run" to start the simulation</b>. If it completes successfully, a button to download

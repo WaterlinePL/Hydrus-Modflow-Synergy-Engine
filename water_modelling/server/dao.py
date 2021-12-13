@@ -234,7 +234,7 @@ def modify_meteo_file(model_dir, data):
     # verify if weather file length is at least the same as data;
     # i+1 for 0-indexing, +1 for the sum to be correct, then -1 for the EOF line
     data_lines = len(old_file_lines) - (i+1)
-    if len(data["Date"]) < data_lines:
+    if len(data[data.keys()[0]]) < data_lines:
         print(f"WARNING: insufficient weather file size - expected at least {data_lines} records, got {len(data['Date'])}")
         return False
 
