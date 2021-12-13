@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+   name: pod_name
+spec:
+   containers:
+   - image: container_image
+     name: container_name
+     volumeMounts:
+     - mountPath: "/mount_path"
+       name: mount_path_name
+     args: ["xyz"]
+     securityContext:
+       privileged: true
+   volumes:
+   - name: mount_path_name
+     hostPath:
+       path: /volumes_host_path
+       type: DirectoryOrCreate
+   restartPolicy: Never
