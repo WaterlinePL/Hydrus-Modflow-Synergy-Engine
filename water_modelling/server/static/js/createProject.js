@@ -24,7 +24,7 @@
                 "end_date": endDate,
                 "spin_up": spinUp
             };
-            
+
             if (this.elements[6].value === "Create") {
                 createProject(formdata);
             } else if(this.elements[6].value === "Update") {
@@ -53,7 +53,10 @@
                 }, 500);
             },
             error: function (error) {
-                const errorMsg = error.responseJSON.error;
+                const errorMsg = (error.responseJSON && error.responseJSON.error) ?
+                    error.responseJSON.error :
+                    "An unknown error occurred"
+                ;
                 addInvalid('name');
                 $('#toast-body-error').text(errorMsg);
                 $('#error').toast('show');
@@ -76,7 +79,10 @@
                 }, 500);
             },
             error: function (error) {
-                const errorMsg = error.responseJSON.error;
+                const errorMsg = (error.responseJSON && error.responseJSON.error) ?
+                    error.responseJSON.error :
+                    "An unknown error occurred"
+                ;
                 addInvalid('name');
                 $('#toast-body-error').text(errorMsg);
                 $('#error').toast('show');
@@ -125,7 +131,7 @@
     }
 
     function isTextCorrect(text, elementId) {
-        if (text !== null && text !== undefined && text.trim() !== "") {
+        if (text !== null && text !== undefined && text.trim() !== "" && !hasWhiteSpace(text)) {
             removeInvalid(elementId);
             return true;
         } else {
@@ -142,6 +148,11 @@
             addInvalid(elementId);
             return false;
         }
+    }
+
+    function hasWhiteSpace(text) {
+        const whitespaceChars = [' ', '\t', '\n'];
+        return whitespaceChars.some(char => text.includes(char));
     }
 
     function removeInvalid(elementId) {

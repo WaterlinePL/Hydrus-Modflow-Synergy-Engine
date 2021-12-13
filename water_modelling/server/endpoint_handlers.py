@@ -25,8 +25,9 @@ def create_project_handler(req):
     spin_up = req.json["spin_up"]
 
     # check for name collision
-    if name in dao.read_all():
-        return jsonify(error=str("A project with this name already exists")), 404
+    lowercase_project_names = [name.lower() for name in dao.read_all()]
+    if name.lower() in lowercase_project_names:
+        return jsonify(error=str("A project with this name already exists (names are case-insensitive)")), 404
 
     project = {
         "name": name,
@@ -120,9 +121,34 @@ def project_handler(project_name):
             return render_template(template.PROJECT, project=chosen_project)
 
 
-def project_download_handler():
+def project_is_finished_handler(project_name):
+    if project_name is not None:
+        try:
+            project = dao.read(project_name)
+        except FileNotFoundError:  # the project does not exist
+            util.error_flag = True
+            return redirect(endpoints.PROJECT_LIST)
+
+        util.loaded_project = project
+
     if util.loaded_project is not None:
-        project_dir = os.path.join(util.workspace_dir, util.loaded_project["name"])
+        if os.path.exists(os.path.join(util.get_modflow_dir(), "finished.0")):
+            return json.dumps({'status': 'OK'})
+
+    return json.dumps({'status': 'No Content'})
+
+def project_download_handler(project_name):
+    if project_name is not None:
+        try:
+            project = dao.read(project_name)
+        except FileNotFoundError:  # the project does not exist
+            util.error_flag = True
+            return redirect(endpoints.PROJECT_LIST)
+    else:
+        project = util.loaded_project
+
+    if project is not None:
+        project_dir = os.path.join(util.workspace_dir, project["name"])
         zip_file = shutil.make_archive(project_dir, 'zip', project_dir)
         return send_file(zip_file, as_attachment=True)
     return '', 204
@@ -294,7 +320,7 @@ def upload_hydrus_handler(req):
             print("Invalid archive format, must be one of: ", end='')
             print(util.allowed_types)
 
-            return jsonify(error=str("Invalid file type. Accepted types: "+" ".join(util.allowed_types))), 500
+            return jsonify(error=str("Invalid file type. Accepted types: " + " ".join(util.allowed_types))), 500
 
     print("Hydrus model uploaded successfully")
     return redirect(endpoints.UPLOAD_HYDRUS)
@@ -375,7 +401,8 @@ def assign_model_to_shape(req, rch_shape_index):
     if hydrus_model_name == "":
         return json.dumps({'status': 'OK'})
 
-    if util.models_masks_ids[hydrus_model_name] is None:
+    if hydrus_model_name not in util.models_masks_ids or util.models_masks_ids[hydrus_model_name] is None:
+        util.loaded_shapes[hydrus_model_name] = None
         util.models_masks_ids[hydrus_model_name] = [rch_shape_index]
     else:
         util.models_masks_ids[hydrus_model_name].append(rch_shape_index)

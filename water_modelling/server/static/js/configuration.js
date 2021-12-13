@@ -32,13 +32,19 @@
 
                         },
                         error: function(error) {
-                            const errorMsg = error.responseJSON.error;
-                            const model = error.responseJSON.model;
-                            console.log(model);
-                            if(model === "modflow"){
-                                addInvalid('modflowFile');
-                            } else if (model === "hydrus"){
-                                addInvalid('hydrusFile');
+                            let errorMsg = "";
+                            if (error.responseJSON && error.responseJSON.error && error.responseJSON.model) {
+                                errorMsg = error.responseJSON.error;
+                                const model = error.responseJSON.model;
+                                console.log(model);
+                                if (model === "modflow") {
+                                    addInvalid('modflowFile');
+                                } else if (model === "hydrus") {
+                                    addInvalid('hydrusFile');
+                                }
+                            }
+                            else {
+                                errorMsg = "An unknown error occurred"
                             }
                             $('#toast-body-error-configuration').text(errorMsg);
                             $('#error-configuration').toast('show');

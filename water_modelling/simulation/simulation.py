@@ -10,6 +10,7 @@ class Simulation:
     def __init__(self, simulation_id: int, deployer: IAppDeployer):
         self.simulation_id = simulation_id
         self.deployer = deployer
+        self.spin_up = 0
         self.modflow_project = None
         self.loaded_shapes = None
         self.hydrus_finished = False
@@ -27,6 +28,7 @@ class Simulation:
 
         # ===== RUN MODFLOW INSTANCE ======
         self.run_modflow(modflow_dir, nam_file)
+        self.set_finished_flag(modflow_dir)
 
     def run_modflow(self, modflow_dir: str, nam_file: str):
         assert self.modflow_project is not None
@@ -46,7 +48,7 @@ class Simulation:
         print("Nam file", nam_file)
         shapes = HydrusModflowPassing.read_shapes_from_files(list(self.loaded_shapes.values()))
         result = HydrusModflowPassing(os.path.join(modflow_dir, self.modflow_project), nam_file, shapes)
-        result.update_rch()
+        result.update_rch(spin_up=self.spin_up)
 
         self.passing_finished = True
         print("Passing successful")
@@ -62,8 +64,16 @@ class Simulation:
     def set_loaded_shapes(self, loaded_shapes) -> None:
         self.loaded_shapes = loaded_shapes
 
+    def set_spin_up(self, spin_up: int) -> None:
+        self.spin_up = spin_up
+
     def get_simulation_status(self) -> Tuple[bool, bool, bool]:
         return self.hydrus_finished, self.passing_finished, self.modflow_finished
 
     def get_id(self) -> int:
         return self.simulation_id
+
+    def set_finished_flag(self, modflow_dir: str) -> None:
+        finished_file_path = os.path.join(modflow_dir, 'finished.0')
+        finished_file = open(finished_file_path, "w")
+        finished_file.close()
