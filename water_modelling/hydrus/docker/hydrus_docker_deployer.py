@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 
 
 class HydrusDockerContainerDeployer(IHydrusDeployer):
+    HYDRUS_VOLUME_MOUNT = "/workspace/hydrus"
 
     def __init__(self, docker_deployer: DockerDeployer, path: str, container_name: str):
         self.docker_deployer = docker_deployer
@@ -32,8 +33,9 @@ class HydrusDockerContainerDeployer(IHydrusDeployer):
 
         if not container:
             print("Container %s does not exist. Creating it..." % self.container_name)
+            volume_mount_path = f"{self.path}:{HydrusDockerContainerDeployer.HYDRUS_VOLUME_MOUNT}"
             host_config = self._get_docker_client().create_host_config(auto_remove=True,
-                                                                       binds=[f"{self.path}:/workspace/hydrus"])
+                                                                       binds=[volume_mount_path])
 
             container = self._get_docker_client().create_container(image=self._get_hydrus_image(),
                                                                    volumes=[self.path],

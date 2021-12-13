@@ -4,18 +4,23 @@ metadata:
   name: hyperflow-local-client
 spec:
   volumes:
-  - name: local-volume
+  - name: nfs-vol
     persistentVolumeClaim:
-      claimName: local-pvc
+      claimName: nfs
+  - name: local-volume
+    hostPath: 
+      path: /run/desktop/mnt/host/c/Users/micro/Desktop/Studia/Inzynierka2/water_modeling_agh/water_modelling/workspace
   containers:
   - name: local-client
     image: alpine:3.12
     command:
       - "sleep"
       - "infinity"
+    securityContext: 
+      privileged: True 
     volumeMounts:
     - name: local-volume
-      mountPath: "/local"
-      subPath: xd
-    securityContext: 
-      privileged': True
+      mountPath: /local
+    - name: nfs-vol
+      mountPath: /nfs
+    

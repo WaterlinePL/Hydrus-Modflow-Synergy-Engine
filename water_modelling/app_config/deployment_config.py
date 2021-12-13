@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import deployment.desktop_deployer as desktop_deployer
-from deployment import docker_deployer
+import os
 
-DEPLOYER = desktop_deployer.create()
+from deployment import docker_deployer, kubernetes_deployer, desktop_deployer
+
+DEPLOYER = kubernetes_deployer.create()
 DEBUG_MODE = True

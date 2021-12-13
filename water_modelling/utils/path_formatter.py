@@ -18,3 +18,7 @@ def format_path_to_docker(dir_path: str) -> str:
 
 def convert_backslashes_to_slashes(path: str):
     return path.replace('\\', "/")
+
+
+def extract_path_inside_workspace(hydrological_project_path: str) -> str:
+    return hydrological_project_path.split("/water_modelling/workspace")[1]  # Hardcoded ==== bad
