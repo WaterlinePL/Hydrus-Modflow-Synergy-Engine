@@ -136,14 +136,27 @@
                 model - if that is the case, the model will be updated with the first rows of the uploaded file, and the
                 remaining rows will be ignored.
                 </p>
-                <p>The uploaded data file may contain the following data, under the keys specified below:
+                <p>The uploaded data file <strong>must</strong> contain the following columns, under the keys specified below:
                     <ul>
-                        <li>TO, keyed as "DO"</li>
+                        <li>the latitude of the measuring station, keyed as "Longitude"</li>
+                        <li>the elevation of the measuring station, keyed as "Elevation"</li>
                     </ul>
-                All rows of data <strong>must contain all values</strong>, gaps are not allowed.
+                The data <strong>may</strong> also contain the following columns:
+                    <ul>
+                        <li>the maximum temperature, [deg. C], keyed as "Max Temperature"</li>
+                        <li>the minimum temperature, [deg. C], keyed as "Min Temperature"</li>
+                        <li>the amount of rainfall, [mm], keyed as "Precipitation"</li>
+                        <li>the wind speed, [m/s], keyed as "Wind"</li>
+                        <li>the relative humidity, number between 0 and 1, keyed as "Relative Humidity"</li>
+                        <li>the amount of solar energy received, [MJ/m^2], keyed as "Solar"</li>
+                    </ul>
+                All rows of data <strong>must contain values for all columns</strong>, empty cells are not allowed.
                 </p>
-                <p>
-                Files following this format can be downloaded for free from <a href="https://globalweather.tamu.edu/">
+                <p>&emsp;You can choose just some of the columns above to modify your Hydrus models. For example,
+                to only update the wind speed and amount of rainfall, create a file containing "Latitude", "Elevation",
+                "Wind" and "Precipitation" columns.
+                </p>
+                <p>&emsp;Files following this format can be downloaded for free from <a href="https://globalweather.tamu.edu/">
                 this site</a>, courtesy of the <em>Texas Agricultural and Mechanical University</em>. Use these files
                 to modify your models or for reference while preparing your own data.
                 </p>
