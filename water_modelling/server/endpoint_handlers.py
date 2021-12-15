@@ -305,10 +305,15 @@ def upload_hydrus_handler(req):
 
 def remove_hydrus_handler(req):
     body = json.loads(req.data)
+    hydrus_model_name = body['modelName']
     print("received call")
-    print(body['modelName'])
-    if body['modelName']:
-        dao.remove_model('hydrus', body["modelName"])
+    print(hydrus_model_name)
+    if hydrus_model_name:
+        dao.remove_model('hydrus', hydrus_model_name)
+        if hydrus_model_name in util.loaded_shapes.keys():
+            del util.loaded_shapes[hydrus_model_name]
+        if hydrus_model_name in util.models_masks_ids.keys():
+            del util.models_masks_ids[hydrus_model_name]
     return redirect(endpoints.UPLOAD_HYDRUS, code=303)
 
 
