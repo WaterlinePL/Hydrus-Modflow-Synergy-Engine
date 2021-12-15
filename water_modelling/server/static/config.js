@@ -14,5 +14,6 @@ var Config = {
     "simulationRun": "/simulation-run",
     "uploadHydrus": "/upload-hydrus",
     "uploadModflow": "/upload-modflow",
+    "uploadWeatherFile": "/upload-weather-file",
 
 }

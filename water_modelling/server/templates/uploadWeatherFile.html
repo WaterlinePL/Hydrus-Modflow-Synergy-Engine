@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/layout.css">
+<link rel="stylesheet" href="/static/css/uploadModflow.css">
+<title>HP4M | WEATHER</title>
+{% endblock %}
+
+{% block body %}
+<div class="jumbotron">
+  <div class="container mt-5">
+    <div class="row justify-content-md-center">
+      <div class="col-lg-9">
+        <div class="text-center">
+          <h1 class="display-4">Upload weather file</h1>
+          <p class="lead">Choose the Hydrus project you want to modify, then drag-and-drop the weather file</p>
+        </div>
+        <select id="model-select">
+          {% for model in hydrus_models %}
+            <option value="{{model}}">{{model}}</option>
+          {% endfor %}
+        </select>
+        <hr class="my-4">
+        <div class="container" style="background: white; padding: 2em; border-radius: 5px;">
+          <div class="panel panel-default" >
+            <div class="panel-heading"><strong>Upload Files</strong></div>
+            <div class="panel-body">
+
+              <!-- Drop Zone -->
+              <h4>Drag and drop files below</h4>
+              <div class="upload-drop-zone" id="drop-zone-modflow">
+                Just drag and drop files here
+              </div>
+            </div>
+          </div>
+        </div> <!-- /container -->
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block toasts %}
+  {% with background="bg-success", body="Model updated successfully", body_id="success-toast-message", id="success-toast" %}
+    {% include "toast.html" %}
+  {% endwith %}
+  {% with background="bg-danger", body="", body_id="error-toast-message", id="error-toast" %}
+    {% include "toast.html" %}
+  {% endwith %}
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/uploadWeatherFile.js"></script>
+{% endblock %}
