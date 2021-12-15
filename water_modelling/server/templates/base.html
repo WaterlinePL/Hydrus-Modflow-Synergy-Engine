@@ -7,6 +7,7 @@
     {% block head %} {% endblock %}
 </head>
 <body>
+<div style="min-height:100vh">
 <nav class="navbar navbar-expand-md navbar-dark bg-primary">
     <div class="container-fluid">
         <a class="navbar-brand" href="{{ url_for('home')}}">WATERLINE</a>
@@ -37,13 +38,15 @@
     </div>
 </nav>
 
-
-{% block body %} {% endblock %}
+<div style="margin-bottom: 230px">
+{% block body %}
+{% endblock %}
+</div>
 
 <div class="p-3" style="position: fixed; bottom: 0; right: 0; z-index: 11">
     {% block toasts %} {% endblock %}
 </div>
-
+</div>
 <footer class="footer bg-primary text-white">
     <div class="container" id="footer-content">
         <div class="row justify-content-md-center">
