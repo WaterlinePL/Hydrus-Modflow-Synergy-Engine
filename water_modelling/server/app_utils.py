@@ -58,9 +58,11 @@ class AppUtils:
         self.loaded_shapes = {}
         self._error_flag = False
 
-    def get_modflow_dir(self):
+    def get_modflow_dir(self, project_name=None):
         if self.loaded_project is not None:
             return os.path.join(self.workspace_dir, self.loaded_project['name'], 'modflow')
+        elif project_name is not None:
+            return os.path.join(self.workspace_dir, project_name, 'modflow')
         else:
             return None
 
