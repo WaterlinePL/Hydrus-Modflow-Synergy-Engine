@@ -30,6 +30,19 @@ def get_or_none(req, key):
     return req.form[key] if req.form[key] != "" else None
 
 
+def fix_model_name(name: str):
+    """
+    Takes a filename string and removes all the nasty stuff from it. This method will probably need expanding.
+    E.g. "modflow .1.zip" becomes "modflow__1.zip", which is safe to use further.
+
+
+    :param name: the name of the file uploaded by the user
+    :return: that name, made safe for the app to use
+    """
+    dots = name.count('.') - 1  # for when someone decides to put a dot in the filename
+    return name.replace(" ", "_").replace(".", "_", dots)
+
+
 # Ta klasa stała się reactowym state XD
 class AppUtils:
 

@@ -1,4 +1,4 @@
-from app_utils import util, get_or_none
+from app_utils import util, get_or_none, fix_model_name
 from datapassing.shape_data import ShapeFileData
 from flask import render_template, redirect, abort, jsonify, send_file
 from flask_paginate import Pagination, get_page_args
@@ -137,6 +137,7 @@ def project_is_finished_handler(project_name):
 
     return json.dumps({'status': 'No Content'})
 
+
 def project_download_handler(project_name):
     if project_name is not None:
         try:
@@ -204,15 +205,16 @@ def upload_modflow_handler(req):
         return redirect(endpoints.PROJECT_LIST)
 
     model = req.files['archive-input']  # matches HTML input name
+    filename = fix_model_name(model.filename)
 
-    if util.type_allowed(model.filename):
+    if util.type_allowed(filename):
 
         # save, unzip, remove archive
-        archive_path = os.path.join(util.get_modflow_dir(), model.filename)
+        archive_path = os.path.join(util.get_modflow_dir(), filename)
         model.save(archive_path)
         with ZipFile(archive_path, 'r') as archive:
             # get the model name and remember it
-            model_name = model.filename.split('.')[0]
+            model_name = filename.split('.')[0]
 
             # create a dedicated catalogue and load the model into it
             model_path = os.path.join(util.get_modflow_dir(), model_name)
@@ -287,15 +289,17 @@ def upload_hydrus_handler(req):
     models = req.files.getlist('archive-input')
 
     for model in models:
-        if util.type_allowed(model.filename):
+
+        filename = fix_model_name(model.filename)
+        if util.type_allowed(filename):
 
             # save, unzip, remove archive
-            archive_path = os.path.join(util.get_hydrus_dir(), model.filename)
+            archive_path = os.path.join(util.get_hydrus_dir(), filename)
             model.save(archive_path)
 
             with ZipFile(archive_path, 'r') as archive:
                 # get the project name and remember it
-                model_name = model.filename.split('.')[0]
+                model_name = filename.split('.')[0]
                 project_path = os.path.join(util.get_hydrus_dir(), model_name)
 
                 # create a dedicated catalogue and load the project into it
