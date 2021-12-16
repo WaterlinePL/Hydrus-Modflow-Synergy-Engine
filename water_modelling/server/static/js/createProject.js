@@ -150,7 +150,7 @@
     }
 
     function containsCorrectChars(text) {
-        return text.match(/^([a-zA-z0-9\-_])+$/g, text) && !(text.match(/^([\-_])+$/g, text));
+        return text.match(/^([a-zA-Z0-9\-_])+$/g, text) && !(text.match(/^([\-_])+$/g, text));
     }
 
     function removeInvalid(elementId) {
