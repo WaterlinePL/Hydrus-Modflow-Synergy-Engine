@@ -9,39 +9,32 @@ let columns_total = rows_all[0].children.length
 console.log("rows: " + rows_total);
 console.log("columns: " + columns_total);
 
-let shapeArray = initializeArray(rows_total,columns_total);
+let shapeArray = initializeArray(rows_total, columns_total);
+let addCellInDirection = 0;
 
 if ( $('#error-shapes') && $('#error-shapes').length ){
     showToast('error-shapes');
 }
 
-function handleClick(row, col) {
-
-    let cell = document.getElementById(`cell_${row}_${col}`);
-    shapeArray[row][col] = shapeArray[row][col] ? 0 : 1;
-    if( shapeArray[row][col] ){
-        cell.classList.add("bg-primary");
-    } else {
-        cell.classList.remove("bg-primary");
-    }
-    console.log(shapeArray);
-
-}
-
 function handleSubmit(modelIdx) {
+    for (let i = 0; i < rows_total; i++) {
+        for (let j = 0; j < columns_total; j++) {
+            shapeArray[i][j] = document.getElementById(`cell_${i}_${j}`).classList.contains("bg-primary") ? 1 : 0;
+        }
+    }
 
     let request = new XMLHttpRequest();
-    request.open("POST", Config.manualShapes+`${modelIdx}`, true);
-    request.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+    request.open("POST", Config.manualShapes + `${modelIdx}`, true);
+    request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 
-    request.onload = function() {
+    request.onload = function () {
         let response = JSON.parse(this.responseText);
         if (response && response.status === "OK") {
             showToast('successMessage');
-            let nextModelId = parseInt(modelIdx)+1;
-            setTimeout(function(){
+            let nextModelId = parseInt(modelIdx) + 1;
+            setTimeout(function () {
                 console.log("redirecting to next model...");
-                window.location.href = Config.manualShapes+nextModelId;
+                window.location.href = Config.manualShapes + nextModelId;
             }, 500);
 
         }
@@ -65,3 +58,74 @@ function showToast(elementId) {
     let bsAlert = new bootstrap.Toast(myAlert);
     bsAlert.show();
 }
+
+function getRowColFromId(cellId) {
+    let cell = cellId.split('_');
+    return {"row": parseInt(cell[1]), "col": parseInt(cell[2])}
+}
+
+function onMouseDown(id) {
+    const grid = getRowColFromId(id);
+    const row = grid.row;
+    const col = grid.col;
+
+    console.log(row, col);
+
+    for (let i = row - addCellInDirection; i <= row + addCellInDirection; i++) {
+        for (let j = col - addCellInDirection; j <= col + addCellInDirection; j++) {
+            if (i < 0 || i >= rows_total || j < 0 || j >= columns_total) {
+                continue;
+            }
+            let cos = document.getElementById(`cell_${i}_${j}`);
+            cos.classList.toggle("bg-primary");
+        }
+    }
+}
+
+function onMouseOver(id, isHighlighted) {
+    const grid = getRowColFromId(id);
+    const row = grid.row;
+    const col = grid.col;
+
+    for (let i = row - addCellInDirection; i <= row + addCellInDirection; i++) {
+        for (let j = col - addCellInDirection; j <= col + addCellInDirection; j++) {
+            if (i < 0 || i >= rows_total || j < 0 || j >= columns_total) {
+                continue;
+            }
+            let cos = document.getElementById(`cell_${i}_${j}`);
+            cos.classList.toggle("bg-primary", isHighlighted);
+        }
+    }
+}
+
+$(function () {
+
+    let isMouseDown = false, isHighlighted;
+    $("#model-mesh td")
+        .mousedown(function () {
+            isMouseDown = true;
+            onMouseDown(this.id);
+            isHighlighted = $(this).hasClass("bg-primary");
+            return false; // prevent text selection
+        })
+        .mouseover(function () {
+            if (isMouseDown) {
+                onMouseOver(this.id, isHighlighted)
+            }
+        })
+        .bind("selectstart", function () {
+            return false;
+        })
+
+    $(document)
+        .mouseup(function () {
+            isMouseDown = false;
+        });
+
+    $("#brush-size").ready(function(){
+        addCellInDirection = parseInt($("#brush-size").val());
+        $("#brush-size").change(function (){
+            addCellInDirection = parseInt($("#brush-size").val());
+        })
+    })
+});
