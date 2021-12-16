@@ -8,18 +8,18 @@ from utils.yaml_generator import YamlGenerator
 
 
 class JobController:
-    MAX_RETRIES = 3
+    INITIALIZATION_MAX_RETRIES = 3
     MAX_FAILED_JOBS = YamlGenerator.BACKOFF_LIMIT + 1
 
     @staticmethod
     def wait_for_job_termination(job: IKubernetesJob) -> None:
-        retry_count = JobController.MAX_RETRIES
+        initialization_retry_count = JobController.INITIALIZATION_MAX_RETRIES
         job_status = job.get_job_status()
 
-        while not job_status and retry_count > 0:
+        while not job_status and initialization_retry_count > 0:
             sleep(2)
             job_status = job.get_job_status()
-            retry_count -= 1
+            initialization_retry_count -= 1
 
         if not job_status:
             raise SystemExit("Job was not added to k8s cluster. Internal fatal error!")

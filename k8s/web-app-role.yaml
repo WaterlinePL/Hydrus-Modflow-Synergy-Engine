@@ -12,3 +12,20 @@ rules:
       - get
       - list
       - delete
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: internal-kubectl
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: cluster-supervisor
+subjects:
+  - kind: ServiceAccount
+    name: internal-kubectl
+roleRef:
+  kind: Role
+  name: web-app-role
+  apiGroup: rbac.authorization.k8s.io

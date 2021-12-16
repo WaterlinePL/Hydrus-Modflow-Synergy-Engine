@@ -1,5 +1,5 @@
 import os
-import uuid
+import shortuuid
 from concurrent.futures import ThreadPoolExecutor
 from typing import List
 
@@ -39,22 +39,25 @@ class KubernetesDeployer(IAppDeployer):
         """
         hydrus_count = len(hydrus_projects)
         hydrus_job_names = []
-
+        hydrus_job_descriptions = []
         hydrus_volumes_sub_paths = []
+
         for project_name in hydrus_projects:
             hydrus_project_path = os.path.join(hydrus_dir, project_name)
             volume_sub_path = path_formatter.format_path_to_docker(dir_path=hydrus_project_path)
             volume_sub_path = path_formatter.extract_path_inside_workspace(volume_sub_path)[1:]
             hydrus_volumes_sub_paths.append(volume_sub_path)
 
-            job_name = f"hydrus-{volume_sub_path.replace('/hydrus','').replace('/','-')}" \
-                       f"-sim.{str(sim_id)}-{uuid.uuid4().hex}"
+            job_name = f"{volume_sub_path.split('/hydrus/')[1]}-{shortuuid.uuid()}"
+            job_description = f"Project={volume_sub_path.split('/hydrus/')[0]}, sim-id={str(sim_id)}"
             hydrus_job_names.append(job_name)
+            hydrus_job_descriptions.append(job_description)
 
         multipod_deployer = HydrusMultiJobDeployer(kubernetes_deployer=self,
                                                    hydrus_projects_paths=hydrus_volumes_sub_paths,
                                                    job_names=hydrus_job_names,
-                                                   namespace=self.namespace)
+                                                   namespace=self.namespace,
+                                                   job_descriptions=hydrus_job_descriptions)
 
         deployed_jobs = multipod_deployer.run()  # run all hydrus jobs inside pods
         with ThreadPoolExecutor(max_workers=hydrus_count) as exe:
@@ -71,10 +74,11 @@ class KubernetesDeployer(IAppDeployer):
         volume_sub_path = path_formatter.format_path_to_docker(dir_path=modflow_dir)
         volume_sub_path = path_formatter.extract_path_inside_workspace(volume_sub_path)[1:]
 
-        modflow_job_name = f"modflow-{volume_sub_path.replace('/modflow','').replace('/','-')}" \
-                           f"-sim.{str(sim_id)}-{uuid.uuid4().hex}"
+        modflow_job_name = f"{volume_sub_path.split('/modflow/')[1]}-{shortuuid.uuid()}"
+        modflow_job_description = f"Project={volume_sub_path.split('/modflow/')[0]}, sim-id={str(sim_id)}"
         modflow_deployer = ModflowJobDeployer(kubernetes_deployer=self, sub_path=volume_sub_path,
-                                              name_file=nam_file, job_name=modflow_job_name, namespace=self.namespace)
+                                              name_file=nam_file, job_name=modflow_job_name,
+                                              namespace=self.namespace, description=modflow_job_description)
         modflow_deployer.run()  # run modflow job inside pod
         with ThreadPoolExecutor(max_workers=1) as exe:
             exe.submit(JobController.wait_for_pod_termination, modflow_deployer)

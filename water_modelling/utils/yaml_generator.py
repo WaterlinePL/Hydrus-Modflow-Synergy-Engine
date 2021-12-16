@@ -41,7 +41,11 @@ class YamlGenerator:
             'apiVersion': 'batch/v1',
             'kind': 'Job',
             'metadata': {
-                'name': self.data.job_name
+                'name': self.data.job_name,
+                'annotations': {
+                    'programme': self.data.hydro_programme,
+                    'description': self.data.description
+                }
             },
             'spec': {
                 'template': {

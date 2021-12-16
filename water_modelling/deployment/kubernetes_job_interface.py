@@ -14,11 +14,12 @@ if TYPE_CHECKING:
 class IKubernetesJob(IModflowDeployer, IHydrusDeployer):
 
     def __init__(self, kubernetes_deployer: KubernetesDeployer, job_name: str,
-                 sub_path: str, namespace: str = 'default'):
+                 sub_path: str, description: str, namespace: str = 'default'):
         self.kubernetes_deployer = kubernetes_deployer
         self.sub_path = sub_path
         self.job_name = job_name
         self.namespace = namespace
+        self.description = description
 
     def run(self):
         """

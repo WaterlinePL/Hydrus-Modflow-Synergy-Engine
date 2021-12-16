@@ -11,17 +11,19 @@ if TYPE_CHECKING:
 
 
 class _HydrusJobDeployer(IKubernetesJob):
-    HYDRUS_VOLUME_MOUNT = '/workspace/hydrus'
+    HYDRUS_VOLUME_MOUNT = "/workspace/hydrus"
+    PROGRAMME_NAME = "Hydrus"
+    CONTAINER_NAME = "hydrus1d-container"
 
     def __init__(self, kubernetes_deployer: KubernetesDeployer, sub_path: str,
-                 job_name: str, namespace: str = 'default'):
-        super().__init__(kubernetes_deployer, job_name, sub_path, namespace)
+                 job_name: str, description: str , namespace: str = 'default'):
+        super().__init__(kubernetes_deployer, job_name, sub_path, description, namespace)
 
     def run(self):
         resp = None
         try:
-            resp = self._get_k8s_core_client().list_namespaced_pod(namespace='default',
-                                                                   label_selector=f'job-name={self.job_name}')
+            resp = self._get_k8s_core_client().list_namespaced_pod(namespace="default",
+                                                                   label_selector=f"job-name={self.job_name}")
 
         except ApiException as e:
             if e.status != 404:
@@ -31,10 +33,12 @@ class _HydrusJobDeployer(IKubernetesJob):
         if not resp.items:
             yaml_data = YamlData(job_name=self.job_name,
                                  container_image=self._get_hydrus_image(),
-                                 container_name='hydrus1d-container',
+                                 container_name=_HydrusJobDeployer.CONTAINER_NAME,
                                  mount_path=_HydrusJobDeployer.HYDRUS_VOLUME_MOUNT,
                                  args=[],
-                                 sub_path=self.sub_path)
+                                 sub_path=self.sub_path,
+                                 hydro_programme=_HydrusJobDeployer.PROGRAMME_NAME,
+                                 description=self.description)
 
             yaml_gen = YamlGenerator(yaml_data)
             job_manifest = yaml_gen.prepare_kubernetes_job()
@@ -48,4 +52,3 @@ class _HydrusJobDeployer(IKubernetesJob):
 
     def _get_hydrus_image(self):
         return self.kubernetes_deployer.hydrus_image
-        # return "observer46/water_modeling_agh:hydrus1d_linux"

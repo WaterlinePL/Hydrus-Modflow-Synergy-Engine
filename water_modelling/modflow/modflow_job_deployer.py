@@ -11,18 +11,20 @@ if TYPE_CHECKING:
 
 
 class ModflowJobDeployer(IKubernetesJob):
-    MODFLOW_VOLUME_MOUNT = '/workspace'
+    MODFLOW_VOLUME_MOUNT = "/workspace"
+    PROGRAMME_NAME = "Modflow"
+    CONTAINER_NAME = "modflow-container"
 
-    def __init__(self, kubernetes_deployer: KubernetesDeployer, sub_path: str, name_file: str, job_name: str,
-                 namespace: str = 'default'):
-        super().__init__(kubernetes_deployer, job_name, sub_path, namespace)
+    def __init__(self, kubernetes_deployer: KubernetesDeployer, sub_path: str, name_file: str,
+                 job_name: str, description: str, namespace: str = "default"):
+        super().__init__(kubernetes_deployer, job_name, sub_path, description, namespace)
         self.name_file = name_file
 
     def run(self):
         resp = None
         try:
-            resp = self._get_k8s_core_client().list_namespaced_pod(namespace='default',
-                                                                   label_selector=f'job-name={self.job_name}')
+            resp = self._get_k8s_core_client().list_namespaced_pod(namespace="default",
+                                                                   label_selector=f"job-name={self.job_name}")
 
         except ApiException as e:
             if e.status != 404:
@@ -32,11 +34,13 @@ class ModflowJobDeployer(IKubernetesJob):
         if not resp.items:
             yaml_data = YamlData(job_name=self.job_name,
                                  container_image=self._get_modflow_image(),
-                                 container_name='modflow-container',
+                                 container_name=ModflowJobDeployer.CONTAINER_NAME,
                                  mount_path=ModflowJobDeployer.MODFLOW_VOLUME_MOUNT,
                                  args=[self._get_modflow_version(),
                                        self.name_file],
-                                 sub_path=self.sub_path)
+                                 sub_path=self.sub_path,
+                                 hydro_programme=ModflowJobDeployer.PROGRAMME_NAME,
+                                 description=self.description)
 
             yaml_gen = YamlGenerator(yaml_data)
             job_manifest = yaml_gen.prepare_kubernetes_job()
@@ -50,7 +54,6 @@ class ModflowJobDeployer(IKubernetesJob):
 
     def _get_modflow_image(self):
         return self.kubernetes_deployer.modflow_image
-        # return "observer46/water_modeling_agh:hydrus1d_linux"
 
     def _get_modflow_version(self):
         return self.kubernetes_deployer.modflow_version
