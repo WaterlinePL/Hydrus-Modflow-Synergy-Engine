@@ -1,0 +1,16 @@
+FROM ubuntu:20.04
+RUN apt-get dist-upgrade
+RUN apt-get update && apt-get install -y curl
+RUN apt-get install gcc-7 g++-7 -y
+RUN apt-get install gfortran-7 gfortran -y
+RUN apt-get install python3 python3-pip -y
+RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+RUN chmod +x ./kubectl
+RUN mv ./kubectl /usr/local/bin/kubectl
+COPY requirements.txt requirements.txt
+RUN python3 -m pip install -r requirements.txt
+COPY water_modelling/ water_modelling/
+EXPOSE 5000
+WORKDIR /water_modelling/server
+ENV PYTHONPATH /water_modelling
+CMD ["python3", "main.py"]

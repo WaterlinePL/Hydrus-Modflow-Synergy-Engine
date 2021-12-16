@@ -23,7 +23,8 @@ class KubernetesDeployer(IAppDeployer):
         self.hydrus_image = KubernetesDeployer.HYDRUS_IMAGES[0]
         self._set_modflow(0)
 
-        config.load_kube_config()
+        # config.load_kube_config()
+        config.load_incluster_config()
         self.core_api_instance = client.CoreV1Api()
         self.batch_api_instance = client.BatchV1Api()
         self.namespace = 'default'

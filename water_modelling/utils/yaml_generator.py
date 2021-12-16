@@ -6,7 +6,7 @@ from utils.yaml_data import YamlData
 class YamlGenerator:
 
     VOLUME_NAME = "project-volume"
-    PVC_NAME = "nfs" # os.environ['PVC']
+    PVC_NAME = os.environ['PVC']
     BACKOFF_LIMIT = 2
 
     def __init__(self, data: YamlData):

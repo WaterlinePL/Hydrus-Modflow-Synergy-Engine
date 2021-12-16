@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: water-modflow-synergy-engine
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: water-modelling-app
+  template:
+    metadata:
+      labels:
+        app: water-modelling-app
+    spec:
+      serviceAccountName: internal-kubectl
+      volumes:
+      - name: nfs-vol
+        persistentVolumeClaim:
+           claimName: nfs-pvc
+      containers:
+      - name: water-modelling-instance
+        image: observer46/water_modeling_agh:water-modelling-k8s
+        securityContext: 
+          privileged: True 
+        volumeMounts:
+        - name: nfs-vol
+          mountPath: /water_modelling/workspace
+        ports:
+        - containerPort: 5000
+        env:
+        - name: PVC
+          value: "nfs-pvc"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: water-service
+spec:
+  type: NodePort
+  selector:
+    app: water-modelling-app
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+      nodePort: 30036

@@ -9,7 +9,7 @@ from utils.yaml_generator import YamlGenerator
 
 class JobController:
     MAX_RETRIES = 3
-    MAX_FAILED_JOBS = YamlGenerator.BACKOFF_LIMIT
+    MAX_FAILED_JOBS = YamlGenerator.BACKOFF_LIMIT + 1
 
     @staticmethod
     def wait_for_job_termination(job: IKubernetesJob) -> None:
