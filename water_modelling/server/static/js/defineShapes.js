@@ -69,15 +69,12 @@ function onMouseDown(id) {
     const row = grid.row;
     const col = grid.col;
 
-    console.log(row, col);
-
     for (let i = row - addCellInDirection; i <= row + addCellInDirection; i++) {
         for (let j = col - addCellInDirection; j <= col + addCellInDirection; j++) {
             if (i < 0 || i >= rows_total || j < 0 || j >= columns_total) {
                 continue;
             }
-            let cos = document.getElementById(`cell_${i}_${j}`);
-            cos.classList.toggle("bg-primary");
+            document.getElementById(`cell_${i}_${j}`).classList.toggle("bg-primary");
         }
     }
 }
@@ -92,8 +89,7 @@ function onMouseOver(id, isHighlighted) {
             if (i < 0 || i >= rows_total || j < 0 || j >= columns_total) {
                 continue;
             }
-            let cos = document.getElementById(`cell_${i}_${j}`);
-            cos.classList.toggle("bg-primary", isHighlighted);
+            document.getElementById(`cell_${i}_${j}`).classList.toggle("bg-primary", isHighlighted);
         }
     }
 }
