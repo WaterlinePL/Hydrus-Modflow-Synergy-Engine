@@ -22,6 +22,10 @@
                     if (data && data.error) $('#error-toast-message').html(data.error);
                     else $('#error-toast-message').html('An unknown error occurred');
                     $("#error-toast").toast('show');
+                })
+                .catch(function(error) {
+                    $('#error-toast-message').html('An unknown error occurred');
+                    $("#error-toast").toast('show');
                 });
             } else {
                 $("#success-toast").toast('show');

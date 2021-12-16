@@ -266,7 +266,7 @@ def upload_weather_file_handler(req):
     length_unit = dao.get_hydrus_length_unit(model_name)
     raw_data = weather_util.read_weather_csv(filepath)
     ready_data = weather_util.adapt_data(raw_data, length_unit)
-    success = dao.update_hydrus_model(model_name, ready_data)
+    success = dao.add_weather_to_hydrus_model(model_name, ready_data)
 
     os.remove(filepath)
 
