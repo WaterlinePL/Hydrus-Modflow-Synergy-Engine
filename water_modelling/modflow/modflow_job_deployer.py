@@ -1,4 +1,7 @@
 from __future__ import annotations
+
+import uuid
+
 from kubernetes.client.rest import ApiException
 
 from deployment.kubernetes_job_interface import IKubernetesJob
@@ -14,6 +17,7 @@ class ModflowJobDeployer(IKubernetesJob):
     MODFLOW_VOLUME_MOUNT = "/workspace"
     PROGRAMME_NAME = "Modflow"
     CONTAINER_NAME = "modflow-container"
+    SHORTENED_UUID_LENGTH = 21
 
     def __init__(self, kubernetes_deployer: KubernetesDeployer, sub_path: str, name_file: str,
                  job_name: str, description: str, namespace: str = "default"):
@@ -31,24 +35,28 @@ class ModflowJobDeployer(IKubernetesJob):
                 print("Unknown error: %s" % e)
                 exit(1)
 
-        if not resp.items:
-            yaml_data = YamlData(job_name=self.job_name,
-                                 container_image=self._get_modflow_image(),
-                                 container_name=ModflowJobDeployer.CONTAINER_NAME,
-                                 mount_path=ModflowJobDeployer.MODFLOW_VOLUME_MOUNT,
-                                 args=[self._get_modflow_version(),
-                                       self.name_file],
-                                 sub_path=self.sub_path,
-                                 hydro_programme=ModflowJobDeployer.PROGRAMME_NAME,
-                                 description=self.description)
+        if resp.items:
+            while resp.items:
+                self.job_name = f"{self.sub_path.split('/hydrus/')[1]}-" \
+                                f"{uuid.uuid4().hex[:ModflowJobDeployer.SHORTENED_UUID_LENGTH]}"
+                resp = self._get_k8s_core_client().list_namespaced_pod(namespace=self.namespace,
+                                                                       label_selector=f"job-name={self.job_name}")
 
-            yaml_gen = YamlGenerator(yaml_data)
-            job_manifest = yaml_gen.prepare_kubernetes_job()
+        yaml_data = YamlData(job_name=self.job_name,
+                             container_image=self._get_modflow_image(),
+                             container_name=ModflowJobDeployer.CONTAINER_NAME,
+                             mount_path=ModflowJobDeployer.MODFLOW_VOLUME_MOUNT,
+                             args=[self._get_modflow_version(),
+                                   self.name_file],
+                             sub_path=self.sub_path,
+                             hydro_programme=ModflowJobDeployer.PROGRAMME_NAME,
+                             description=self.description)
 
-            print("Job %s does not exist. Creating it..." % self.job_name)
-            resp = self._get_k8s_batch_client().create_namespaced_job(body=job_manifest, namespace=self.namespace)
-        else:
-            print(f"Job {self.job_name} already exists in cluster!")
+        yaml_gen = YamlGenerator(yaml_data)
+        job_manifest = yaml_gen.prepare_kubernetes_job()
+
+        print("Job %s does not exist. Creating it..." % self.job_name)
+        resp = self._get_k8s_batch_client().create_namespaced_job(body=job_manifest, namespace=self.namespace)
 
         return resp
 

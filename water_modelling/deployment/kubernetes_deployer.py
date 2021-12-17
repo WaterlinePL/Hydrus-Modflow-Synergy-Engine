@@ -1,10 +1,11 @@
 import os
-import shortuuid
+import uuid
 from concurrent.futures import ThreadPoolExecutor
 from typing import List
 
 from kubernetes import config, client
 
+from app_config import deployment_config
 from deployment.app_deployer_interface import IAppDeployer
 
 from hydrus.kubernetes.hydrus_multi_job_deployer import HydrusMultiJobDeployer
@@ -14,17 +15,22 @@ from utils import path_formatter
 
 
 class KubernetesDeployer(IAppDeployer):
+    SHORTENED_UUID_LENGTH = 21
+
     MODFLOW_VERSIONS = ["mf2005"]
     MODFLOW_IMAGES = ["mjstealey/docker-modflow"]
 
-    HYDRUS_IMAGES = ["observer46/water_modeling_agh:hydrus1d_linux"]
+    HYDRUS_IMAGES = ["watermodelling/hydrus-modflow-synergy-engine:hydrus1d_linux"]
 
     def __init__(self):
         self.hydrus_image = KubernetesDeployer.HYDRUS_IMAGES[0]
         self._set_modflow(0)
 
-        # config.load_kube_config()
-        config.load_incluster_config()
+        if deployment_config.LOCAL_DEBUG_MODE:
+            config.load_kube_config()
+        else:
+            config.load_incluster_config()
+
         self.core_api_instance = client.CoreV1Api()
         self.batch_api_instance = client.BatchV1Api()
         self.namespace = 'default'
@@ -48,7 +54,8 @@ class KubernetesDeployer(IAppDeployer):
             volume_sub_path = path_formatter.extract_path_inside_workspace(volume_sub_path)[1:]
             hydrus_volumes_sub_paths.append(volume_sub_path)
 
-            job_name = f"{volume_sub_path.split('/hydrus/')[1]}-{shortuuid.uuid()}"
+            job_name = f"{volume_sub_path.split('/hydrus/')[1]}-" \
+                       f"{uuid.uuid4().hex[:KubernetesDeployer.SHORTENED_UUID_LENGTH]}"
             job_description = f"Project={volume_sub_path.split('/hydrus/')[0]}, sim-id={str(sim_id)}"
             hydrus_job_names.append(job_name)
             hydrus_job_descriptions.append(job_description)
@@ -74,7 +81,8 @@ class KubernetesDeployer(IAppDeployer):
         volume_sub_path = path_formatter.format_path_to_docker(dir_path=modflow_dir)
         volume_sub_path = path_formatter.extract_path_inside_workspace(volume_sub_path)[1:]
 
-        modflow_job_name = f"{volume_sub_path.split('/modflow/')[1]}-{shortuuid.uuid()}"
+        modflow_job_name = f"{volume_sub_path.split('/modflow/')[1]}-" \
+                           f"{uuid.uuid4().hex[:KubernetesDeployer.SHORTENED_UUID_LENGTH]}"
         modflow_job_description = f"Project={volume_sub_path.split('/modflow/')[0]}, sim-id={str(sim_id)}"
         modflow_deployer = ModflowJobDeployer(kubernetes_deployer=self, sub_path=volume_sub_path,
                                               name_file=nam_file, job_name=modflow_job_name,

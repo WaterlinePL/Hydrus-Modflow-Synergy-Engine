@@ -19,7 +19,7 @@ spec:
            claimName: nfs-pvc
       containers:
       - name: water-modelling-instance
-        image: observer46/water_modeling_agh:water-modelling-k8s
+        image: watermodelling/hydrus-modflow-synergy-engine:water-modelling-k8s
         securityContext: 
           privileged: True 
         volumeMounts:

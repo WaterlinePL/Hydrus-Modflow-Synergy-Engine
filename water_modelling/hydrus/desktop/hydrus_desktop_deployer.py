@@ -14,7 +14,7 @@ class _HydrusDesktopDeployer(IHydrusDeployer):
         self.proc = None
 
     def run(self):
-        stdout = subprocess.DEVNULL if not deployment_config.DEBUG_MODE else None
+        stdout = subprocess.DEVNULL if not deployment_config.LOCAL_DEBUG_MODE else None
         print(f"Starting Hydrus calculations for: {self.path}")
         self.proc = subprocess.Popen([self.hydrus_exe_path, self.path], shell=True, text=True,
                                      stdin=subprocess.PIPE, stdout=stdout)

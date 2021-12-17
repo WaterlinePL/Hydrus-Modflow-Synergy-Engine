@@ -14,7 +14,7 @@ class DockerDeployer(IAppDeployer):
     MODFLOW_VERSIONS = ["mf2005"]
     MODFLOW_IMAGES = ["mjstealey/docker-modflow"]
 
-    HYDRUS_IMAGES = ["observer46/water_modeling_agh:hydrus1d_linux"]
+    HYDRUS_IMAGES = ["watermodelling/hydrus-modflow-synergy-engine:hydrus1d_linux"]
 
     def __init__(self):
         self.docker_client = docker.APIClient()

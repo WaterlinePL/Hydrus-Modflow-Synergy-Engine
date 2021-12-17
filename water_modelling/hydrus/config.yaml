@@ -4,7 +4,7 @@ metadata:
    name: hydrus-1d
 spec:
    containers:
-   - image: observer46/water_modeling_agh:hydrus1d_linux
+   - image: watermodelling/hydrus-modflow-synergy-engine:hydrus1d_linux
      name: kicajki2
      volumeMounts:
      - mountPath: "/workspace/hydrus"

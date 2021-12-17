@@ -26,7 +26,7 @@ class ModflowDesktopDeployer(IModflowDeployer):
     def run_for_win_10(self):
         current_dir = os.getcwd()
         os.chdir(self.path)
-        stdout = subprocess.DEVNULL if not deployment_config.DEBUG_MODE else None
+        stdout = subprocess.DEVNULL if not deployment_config.LOCAL_DEBUG_MODE else None
         print(f"Starting Modflow calculations for: {path_formatter.convert_backslashes_to_slashes(self.path)}")
         self.proc = subprocess.Popen([self.modflow_exe_path, self.name_file], shell=True, text=True,
                                      stdin=subprocess.PIPE, stdout=stdout)

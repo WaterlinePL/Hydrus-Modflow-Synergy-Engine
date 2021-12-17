@@ -10,7 +10,7 @@ spec:
   serviceAccountName: internal-kubectl
   containers:
   - name: testo
-    image: observer46/water_modeling_agh:ubuntu-k8s  
+    image: watermodelling/hydrus-modflow-synergy-engine:ubuntu-k8s
     command:
       - "sleep"
       - "infinity"
