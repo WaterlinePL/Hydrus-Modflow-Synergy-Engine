@@ -165,7 +165,7 @@ WIND = 'Wind'
 PRECIPITATION = 'Precipitation'
 
 
-def update_hydrus_model(model_name: str, data: dict):
+def add_weather_to_hydrus_model(model_name: str, data: dict):
     """
     Enriches the target hydrus model with weather file data.
 
@@ -184,7 +184,9 @@ def update_hydrus_model(model_name: str, data: dict):
     # modify atmosph file is it exists
     replace_rain = PRECIPITATION in data.keys()
     if replace_rain and os.path.isfile(os.path.join(model_dir, "ATMOSPH.IN")):
-        modify_atmosph_file(model_dir, data)
+        atmosph_file_modified = modify_atmosph_file(model_dir, data)
+        if not atmosph_file_modified:
+            return False
 
     return True
 
@@ -293,6 +295,13 @@ def modify_atmosph_file(model_dir, data):
         i += 1
         if "Prec" in curr_line:
             break
+
+    # verify if weather file length is at least the same as data;
+    # i+1 for 0-indexing, +1 for the sum to be correct, then -1 for the EOF line
+    data_lines = len(old_file_lines) - (i+1)
+    if len(data[LATITUDE]) < data_lines:
+        print(f"WARNING: insufficient weather file size - expected at least {data_lines} records, got {len(data[LATITUDE])}")
+        return False
 
     # modify table
     data_row = 0
