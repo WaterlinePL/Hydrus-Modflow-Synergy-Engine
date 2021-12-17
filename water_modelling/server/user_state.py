@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 import os
 
@@ -10,11 +10,6 @@ from datapassing.shape_data import ShapeFileData
 
 if TYPE_CHECKING:
     from simulation.simulation_service import SimulationService
-
-# if platform == "linux" or platform == "linux2" or platform == "darwin":
-#     PROJECT_ROOT = "../"
-# elif platform == "win32":
-#     PROJECT_ROOT = "..\\"
 
 
 def verify_dir_exists_or_create(path: str):
@@ -27,15 +22,11 @@ def get_or_none(req, key):
     return req.form[key] if req.form[key] != "" else None
 
 
-# Ta klasa stała się reactowym state XD
 class UserState:
 
     def __init__(self):
-        # self.allowed_types = ["ZIP"]
-        # self.project_root = os.path.abspath(PROJECT_ROOT)
-        # self.workspace_dir = os.path.join(self.project_root, 'workspace')
         self.loaded_project = None
-        self.simulation_service: SimulationService = None
+        self.simulation_service: Optional[SimulationService] = None
         self.current_method = None
         self.recharge_masks = []
         self.models_masks_ids = {}
@@ -131,14 +122,15 @@ class UserState:
 
             if shapes_count == 1:
                 self.loaded_shapes[hydrus_model] = ShapeFileData(shape_mask_array=
-                                                                 self.recharge_masks[self.models_masks_ids[hydrus_model][0]])
+                                                                 self.recharge_masks[
+                                                                     self.models_masks_ids[hydrus_model][0]])
             elif shapes_count > 1:
                 shape_mask = self.recharge_masks[self.models_masks_ids[hydrus_model][0]]
                 for idx in range(1, shapes_count):
-                    shape_mask = np.logical_or(shape_mask, self.recharge_masks[self.models_masks_ids[hydrus_model][idx]])
+                    shape_mask = np.logical_or(shape_mask,
+                                               self.recharge_masks[self.models_masks_ids[hydrus_model][idx]])
 
                 self.loaded_shapes[hydrus_model] = ShapeFileData(shape_mask_array=shape_mask)
             else:
                 shape = (self.loaded_project["rows"], self.loaded_project["cols"])
                 self.loaded_shapes[hydrus_model] = ShapeFileData(shape_mask_array=np.zeros(shape))
-

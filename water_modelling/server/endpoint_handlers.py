@@ -1,8 +1,5 @@
 from typing import Tuple
-
-# from user_state import util, get_or_none
 from app_config import deployment_config
-from app_utils import app_utils, AppUtils
 from datapassing.shape_data import ShapeFileData
 from flask import render_template, redirect, abort, jsonify, send_file, request
 from flask_paginate import Pagination, get_page_args
@@ -10,7 +7,9 @@ from hydrus import hydrus_utils
 from modflow import modflow_utils
 from server import endpoints, template
 from zipfile import ZipFile
+from utils import path_formatter
 
+import app_utils
 import dao
 import weather_util
 import json
@@ -18,11 +17,10 @@ import numpy as np
 import os
 import shutil
 import local_configuration_dao as lcd
-from utils import path_formatter
 
 
 def create_project_handler():
-    state = app_utils.get_user_by_cookie(request.cookies.get(AppUtils.COOKIE_NAME))
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
     name = request.json['name']
     lat = request.json['lat']
     long = request.json["long"]
@@ -62,7 +60,7 @@ def get_projects(projects, offset=0, per_page=10):
 
 
 def project_list_handler(search):
-    state = app_utils.get_user_by_cookie(request.cookies.get(AppUtils.COOKIE_NAME))
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
     projects = dao.read_all()
 
     if search:
@@ -87,7 +85,7 @@ def project_list_handler(search):
 
 
 def remove_project_handler():
-    state = app_utils.get_user_by_cookie(request.cookies.get(AppUtils.COOKIE_NAME))
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
     body = json.loads(request.data)
     if body['projectName']:
         dao.remove_project(body['projectName'], state)
@@ -95,7 +93,7 @@ def remove_project_handler():
 
 
 def project_handler(project_name):
-    state = app_utils.get_user_by_cookie(request.cookies.get(AppUtils.COOKIE_NAME))
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
     if project_name is None:
         # case 1 - there is already a project loaded and we just want to see it
         if state.loaded_project is not None:
@@ -131,7 +129,7 @@ def project_handler(project_name):
 
 
 def project_is_finished_handler(project_name):
-    state = app_utils.get_user_by_cookie(request.cookies.get(AppUtils.COOKIE_NAME))
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
     if project_name is not None:
         try:
             project = dao.read(project_name)
@@ -150,7 +148,7 @@ def project_is_finished_handler(project_name):
 
 
 def project_download_handler(project_name):
-    state = app_utils.get_user_by_cookie(request.cookies.get(AppUtils.COOKIE_NAME))
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
     if project_name is not None:
         try:
             project = dao.read(project_name)
@@ -161,14 +159,14 @@ def project_download_handler(project_name):
         project = state.loaded_project
 
     if project is not None:
-        project_dir = os.path.join(state.WORKSPACE_DIR, project["name"])
+        project_dir = os.path.join(deployment_config.WORKSPACE_DIR, project["name"])
         zip_file = shutil.make_archive(project_dir, 'zip', project_dir)
         return send_file(zip_file, as_attachment=True)
     return '', 204
 
 
 def edit_project_handler(project_name):
-    state = app_utils.get_user_by_cookie(request.cookies.get(AppUtils.COOKIE_NAME))
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
     try:
         project = dao.read(project_name)
     except FileNotFoundError:
@@ -187,7 +185,7 @@ def edit_project_handler(project_name):
 
 
 def update_project_settings():
-    state = app_utils.get_user_by_cookie(request.cookies.get(AppUtils.COOKIE_NAME))
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
     name = request.json['name']
     lat = request.json['lat']
     long = request.json["long"]
@@ -213,7 +211,7 @@ def update_project_settings():
 
 
 def upload_modflow_handler():
-    state = app_utils.get_user_by_cookie(request.cookies.get(AppUtils.COOKIE_NAME))
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
 
     # every uploaded model needs to belong to a project;
     # if there is no active project, we cannot upload a model
@@ -273,7 +271,7 @@ def upload_modflow_handler():
 
 
 def upload_weather_file_handler():
-    state = app_utils.get_user_by_cookie(request.cookies.get(AppUtils.COOKIE_NAME))
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
 
     # read data from request, sve file
     model_name = request.form['model_name']
@@ -296,7 +294,7 @@ def upload_weather_file_handler():
 
 
 def remove_modflow_handler():
-    state = app_utils.get_user_by_cookie(request.cookies.get(AppUtils.COOKIE_NAME))
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
     body = json.loads(request.data)
     if body['modelName']:
         dao.remove_model('modflow', body["modelName"], state)
@@ -304,7 +302,7 @@ def remove_modflow_handler():
 
 
 def upload_hydrus_handler():
-    state = app_utils.get_user_by_cookie(request.cookies.get(AppUtils.COOKIE_NAME))
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
     models = request.files.getlist('archive-input')
 
     error = None
@@ -353,7 +351,7 @@ def upload_hydrus_handler():
 
         else:
             error_idx = i
-            error = "Invalid file type. Accepted types: " + ", ".join(state.allowed_types)
+            error = "Invalid file type. Accepted types: " + ", ".join(deployment_config.ALLOWED_TYPES)
             break
 
     if error is not None:
@@ -381,7 +379,7 @@ def separate_model_name(filename: str) -> Tuple[str, str]:
 
 
 def remove_hydrus_handler():
-    state = app_utils.get_user_by_cookie(request.cookies.get(AppUtils.COOKIE_NAME))
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
     body = json.loads(request.data)
     hydrus_model_name = body['modelName']
     print("received call")
@@ -396,14 +394,13 @@ def remove_hydrus_handler():
 
 
 def upload_shape_handler(req, hydrus_model_index):
-    state = app_utils.get_user_by_cookie(request.cookies.get(AppUtils.COOKIE_NAME))
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
 
     # if not yet done, initialize the shape arrays list to the amount of models
     if len(state.loaded_shapes) < len(state.loaded_project["hydrus_models"]):
 
         for hydrus_model in state.loaded_project["hydrus_models"]:
             state.loaded_shapes[hydrus_model] = None
-        # util.loaded_shapes = [None for _ in range(len(util.loaded_project["hydrus_models"]))]
 
     # read the array from the request and store it
     shape_array = req.get_json(force=True)
@@ -415,7 +412,7 @@ def upload_shape_handler(req, hydrus_model_index):
 
 
 def next_model_redirect_handler(hydrus_model_index, error_flag):
-    state = app_utils.get_user_by_cookie(request.cookies.get(AppUtils.COOKIE_NAME))
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
 
     # check if we still have models to go, if not, redirect to next section
     if hydrus_model_index >= len(state.loaded_project["hydrus_models"]):
@@ -441,7 +438,7 @@ def next_model_redirect_handler(hydrus_model_index, error_flag):
 
 
 def next_shape_redirect_handler(rch_shape_index):
-    state = app_utils.get_user_by_cookie(request.cookies.get(AppUtils.COOKIE_NAME))
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
 
     if rch_shape_index >= len(state.recharge_masks):
         state.get_shapes_from_masks_ids()
@@ -458,12 +455,12 @@ def next_shape_redirect_handler(rch_shape_index):
 
 
 def assign_model_to_shape(req, rch_shape_index):
-    state = app_utils.get_user_by_cookie(request.cookies.get(AppUtils.COOKIE_NAME))
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
     hydrus_model_name = req.json["hydrusModel"]
-    previos_hydrus_model_name = req.json["previousModel"]
+    previous_hydrus_model_name = req.json["previousModel"]
 
-    if previos_hydrus_model_name:
-        state.models_masks_ids[previos_hydrus_model_name].remove(rch_shape_index)
+    if previous_hydrus_model_name:
+        state.models_masks_ids[previous_hydrus_model_name].remove(rch_shape_index)
 
     if hydrus_model_name == "":
         return json.dumps({'status': 'OK'})
@@ -494,7 +491,7 @@ def upload_new_configurations():
 
 
 def simulation_summary_handler():
-    state = app_utils.get_user_by_cookie(request.cookies.get(AppUtils.COOKIE_NAME))
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
 
     rows_height, cols_width = modflow_utils.scale_cells_size(state.loaded_project['row_cells'],
                                                              state.loaded_project['col_cells'], 500)

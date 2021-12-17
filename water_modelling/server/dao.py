@@ -3,7 +3,6 @@ import os
 import shutil
 
 from app_config import deployment_config
-from server.app_utils import app_utils
 from server.user_state import UserState
 
 """
@@ -45,7 +44,7 @@ def create(project: dict):
     os.mkdir(modflow_folder)
 
     # save project JSON file
-    file_path = os.path.join(project_root, project['name']+'.json')
+    file_path = os.path.join(project_root, project['name'] + '.json')
     file = open(file_path, 'w+')
     json.dump(project, file)
 

@@ -1,6 +1,6 @@
 from typing import Optional
 
-from flask import Response, redirect, url_for
+from flask import Response, redirect
 
 from server import endpoints
 from server.user_state import UserState
