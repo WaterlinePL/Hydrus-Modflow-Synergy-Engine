@@ -24,7 +24,7 @@ def home():
         cookie = str(uuid.uuid4())
         res.set_cookie(AppUtils.COOKIE_NAME, cookie, max_age=60 * 60 * 24 * 365 * 2)
         app_utils.add_user(cookie)
-    return render_template(template.HOME)
+    return res
 
 
 # TODO: add some condition if its a local version / hide endpoint

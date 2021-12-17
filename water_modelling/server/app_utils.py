@@ -22,7 +22,7 @@ class AppUtils:
         if not cookie:
             return None
         if cookie not in self.user_states:
-            raise Exception("Unauthorized cookie used by user!")
+            self.add_user(cookie)
         return self.user_states[cookie]
 
     def add_user(self, cookie: str):
