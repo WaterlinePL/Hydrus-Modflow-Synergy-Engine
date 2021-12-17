@@ -1,14 +1,11 @@
 from __future__ import annotations
 
-from sys import platform
 from typing import TYPE_CHECKING
 
 import os
 
 import numpy as np
-
-from server.endpoints import RCH_SHAPES
-
+from app_config import deployment_config
 from datapassing.shape_data import ShapeFileData
 
 if TYPE_CHECKING:
@@ -45,9 +42,31 @@ class UserState:
         self.loaded_shapes = {}
         self._error_flag = False
 
+    @staticmethod
+    def get_modflow_dir_by_project_name(project_name):
+        if project_name is not None:
+            return os.path.join(deployment_config.WORKSPACE_DIR, project_name, 'modflow')
+        else:
+            return None
+
+    @staticmethod
+    def type_allowed(filename: str) -> bool:
+        """
+        @param filename: Path to the file whose extension needs to be checked
+        @return: True if file has valid extension, False otherwise
+        """
+
+        # check if there even is an extension
+        if '.' not in filename:
+            return False
+
+        # check if it's allowed
+        extension = filename.rsplit('.', 1)[1]
+        return extension.upper() in deployment_config.ALLOWED_TYPES
+
     def setup(self) -> None:
         self.reset_project_data()
-        verify_dir_exists_or_create(self.workspace_dir)
+        verify_dir_exists_or_create(deployment_config.WORKSPACE_DIR)
 
     def reset_project_data(self) -> None:
         self.loaded_project = None
@@ -60,19 +79,13 @@ class UserState:
 
     def get_modflow_dir(self):
         if self.loaded_project is not None:
-            return os.path.join(self.workspace_dir, self.loaded_project['name'], 'modflow')
-        else:
-            return None
-
-    def get_modflow_dir_by_project_name(self, project_name):
-        if project_name is not None:
-            return os.path.join(self.workspace_dir, project_name, 'modflow')
+            return os.path.join(deployment_config.WORKSPACE_DIR, self.loaded_project['name'], 'modflow')
         else:
             return None
 
     def get_hydrus_dir(self):
         if self.loaded_project is not None:
-            return os.path.join(self.workspace_dir, self.loaded_project['name'], 'hydrus')
+            return os.path.join(deployment_config.WORKSPACE_DIR, self.loaded_project['name'], 'hydrus')
         else:
             return None
 
@@ -83,20 +96,6 @@ class UserState:
 
     def activate_error_flag(self):
         self._error_flag = True
-
-    def type_allowed(self, filename: str) -> bool:
-        """
-        @param filename: Path to the file whose extension needs to be checked
-        @return: True if file has valid extension, False otherwise
-        """
-
-        # check if there even is an extension
-        if '.' not in filename:
-            return False
-
-        # check if it's allowed
-        extension = filename.rsplit('.', 1)[1]
-        return extension.upper() in self.allowed_types
 
     def set_simulation_serivce(self, simulation_service: SimulationService):
         self.simulation_service = simulation_service
