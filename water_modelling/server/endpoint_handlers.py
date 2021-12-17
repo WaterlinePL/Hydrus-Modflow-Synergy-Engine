@@ -1,6 +1,6 @@
 from typing import Tuple
 
-from app_utils import util, get_or_none, fix_model_name
+# from user_state import util, get_or_none
 from datapassing.shape_data import ShapeFileData
 from flask import render_template, redirect, abort, jsonify, send_file
 from flask_paginate import Pagination, get_page_args
@@ -16,6 +16,7 @@ import numpy as np
 import os
 import shutil
 import local_configuration_dao as lcd
+from utils import path_formatter
 
 
 def create_project_handler(req):
@@ -208,7 +209,7 @@ def upload_modflow_handler(req):
         return redirect(endpoints.PROJECT_LIST)
 
     model = req.files['archive-input']  # matches HTML input name
-    filename = fix_model_name(model.filename)
+    filename = path_formatter.fix_model_name(model.filename)
 
     if util.type_allowed(filename):
 
@@ -296,7 +297,7 @@ def upload_hydrus_handler(req):
 
     for i, model in enumerate(models):
 
-        filename = fix_model_name(model.filename)
+        filename = path_formatter.fix_model_name(model.filename)
         if util.type_allowed(filename):
             model_name = separate_model_name(filename)[0]
 

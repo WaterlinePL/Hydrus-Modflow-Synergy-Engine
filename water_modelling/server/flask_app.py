@@ -1,13 +1,17 @@
-from flask import Flask, render_template, request, redirect, jsonify
+import uuid
+
+from flask import Flask, render_template, request, redirect, jsonify, make_response
 from server import endpoints, template, path_checker
 
-from app_utils import util
+from user_state import util
 import threading
 import endpoint_handlers
 import local_configuration_dao as lcd
 from simulation.simulation_service import SimulationService
 
 app = Flask("App")
+
+COOKIE_NAME = 'user_auth'
 
 
 # ------------------- ROUTES -------------------
@@ -16,8 +20,23 @@ def start():
     return redirect(endpoints.HOME)
 
 
+# @app.route('/cookie/')
+# def cookie():
+#     res = make_response("Setting a cookie")
+#     # TODO: set value uuid
+#     res.set_cookie('COOKIE_NAME', 'VALUE', max_age=60*60*24*365*2)
+#     return res
+# @app.route('/cookie/')
+# def cookie():
+
+
 @app.route(endpoints.HOME, methods=['GET'])
 def home():
+    res = make_response(render_template(template.HOME))
+    if not request.cookies.get('foo'):
+        res.set_cookie(COOKIE_NAME, str(uuid.uuid4()), max_age=60*60*24*365*2)
+    # else:
+    #     res = make_response("Value of cookie foo is {}".format(request.cookies.get('foo')))
     return render_template(template.HOME)
 
 

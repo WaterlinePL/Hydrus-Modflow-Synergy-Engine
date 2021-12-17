@@ -2,7 +2,7 @@ import json
 import os
 import shutil
 
-from app_utils import util
+from user_state import util
 
 """
 A project .json file contains the following:

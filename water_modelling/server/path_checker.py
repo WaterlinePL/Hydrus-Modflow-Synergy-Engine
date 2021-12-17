@@ -3,11 +3,11 @@ from typing import Optional
 from flask import Response, redirect, url_for
 
 from server import endpoints
-from server.app_utils import AppUtils
+from server.user_state import UserState
 import server.local_configuration_dao as lcd
 
 
-def path_check_simulate_access(util: AppUtils) -> Optional[Response]:
+def path_check_simulate_access(util: UserState) -> Optional[Response]:
     """
     @param util: AppUtils containing current state of application.
     @return: Optional redirect to configuration if no paths for Hydrus and Modflow are specified.
@@ -21,7 +21,7 @@ def path_check_simulate_access(util: AppUtils) -> Optional[Response]:
     return None
 
 
-def path_check_modflow_step(util: AppUtils) -> Optional[Response]:
+def path_check_modflow_step(util: UserState) -> Optional[Response]:
     """
     @param util: AppUtils containing current state of application.
     @return: Optional redirect to first incorrect step up to upload_modflow (first step).
@@ -38,7 +38,7 @@ def path_check_modflow_step(util: AppUtils) -> Optional[Response]:
     return None
 
 
-def path_check_hydrus_step(util: AppUtils) -> Optional[Response]:
+def path_check_hydrus_step(util: UserState) -> Optional[Response]:
     """
     @param util: AppUtils containing current state of application.
     @return: Optional redirect to first incorrect step up to upload_hydrus.
@@ -56,7 +56,7 @@ def path_check_hydrus_step(util: AppUtils) -> Optional[Response]:
     return None
 
 
-def path_check_define_shapes_method(util: AppUtils) -> Optional[Response]:
+def path_check_define_shapes_method(util: UserState) -> Optional[Response]:
     """
     @param util: AppUtils containing current state of application.
     @return: Optional redirect to first incorrect step up to define_method.
