@@ -4,6 +4,7 @@ from typing import Tuple
 from datapassing.hydrus_modflow_passing import HydrusModflowPassing
 from deployment.app_deployer_interface import IAppDeployer
 from modflow import modflow_utils
+from simulation.stage_status import SimulationStageStatus
 
 
 class Simulation:
@@ -13,9 +14,11 @@ class Simulation:
         self.spin_up = 0
         self.modflow_project = None
         self.loaded_shapes = None
-        self.hydrus_finished = False
-        self.passing_finished = False
-        self.modflow_finished = False
+        self.finished = False
+
+        self._hydrus_stage_status = SimulationStageStatus()
+        self._passing_stage_status = SimulationStageStatus()
+        self._modflow_stage_status = SimulationStageStatus()
 
     def run_simulation(self, modflow_dir: str, hydrus_dir: str):
 
@@ -35,7 +38,7 @@ class Simulation:
         modflow_project_dir = os.path.join(modflow_dir, self.modflow_project)
 
         self.deployer.run_modflow(modflow_project_dir, nam_file, self.simulation_id)
-        self.modflow_finished = True
+        self._modflow_stage_status.set_ended(True)
         print('Modflow container finished')
 
     def pass_data_from_hydrus_to_modflow(self, hydrus_dir, modflow_dir, nam_file: str):
@@ -50,12 +53,12 @@ class Simulation:
         result = HydrusModflowPassing(os.path.join(modflow_dir, self.modflow_project), nam_file, shapes)
         result.update_rch(spin_up=self.spin_up)
 
-        self.passing_finished = True
+        self._passing_stage_status.set_ended(True)
         print("Passing successful")
 
     def run_hydrus(self, hydrus_dir: str):
         self.deployer.run_hydrus(hydrus_dir, self.loaded_shapes, self.simulation_id)
-        self.hydrus_finished = True
+        self._hydrus_stage_status.set_ended(True)
         print('Hydrus containers finished')
 
     def set_modflow_project(self, modflow_project) -> None:
@@ -67,13 +70,20 @@ class Simulation:
     def set_spin_up(self, spin_up: int) -> None:
         self.spin_up = spin_up
 
-    def get_simulation_status(self) -> Tuple[bool, bool, bool]:
-        return self.hydrus_finished, self.passing_finished, self.modflow_finished
+    def get_hydrus_stage_status(self) -> SimulationStageStatus:
+        return self._hydrus_stage_status
+
+    def get_passing_stage_status(self) -> SimulationStageStatus:
+        return self._hydrus_stage_status
+
+    def get_modflow_stage_status(self) -> SimulationStageStatus:
+        return self._hydrus_stage_status
 
     def get_id(self) -> int:
         return self.simulation_id
 
-    def set_finished_flag(self, modflow_dir: str) -> None:
+    @staticmethod
+    def set_finished_flag(modflow_dir: str) -> None:
         finished_file_path = os.path.join(modflow_dir, 'finished.0')
         finished_file = open(finished_file_path, "w")
         finished_file.close()

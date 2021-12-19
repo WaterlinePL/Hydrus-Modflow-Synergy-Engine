@@ -183,6 +183,7 @@ def run_simulation():
     if check_previous_steps:
         return check_previous_steps
 
+    # FIXME: czy ten if tu ma sens? Na podstawie historii gitowej wydaje się być ze względu na dużo merogów :P
     if util.loaded_project is not None:
         simulation_service = SimulationService(util.get_hydrus_dir(), util.get_modflow_dir())
 
@@ -202,7 +203,22 @@ def run_simulation():
 
 @app.route(endpoints.SIMULATION_CHECK, methods=['GET'])
 def check_simulation_status(simulation_id: int):
-    hydrus_finished, passing_finished, modflow_finished = util.simulation_service.check_simulation_status(
+    hydrus_stage_status, passing_stage_status, modflow_stage_status = util.simulation_service.check_simulation_status(
         int(simulation_id))
-    response = {'hydrus': hydrus_finished, 'passing': passing_finished, 'modflow': modflow_finished}
+
+    response = {
+        'hydrus': {
+            'finished': hydrus_stage_status.has_ended(),
+            'errors': hydrus_stage_status.get_errors()
+        },
+        'passing': {
+            'finished': passing_stage_status.has_ended(),
+            'errors': passing_stage_status.get_errors()
+        },
+        'modflow': {
+            'finished': modflow_stage_status.has_ended(),
+            'errors': modflow_stage_status.get_errors()
+        }
+    }
+
     return jsonify(response)
