@@ -60,6 +60,9 @@ class ModflowJobDeployer(IKubernetesJob):
 
         return resp
 
+    def get_model_name(self) -> str:
+        return self.sub_path.split('/modflow/')[1]
+
     def _get_modflow_image(self):
         return self.kubernetes_deployer.modflow_image
 

@@ -2,7 +2,7 @@ from typing import Tuple, List
 
 from app_config import deployment_config
 from simulation.simulation import Simulation
-from simulation.stage_status import SimulationStageStatus
+from simulation.simulation_stage_status import SimulationStageStatus
 
 
 class SimulationService:
@@ -34,7 +34,7 @@ class SimulationService:
         passing_stage_status = self.simulations[simulation_id].get_passing_stage_status()
         modflow_stage_status = self.simulations[simulation_id].get_modflow_stage_status()
 
-        if hydrus_stage_status and passing_stage_status and modflow_stage_status:
+        if hydrus_stage_status.has_ended() and passing_stage_status.has_ended() and modflow_stage_status.has_ended():
             self.simulations[simulation_id].finished = True
 
         return hydrus_stage_status, passing_stage_status, modflow_stage_status

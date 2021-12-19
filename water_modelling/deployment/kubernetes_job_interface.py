@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Optional
 
-from kubernetes.client import BatchV1Api, CoreV1Api, V1JobStatus
+from kubernetes.client import BatchV1Api, CoreV1Api, V1JobStatus, V1Pod, V1PodList
 
 from hydrus.hydrus_deployer_interface import IHydrusDeployer
 from modflow.modflow_deployer_interface import IModflowDeployer
@@ -32,7 +32,7 @@ class IKubernetesJob(IModflowDeployer, IHydrusDeployer):
     def get_job_status(self) -> Optional[V1JobStatus]:
         """
         Return status of latest pod related to this job. Due to backoffLimit property, a failed job
-        incarnates another pod to retry job. Access to status: job_status.status.[active|failed|succeded]
+        incarnates another pod to retry job. Access to status: job_status.status.[active|failed|succeeded]
         @return: Latest pod status dict (None if job was not found by k8s).
         """
         job_status = self._get_k8s_batch_client().read_namespaced_job(name=self.job_name, namespace='default')
@@ -53,3 +53,14 @@ class IKubernetesJob(IModflowDeployer, IHydrusDeployer):
         @return: K8s core client.
         """
         return self.kubernetes_deployer.core_api_instance
+
+    def get_latest_pod(self) -> V1Pod:
+        job_pods = self._get_k8s_core_client().list_namespaced_pod(self.namespace,
+                                                                   label_selector=f"job-name={self.job_name}")
+        return sorted(job_pods.items, key=lambda pod: pod.status.start_time, reverse=True)[0]
+
+    def get_latest_logs(self) -> str:
+        return self._get_k8s_core_client().read_namespaced_pod_log(self.get_latest_pod().metadata.name, self.namespace)
+
+    def get_model_name(self) -> str:
+        raise Exception("Unimplemented method!")

@@ -15,9 +15,7 @@ class HydrusDockerMultiContainerDeployer(IHydrusDeployer):
         for i, path in enumerate(hydrus_projects_paths):
             self.hydrus_instances.append(HydrusDockerContainerDeployer(docker_deployer, path, container_names[i]))
 
-    def run(self):
+    def run(self) -> List[HydrusDockerContainerDeployer]:
         for container in self.hydrus_instances:
             container.run()
-
-    def get_hydrus_containers(self) -> List[HydrusDockerContainerDeployer]:
         return self.hydrus_instances

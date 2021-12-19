@@ -4,7 +4,8 @@ from typing import Tuple
 from datapassing.hydrus_modflow_passing import HydrusModflowPassing
 from deployment.app_deployer_interface import IAppDeployer
 from modflow import modflow_utils
-from simulation.stage_status import SimulationStageStatus
+from simulation.exceptions import UnsuccessfulSimulationException
+from simulation.simulation_stage_status import SimulationStageStatus
 
 
 class Simulation:
@@ -36,10 +37,15 @@ class Simulation:
     def run_modflow(self, modflow_dir: str, nam_file: str):
         assert self.modflow_project is not None
         modflow_project_dir = os.path.join(modflow_dir, self.modflow_project)
+        simulation_error = self.deployer.run_modflow(modflow_project_dir, nam_file, self.simulation_id)
 
-        self.deployer.run_modflow(modflow_project_dir, nam_file, self.simulation_id)
+        if simulation_error:
+            self._modflow_stage_status.add_error(simulation_error)
+            self._modflow_stage_status.set_ended(True)
+            raise UnsuccessfulSimulationException("Modflow simulation failed! Check 'simulation.log' file "
+                                                  "inside model folder for full logs.")
         self._modflow_stage_status.set_ended(True)
-        print('Modflow container finished')
+        print('Modflow simulation finished')
 
     def pass_data_from_hydrus_to_modflow(self, hydrus_dir, modflow_dir, nam_file: str):
         # Add hydrus result file paths (T_Level.out) to loaded_shapes (shape_file_info)
@@ -57,9 +63,19 @@ class Simulation:
         print("Passing successful")
 
     def run_hydrus(self, hydrus_dir: str):
-        self.deployer.run_hydrus(hydrus_dir, self.loaded_shapes, self.simulation_id)
+        simulation_errors = self.deployer.run_hydrus(hydrus_dir, self.loaded_shapes, self.simulation_id)
+        contains_errors = False
+
+        for error in simulation_errors:
+            contains_errors = True
+            self._hydrus_stage_status.add_error(error)
+
+        if contains_errors:
+            self._hydrus_stage_status.set_ended(True)
+            raise UnsuccessfulSimulationException("Hydrus simulations failed! Check 'simulation.log' files "
+                                                  "inside model folders for full logs.")
         self._hydrus_stage_status.set_ended(True)
-        print('Hydrus containers finished')
+        print('Hydrus simulations finished successfully')
 
     def set_modflow_project(self, modflow_project) -> None:
         self.modflow_project = modflow_project
@@ -74,10 +90,10 @@ class Simulation:
         return self._hydrus_stage_status
 
     def get_passing_stage_status(self) -> SimulationStageStatus:
-        return self._hydrus_stage_status
+        return self._passing_stage_status
 
     def get_modflow_stage_status(self) -> SimulationStageStatus:
-        return self._hydrus_stage_status
+        return self._modflow_stage_status
 
     def get_id(self) -> int:
         return self.simulation_id

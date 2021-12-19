@@ -20,7 +20,10 @@ class HydrusMultiJobDeployer(IHydrusDeployer):
                 _HydrusJobDeployer(kubernetes_deployer, path, job_names[i], job_descriptions[i], namespace=namespace))
 
     def run(self):
-        deployed_jobs = []
-        for pod in self.hydrus_instances:
-            deployed_jobs.append(pod.run())
-        return deployed_jobs
+        # deployed_jobs = []
+        # for pod in self.hydrus_instances:
+        #     deployed_jobs.append(pod.run())
+        # return deployed_jobs
+        for job in self.hydrus_instances:
+            job.run()
+        return self.hydrus_instances

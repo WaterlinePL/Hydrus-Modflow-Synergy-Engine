@@ -57,5 +57,8 @@ class _HydrusJobDeployer(IKubernetesJob):
 
         return resp
 
+    def get_model_name(self) -> str:
+        return self.sub_path.split('/hydrus/')[1]
+
     def _get_hydrus_image(self):
         return self.kubernetes_deployer.hydrus_image

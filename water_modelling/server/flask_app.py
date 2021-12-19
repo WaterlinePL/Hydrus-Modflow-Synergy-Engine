@@ -209,15 +209,15 @@ def check_simulation_status(simulation_id: int):
     response = {
         'hydrus': {
             'finished': hydrus_stage_status.has_ended(),
-            'errors': hydrus_stage_status.get_errors()
+            'errors': [str(sim_error) for sim_error in hydrus_stage_status.get_errors()]
         },
         'passing': {
             'finished': passing_stage_status.has_ended(),
-            'errors': passing_stage_status.get_errors()
+            'errors': [str(sim_error) for sim_error in passing_stage_status.get_errors()]
         },
         'modflow': {
             'finished': modflow_stage_status.has_ended(),
-            'errors': modflow_stage_status.get_errors()
+            'errors': [str(sim_error) for sim_error in modflow_stage_status.get_errors()]
         }
     }
 

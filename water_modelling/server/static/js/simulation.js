@@ -4,6 +4,8 @@
         _modflowCalc = $('#modflow-calc'),
         _passingCalc = $('#passing-calc'),
         _runButton = $('#start-simulation');
+        _hydrusButton = $('#hydrus-button');
+        _modflowButton = $('#modflow-button');
 
 
     _runButton.on("click", (e) => {
@@ -44,11 +46,11 @@
                                                 || handleModflowResponse(data);
 
                 if (!stopCheckingSimulation) {
-                    setTimeout(check_simulation_status, 2000,[id]);
+                    setTimeout(checkSimulationStatus, 2000,[id]);
                 }
             },
             error: function (e) {
-                setTimeout(check_simulation_status, 2000, [id]);
+                setTimeout(checkSimulationStatus, 2000, [id]);
             }
         });
     }
@@ -63,6 +65,7 @@
             if (errors.length != 0) {
                 _hydrusCalc.addClass('text-danger');
                 $('#hydrus-x').removeAttr('hidden');
+                _hydrusButton.removeAttr('hidden');
                 stopCheckingSimulation = true;
                 showErrors(errors);
             } else {
@@ -84,6 +87,7 @@
             if (errors.length != 0) {
                 _passingCalc.addClass('text-danger');
                 $('#passing-x').removeAttr('hidden');
+                _modflowButton.removeAttr('hidden');
                 stopCheckingSimulation = true;
                 showErrors(errors);
             } else {
@@ -105,6 +109,7 @@
 
             if (errors.length != 0) {
                 _modflowCalc.addClass('text-danger');
+                _modflowButton.removeAttr('hidden');
                 $('#modflow-x').removeAttr('hidden');
                 showErrors(errors);
             } else {
