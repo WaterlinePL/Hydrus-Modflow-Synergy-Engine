@@ -122,7 +122,7 @@
             return true;
         } else {
             addInvalid(elementId,
-                    "Geographical coordinate should be the real number");
+                    "Geographical coordinate should be a real number");
             return false;
         }
 
@@ -134,7 +134,7 @@
             return true;
         } else {
             addInvalid(elementId,
-                "Text should contains only letters \"a-z\", \"A-Z\" and sings such as \"-\" and \"_\" ");
+                "Text should contains only letters \"a-z\", \"A-Z\", numbers \"0-9\" and characters such as \"-\" and \"_\" ");
             return false;
         }
     }
@@ -144,12 +144,14 @@
             removeInvalid(elementId);
             return true;
         } else {
-            addInvalid(elementId,"Spin Up time should be a number of days.");
+            addInvalid(elementId,"Spin Up time should be a number of days, or zero.");
             return false;
         }
     }
 
     function containsCorrectChars(text) {
+        // check if a text match pattern -> a-z, A-Z, 0-9, "-" and "_" allowed
+        // text is invalid if it contains only "-" and "_"
         return text.match(/^([a-zA-Z0-9\-_])+$/g, text) && !(text.match(/^([\-_])+$/g, text));
     }
 
