@@ -64,21 +64,6 @@ function getRowColFromId(cellId) {
     return {"row": parseInt(cell[1]), "col": parseInt(cell[2])}
 }
 
-function onMouseDown(id) {
-    const grid = getRowColFromId(id);
-    const row = grid.row;
-    const col = grid.col;
-
-    for (let i = row - addCellInDirection; i <= row + addCellInDirection; i++) {
-        for (let j = col - addCellInDirection; j <= col + addCellInDirection; j++) {
-            if (i < 0 || i >= rows_total || j < 0 || j >= columns_total) {
-                continue;
-            }
-            document.getElementById(`cell_${i}_${j}`).classList.toggle("bg-primary");
-        }
-    }
-}
-
 function onMouseOver(id, isHighlighted) {
     const grid = getRowColFromId(id);
     const row = grid.row;
@@ -100,13 +85,13 @@ $(function () {
     $("#model-mesh td")
         .mousedown(function () {
             isMouseDown = true;
-            onMouseDown(this.id);
-            isHighlighted = $(this).hasClass("bg-primary");
+            isHighlighted = !$(this).hasClass("bg-primary");
+            onMouseOver(this.id, isHighlighted);
             return false; // prevent text selection
         })
         .mouseover(function () {
             if (isMouseDown) {
-                onMouseOver(this.id, isHighlighted)
+                onMouseOver(this.id, isHighlighted);
             }
         })
         .bind("selectstart", function () {
