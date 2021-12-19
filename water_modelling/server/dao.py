@@ -129,3 +129,209 @@ def remove_project(project_name: str):
     # if project was currently loaded, remove it and reset util fields
     if util.loaded_project is not None and util.loaded_project['name'] == project_name:
         util.reset_project_data()
+
+
+def get_hydrus_length_unit(model_name: str):
+    """
+    Extracts the length unit used for a given hydrus model.
+
+    :param model_name: the model to get the unit fro
+    :return: unit, string - "m", "cm" or "mm"
+    """
+    filepath = os.path.join(util.get_hydrus_dir(), model_name, "SELECTOR.IN")
+    selector_file = open(filepath, 'r')
+
+    lines = selector_file.readlines()
+    i = 0
+
+    while True:
+        if i >= len(lines):
+            raise LookupError(f"ERROR: invalid SELECTOR.IN file for model {model_name}, no length unit found")
+        curr_line = lines[i]
+        if "LUnit" in curr_line:
+            unit = lines[i+1].strip()
+            return unit
+        i += 1
+
+
+#  ----- weather file data keys -----
+LATITUDE = 'Latitude'
+ELEVATION = 'Elevation'
+RAD = 'Solar'
+T_MAX = 'Max Temperature'
+T_MIN = 'Min Temperature'
+RH_MEAN = 'Relative Humidity'
+WIND = 'Wind'
+PRECIPITATION = 'Precipitation'
+
+
+def add_weather_to_hydrus_model(model_name: str, data: dict):
+    """
+    Enriches the target hydrus model with weather file data.
+
+    :param model_name: the name of the model to modify
+    :param data: a dictionary with the loaded weather data
+    :return: success - boolean, true if model was updated successfully, false otherwise
+    """
+    model_dir = os.path.join(util.get_hydrus_dir(), model_name)
+
+    # modify meteo file if it exists, return if encountered issues
+    if os.path.isfile(os.path.join(model_dir, "METEO.IN")):
+        meteo_file_modified = modify_meteo_file(model_dir, data)
+        if not meteo_file_modified:
+            return False
+
+    # modify atmosph file is it exists
+    replace_rain = PRECIPITATION in data.keys()
+    if replace_rain and os.path.isfile(os.path.join(model_dir, "ATMOSPH.IN")):
+        atmosph_file_modified = modify_atmosph_file(model_dir, data)
+        if not atmosph_file_modified:
+            return False
+
+    return True
+
+
+def modify_meteo_file(model_dir, data):
+    meteo_file_path = os.path.join(model_dir, "METEO.IN")
+    meteo_file = open(meteo_file_path, "r+")
+
+    old_file_lines = meteo_file.readlines()
+    # remove trailing empty lines from end of file
+    while old_file_lines[len(old_file_lines)-1].strip() == "":
+        old_file_lines.pop()
+    new_file_lines = []
+
+    # update latitude and altitude
+    i = 0
+    while True:
+        curr_line = old_file_lines[i]
+        new_file_lines.append(curr_line)
+        i += 1
+        if "Latitude" in curr_line:
+            # write the updated values and break
+            new_file_lines.append(f"   {data[LATITUDE][0]}   {data[ELEVATION][0]}\n")
+            i += 1
+            break
+
+    # check which fields we have data about
+    replace_rad = RAD in data.keys()
+    replace_tmax = T_MAX in data.keys()
+    replace_tmin = T_MIN in data.keys()
+    replace_rhmean = RH_MEAN in data.keys()
+    replace_wind = WIND in data.keys()
+
+    # navigate to table start
+    while True:
+        curr_line = old_file_lines[i]
+        new_file_lines.append(curr_line)
+        i += 1
+        if "Daily values" in curr_line:
+            new_file_lines.append(old_file_lines[i])  # skip field descriptions line
+            i += 1
+            new_file_lines.append(old_file_lines[i])  # skip units line
+            i += 1
+            break
+
+    # verify if weather file length is at least the same as data;
+    # i+1 for 0-indexing, +1 for the sum to be correct, then -1 for the EOF line
+    data_lines = len(old_file_lines) - (i+1)
+    if len(data[LATITUDE]) < data_lines:
+        print(f"WARNING: insufficient weather file size - expected at least {data_lines} records, got {len(data[LATITUDE])}")
+        return False
+
+    # write new table values, only change columns for which we have data
+    data_row = 0
+    while True:
+
+        # break if reached end of file
+        curr_line = old_file_lines[i]
+        if "end" in curr_line:
+            new_file_lines.append(curr_line)
+            break
+
+        curr_row = old_file_lines[i].split()
+        if replace_rad:
+            curr_row[1] = data[RAD][data_row]
+        if replace_tmax:
+            curr_row[2] = data[T_MAX][data_row]
+        if replace_tmin:
+            curr_row[3] = data[T_MIN][data_row]
+        if replace_rhmean:
+            curr_row[4] = data[RH_MEAN][data_row]
+        if replace_wind:
+            curr_row[5] = data[WIND][data_row]
+
+        new_file_lines.append(build_line(curr_row))
+
+        i += 1
+        data_row += 1
+
+    # overwrite file
+    meteo_file.seek(0)
+    meteo_file.writelines(new_file_lines)
+    meteo_file.truncate()
+    meteo_file.close()
+
+    return True
+
+
+def modify_atmosph_file(model_dir, data):
+
+    atmosph_file_path = os.path.join(model_dir, "ATMOSPH.IN")
+    atmosph_file = open(atmosph_file_path, "r+")
+
+    old_file_lines = atmosph_file.readlines()
+    # remove trailing empty lines from end of file
+    while old_file_lines[len(old_file_lines)-1].strip() == "":
+        old_file_lines.pop()
+    new_file_lines = []
+
+    i = 0
+
+    # navigate to table start
+    while True:
+        curr_line = old_file_lines[i]
+        new_file_lines.append(curr_line)
+        i += 1
+        if "Prec" in curr_line:
+            break
+
+    # verify if weather file length is at least the same as data;
+    # i+1 for 0-indexing, +1 for the sum to be correct, then -1 for the EOF line
+    data_lines = len(old_file_lines) - (i+1)
+    if len(data[LATITUDE]) < data_lines:
+        print(f"WARNING: insufficient weather file size - expected at least {data_lines} records, got {len(data[LATITUDE])}")
+        return False
+
+    # modify table
+    data_row = 0
+    while True:
+
+        # break if reached end of file
+        curr_line = old_file_lines[i]
+        if "end" in curr_line:
+            new_file_lines.append(curr_line)
+            break
+
+        curr_row = old_file_lines[i].split()
+        curr_row[1] = data[PRECIPITATION][data_row]
+        new_file_lines.append(build_line(curr_row))
+
+        i += 1
+        data_row += 1
+
+    # overwrite file
+    atmosph_file.seek(0)
+    atmosph_file.writelines(new_file_lines)
+    atmosph_file.truncate()
+    atmosph_file.close()
+
+    return True
+
+
+def build_line(items: list):
+    line = "   "
+    for item in items:
+        line += f"{item}    "
+    line += "\n"
+    return line

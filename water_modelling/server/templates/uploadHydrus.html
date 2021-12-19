@@ -54,6 +54,11 @@
         </div>
     </div>
     {% if (model_names is defined) and model_names %}
+        <div class="text-center" style="margin:0 0 40px;">
+            <h3>Upload weather data</h3>
+            <p>modify your Hydrus models by uploading weather data from .csv files</p>
+            <a type="button" class="btn btn-outline-secondary" href="{{ url_for('upload_weather_file') }}">Upload weather files</a>
+        </div>
         <div class="container">
             <div class="row justify-content-md-center">
                 <div class="col-lg-9">
@@ -64,9 +69,8 @@
                                 <li class="list-group-item">
                                     <span class="slice-column left">{{ name }}</span>
                                     <span class="slice-column right">
-                            <button type="button" class="btn btn-danger right"
-                                    onClick="doDelete('{{ name }}')">Remove</button>
-                        </span>
+                                        <button type="button" class="btn btn-danger right" onClick="doDelete('{{ name }}')">Remove</button>
+                                    </span>
                                 </li>
                             {% endfor %}
                         </ul>

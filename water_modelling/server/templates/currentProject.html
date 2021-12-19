@@ -5,110 +5,118 @@
     <title>HMSE | {{ project.name }}</title>
     <link rel="stylesheet" href="/static/css/currentProject.css">{% endblock %}
 {% block body %}
-    <div class="container mt-5" id="configuration-content">
+<div class="container mt-5" id="configuration-content">
+    <div class="row justify-content-md-center">
+        <div class="col-lg-9">
+            <div class="text-center">
+                <h1 class="display-4">Summary for project {{ project.name }}</h1>
+                <p class="lead">Click "Simulate" to configure simulation</p>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-md-center">
+        <div class="col-auto">
+            <a type="button" class="btn btn-primary btn-lg" href="{{ url_for('upload_modflow') }}">
+                Simulate
+            </a>
+            <a type="button" id="download" hidden class="btn btn-success btn-lg"
+               href="{{ url_for('project_download') }}"> Results
+            </a>
+        </div>
+    </div>
+    <div class="container">
         <div class="row justify-content-md-center">
             <div class="col-lg-9">
-                <div class="text-center">
-                    <h1 class="display-4">Summary for project {{ project.name }}</h1>
-                    <p class="lead">Click "Simulate" to configure simulation</p>
-                </div>
-            </div>
-        </div>
-        <div class="row justify-content-md-center">
-            <div class="col-auto">
-                <a type="button" class="btn btn-primary btn-lg" href="{{ url_for('upload_modflow') }}">
-                    Simulate
-                </a>
-                <a type="button" id="download" hidden class="btn btn-success btn-lg"
-                   href="{{ url_for('project_download') }}"> Results
-                </a>
-            </div>
-        </div>
-        <div class="container">
-            <div class="row justify-content-md-center">
-                <div class="col-lg-9">
-                    <div class="config-labels">
-                        <h3 style="text-align: center">Project Configuration</h3>
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item ">
-                                <span class="slice-column left">Project Name</span>
-                                <span class="slice-column right">{{ project.name if project.name else '-' }}</span>
-                            </li>
-                            <li class="list-group-item">
-                                <span class="slice-column left">Start Date</span>
-                                <span class="slice-column right">{{ project.start_date if project.start_date else '-' }}</span>
-                            </li>
-                            <li class="list-group-item ">
-                                <span class="slice-column left">End Date</span>
-                                <span class="slice-column right">{{ project.end_date if project.end_date else '-' }}</span>
-                            </li>
-                            <li class="list-group-item ">
-                                <span class="slice-column left">Latitude</span>
-                                <span class="slice-column right">{{ project.lat if project.lat else '-' }}</span>
-                            </li>
-                            <li class="list-group-item ">
-                                <span class="slice-column left">Longitude</span>
-                                <span class="slice-column right">{{ project.long if project.long else '-' }}</span>
-                            </li>
-                            <li class="list-group-item ">
-                                <span class="slice-column left">Spin Up </span>
-                                <span class="slice-column right">{{ project.spin_up+' days' if project.spin_up else '-' }}</span>
-                            </li>
-                        </ul>
-                        <div class="button-edit">
+                <div class="config-labels">
+                    <h3 style="text-align: center">Project Configuration</h3>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item ">
+                            <span class="slice-column left">Project Name</span>
+                            <span class="slice-column right">{{ project.name if project.name else '-' }}</span>
+                        </li>
+                        <li class="list-group-item">
+                            <span class="slice-column left">Start Date</span>
+                            <span class="slice-column right">{{ project.start_date if project.start_date else '-' }}</span>
+                        </li>
+                        <li class="list-group-item ">
+                            <span class="slice-column left">End Date</span>
+                            <span class="slice-column right">{{ project.end_date if project.end_date else '-' }}</span>
+                        </li>
+                        <li class="list-group-item ">
+                            <span class="slice-column left">Latitude</span>
+                            <span class="slice-column right">{{ project.lat if project.lat else '-' }}</span>
+                        </li>
+                        <li class="list-group-item ">
+                            <span class="slice-column left">Longitude</span>
+                            <span class="slice-column right">{{ project.long if project.long else '-' }}</span>
+                        </li>
+                        <li class="list-group-item ">
+                            <span class="slice-column left">Spin Up </span>
+                            <span class="slice-column right">{{ project.spin_up+' days' if project.spin_up else '-' }}</span>
+                        </li>
+                    </ul>
+                    <div class="button-edit">
                         <span class="right">
                             <a type="button" class="btn btn-secondary"
                                href="{{ url_for('edit_project', project_name=project.name) }}">
                                 Edit Configuration
                             </a>
                         </span>
-                        </div>
                     </div>
-                    <div class="config-labels">
-                        <h3 style="text-align: center">Modflow model</h3>
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item ">
-                                <span class="slice-column left">Modflow Model</span>
-                                <span class="slice-column right">{{ project.modflow_model if project.modflow_model else '-' }}</span>
-                            </li>
-                            <li class="list-group-item">
-                                <span class="slice-column left">Grid Size</span>
-                                {% if (project.row_cells|length>0 and project.col_cells|length>0) %}
-                                    <span class="slice-column right">{{ project.rows }} cells x {{ project.cols }} cells</span>
-                                {% else %}
-                                    <span class="slice-column right">-</span>
-                                {% endif %}
-                            </li>
-                            <li class="list-group-item ">
-                                <span class="slice-column left">Grid Unit</span>
-                                <span class="slice-column right">{{ project.grid_unit if project.grid_unit else '-' }}</span>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="config-labels">
-                        <h3 style="text-align: center">Hydrus models</h3>
-                        <ul class="list-group list-group-flush">
-                            {% if project.hydrus_models and project.hydrus_models is defined %}
-                                {% for hydrus_model in project.hydrus_models %}
-                                    <li class="list-group-item ">
-                                        <span class="slice-column left">Hydrus Model {{ loop.index }}</span>
-                                        <span class="slice-column right">{{ hydrus_model }}</span>
-                                    </li>
-                                {% endfor %}
+                </div>
+                <div class="config-labels">
+                    <h3 style="text-align: center">Modflow model</h3>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item ">
+                            <span class="slice-column left">Modflow Model</span>
+                            <span class="slice-column right">{{ project.modflow_model if project.modflow_model else '-' }}</span>
+                        </li>
+                        <li class="list-group-item">
+                            <span class="slice-column left">Grid Size</span>
+                            {% if (project.row_cells|length>0 and project.col_cells|length>0) %}
+                            <span class="slice-column right">{{ project.rows }} cells x {{ project.cols }} cells</span>
                             {% else %}
-                                <li class="list-group-item ">
-                                    <span class="slice-column left">Hydrus models</span>
-                                    <span class="slice-column right">-</span>
-                                </li>
+                            <span class="slice-column right">-</span>
                             {% endif %}
-                        </ul>
+                        </li>
+                        <li class="list-group-item ">
+                            <span class="slice-column left">Grid Unit</span>
+                            <span class="slice-column right">{{ project.grid_unit if project.grid_unit else '-' }}</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="config-labels">
+                    <h3 style="text-align: center">Hydrus models</h3>
+                    <ul class="list-group list-group-flush">
+                        {% if project.hydrus_models and project.hydrus_models is defined %}
+                        {% for hydrus_model in project.hydrus_models %}
+                        <li class="list-group-item ">
+                            <span class="slice-column left">Hydrus Model {{ loop.index }}</span>
+                            <span class="slice-column right">{{ hydrus_model }}</span>
+                        </li>
+                        {% endfor %}
+                        {% else %}
+                        <li class="list-group-item ">
+                            <span class="slice-column left">Hydrus models</span>
+                            <span class="slice-column right">-</span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                    <div class="button-edit">
+                        <span class="right">
+                            <a type="button" class="btn btn-secondary"
+                               href="{{ url_for('upload_weather_file', hydrus_models=project.hydrus_models, upload_error=False) }}">
+                                Upload weather files
+                            </a>
+                        </span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
-        <script src="/static/js/currentProject.js"></script>
+<script src="/static/js/currentProject.js"></script>
 {% endblock %}

@@ -8,6 +8,7 @@ from server import endpoints, template
 from zipfile import ZipFile
 
 import dao
+import weather_util
 import json
 import numpy as np
 import os
@@ -253,6 +254,28 @@ def upload_modflow_handler(req):
         return abort(500)
 
 
+def upload_weather_file_handler(req):
+
+    # read data from request, sve file
+    model_name = req.form['model_name']
+    weather_file = req.files['file']
+    filepath = os.path.join(util.get_hydrus_dir(), model_name, weather_file.filename)
+    weather_file.save(filepath)
+
+    # update hydrus project
+    length_unit = dao.get_hydrus_length_unit(model_name)
+    raw_data = weather_util.read_weather_csv(filepath)
+    ready_data = weather_util.adapt_data(raw_data, length_unit)
+    success = dao.add_weather_to_hydrus_model(model_name, ready_data)
+
+    os.remove(filepath)
+
+    if not success:
+        return jsonify(error=str("Length mismatch between project data and file data")), 400
+
+    return "Success", 200
+
+
 def remove_modflow_handler(req):
     body = json.loads(req.data)
     if body['modelName']:
@@ -305,10 +328,15 @@ def upload_hydrus_handler(req):
 
 def remove_hydrus_handler(req):
     body = json.loads(req.data)
+    hydrus_model_name = body['modelName']
     print("received call")
-    print(body['modelName'])
-    if body['modelName']:
-        dao.remove_model('hydrus', body["modelName"])
+    print(hydrus_model_name)
+    if hydrus_model_name:
+        dao.remove_model('hydrus', hydrus_model_name)
+        if hydrus_model_name in util.loaded_shapes.keys():
+            del util.loaded_shapes[hydrus_model_name]
+        if hydrus_model_name in util.models_masks_ids.keys():
+            del util.models_masks_ids[hydrus_model_name]
     return redirect(endpoints.UPLOAD_HYDRUS, code=303)
 
 
