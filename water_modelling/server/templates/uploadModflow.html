@@ -3,7 +3,7 @@
 {% block head %}
     <link rel="stylesheet" href="/static/css/layout.css">
     <link rel="stylesheet" href="/static/css/uploadModflow.css">
-    <title>HP4M | MODFLOW</title>
+    <title>HMSE | MODFLOW</title>
 {% endblock %}
 
 {% block simulation_active %}active{% endblock %}
@@ -16,8 +16,8 @@
 
                 <div class="col-lg-9">
                     <div class="text-center">
-                        <h1 class="display-4">Upload modflow project</h1>
-                        <p class="lead">Drag and drop the modflow project you want to simulate, then click "Next"</p>
+                        <h1 class="display-4">Upload Modflow project</h1>
+                        <p class="lead">Drag and drop the Modflow project you want to simulate, then click "Next"</p>
                     </div>
                     <hr class="my-4">
 
@@ -27,7 +27,7 @@
                             <div class="panel-body">
 
                                 <!-- Drop Zone -->
-                                <h4>Drag and drop files below</h4>
+                                <h6>Drag and drop files below, provide a <b>.rar or .zip archive with the model files placed directly in the root</b>.</h6>
                                 <div class="upload-drop-zone" id="drop-zone-modflow">
                                     Just drag and drop files here
                                 </div>
@@ -61,8 +61,8 @@
                             <li class="list-group-item">
                                 <span class="slice-column left">{{ model_name }}</span>
                                 <span class="slice-column right">
-                            <button type="button" class="btn btn-danger right" onClick="doDelete('{{ model_name }}')">Remove</button>
-                        </span>
+                                    <button type="button" class="btn btn-danger right" onClick="doDelete('{{ model_name }}')">Remove</button>
+                                </span>
                             </li>
                         </ul>
                     </div>

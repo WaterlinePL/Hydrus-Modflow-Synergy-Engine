@@ -21,6 +21,7 @@ def home():
     return render_template(template.HOME)
 
 
+# TODO: add some condition if its a local version / hide endpoint
 @app.route(endpoints.CONFIGURATION, methods=['GET', 'POST'])
 def configuration():
     if request.method == 'POST':
