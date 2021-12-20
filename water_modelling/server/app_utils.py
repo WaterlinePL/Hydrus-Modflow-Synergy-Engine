@@ -30,6 +30,23 @@ def get_or_none(req, key):
     return req.form[key] if req.form[key] != "" else None
 
 
+def fix_model_name(name: str):
+    """
+    Takes a filename string and makes it safe for further use. This method will probably need expanding.
+    E.g. "modflow .1.zip" becomes "modflow__1.zip". Also file names will be truncated to 40 characters.
+
+    @param name: the name of the file uploaded by the user
+    @return: that name, made safe for the app to use
+    """
+    dots = name.count('.') - 1  # for when someone decides to put a dot in the filename
+    name = name.replace(" ", "-").replace("_", "-").replace(".", "-", dots)  # remove problematic characters
+    if len(name) > 44:  # truncate name to 40 characters long (+4 for ".zip")
+        split = name.split('.')
+        split[0] = split[0][0:40]
+        name = ".".join(split)
+    return name
+
+
 # Ta klasa stała się reactowym state XD
 class AppUtils:
 
