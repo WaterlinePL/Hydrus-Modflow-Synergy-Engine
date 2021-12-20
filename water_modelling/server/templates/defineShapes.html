@@ -18,24 +18,35 @@
                 </div>
             </div>
         </div>
+        <div class="row justify-content-center my-4">
+            <div class="col-2-auto mx-2"><h4>Brush Size</h4></div>
+            <div class="col-2-auto">
+                <select id="brush-size" class="form-control form-control-sm">
+                    <option selected value="0"> 1 Cell </option>
+                    <option value="1"> 9 Cells </option>
+                    <option value="2"> 25 Cells </option>
+                    <option value="3"> 49 Cells </option>
+                    <option value="4"> 81 Cells </option>
+                </select>
+            </div>
+        </div>
         <div class="row justify-content-center my-2">
             <strong>Hydrus model: {{ modelName }}</strong>
         </div>
 
         <div class="row justify-content-center my-2">
             <div class="col-2-auto mx-2">
-                <table class="table table-sm" style="width: 500px">
+                <table class="table tab-manual table-sm" id="model-mesh" style="width: 500px">
                     <tbody>
                     {% for row in rows %}
-                        <tr class="cell-row"
-                            style="height: {{ rows_height[loop.index0] }}px !important; padding:0 !important;">
-                            {% for col in cols %}
-                                <td class="cell border border-1" id="{{ 'cell_' + row + '_' + col }}"
-                                    onclick="handleClick('{{ row }}','{{ col }}')"
-                                    style="width:{{ cols_width[loop.index0] }}px !important; padding:0 !important;">
-                                </td>
-                            {% endfor %}
-                        </tr>
+                    <tr class="cell-row"
+                        style="height: {{ rows_height[loop.index0] }}px !important; padding:0 !important;">
+                        {% for col in cols %}
+                        <td class="cell border border-1" id="{{ 'cell_' + row + '_' + col }}"
+                            style="width:{{ cols_width[loop.index0] }}px !important; padding:0 !important;">
+                        </td>
+                        {% endfor %}
+                    </tr>
                     {% endfor %}
                     </tbody>
                 </table>
