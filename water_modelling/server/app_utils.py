@@ -39,7 +39,7 @@ def fix_model_name(name: str):
     @return: that name, made safe for the app to use
     """
     dots = name.count('.') - 1  # for when someone decides to put a dot in the filename
-    name = name.replace(" ", "-").replace(".", "-", dots)  # remove whitespace and extra dots
+    name = name.replace(" ", "-").replace("_", "-").replace(".", "-", dots)  # remove whitespace and extra dots
     if len(name) > 44:  # truncate name to 40 characters long (+4 for ".zip")
         split = name.split('.')
         split[0] = split[0][0:40]
