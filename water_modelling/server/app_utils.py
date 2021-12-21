@@ -81,6 +81,12 @@ class AppUtils:
         else:
             return None
 
+    def get_modflow_dir_by_project_name(self, project_name):
+        if project_name is not None:
+            return os.path.join(self.workspace_dir, project_name, 'modflow')
+        else:
+            return None
+
     def get_hydrus_dir(self):
         if self.loaded_project is not None:
             return os.path.join(self.workspace_dir, self.loaded_project['name'], 'hydrus')
