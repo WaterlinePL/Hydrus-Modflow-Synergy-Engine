@@ -129,10 +129,10 @@ def project_is_finished_handler(project_name):
             util.error_flag = True
             return redirect(endpoints.PROJECT_LIST)
 
-        if os.path.exists(os.path.join(util.get_modflow_dir(project_name=project_name), "finished.0")):
+        if os.path.exists(os.path.join(util.get_modflow_dir_by_project_name(project_name=project_name), "finished.0")):
             return json.dumps({'status': 'OK'})
 
-    if util.loaded_project is not None:
+    elif util.loaded_project is not None:
         if os.path.exists(os.path.join(util.get_modflow_dir(), "finished.0")):
             return json.dumps({'status': 'OK'})
 
