@@ -9,6 +9,8 @@ from simulation.simulation_stage_status import SimulationStageStatus
 
 
 class Simulation:
+    SIMULATION_FINISHED_FLAG_FILE = 'finished.0'
+
     def __init__(self, simulation_id: int, deployer: IAppDeployer):
         self.simulation_id = simulation_id
         self.deployer = deployer
@@ -22,6 +24,7 @@ class Simulation:
         self._modflow_stage_status = SimulationStageStatus()
 
     def run_simulation(self, modflow_dir: str, hydrus_dir: str):
+        self.unset_finished_flag(modflow_dir)       # Mark project as not simulated
 
         # ===== RUN HYDRUS INSTANCES ======
         self.run_hydrus(hydrus_dir)
@@ -32,7 +35,7 @@ class Simulation:
 
         # ===== RUN MODFLOW INSTANCE ======
         self.run_modflow(modflow_dir, nam_file)
-        self.set_finished_flag(modflow_dir)
+        self.set_finished_flag(modflow_dir)     # Mark project as simulated
 
     def run_modflow(self, modflow_dir: str, nam_file: str):
         assert self.modflow_project is not None
@@ -100,6 +103,12 @@ class Simulation:
 
     @staticmethod
     def set_finished_flag(modflow_dir: str) -> None:
-        finished_file_path = os.path.join(modflow_dir, 'finished.0')
+        finished_file_path = os.path.join(modflow_dir, Simulation.SIMULATION_FINISHED_FLAG_FILE)
         finished_file = open(finished_file_path, "w")
         finished_file.close()
+
+    @staticmethod
+    def unset_finished_flag(modflow_dir: str) -> None:
+        finished_file_path = os.path.join(modflow_dir, Simulation.SIMULATION_FINISHED_FLAG_FILE)
+        if os.path.exists(finished_file_path):
+            os.remove(finished_file_path)

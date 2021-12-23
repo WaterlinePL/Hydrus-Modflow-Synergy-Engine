@@ -20,6 +20,7 @@
             context: this,
             success: function (content) {
                 _runButton.attr('hidden', true);
+                $('#download').attr('hidden', true);
                 $('#start-alert').toast('show');
                 _hydrusCalc.removeAttr('hidden');
                 checkSimulationStatus(content["id"]);

@@ -55,14 +55,14 @@
                 </span>
                 <span class="slice-column right" style="padding: 50px 15px;">
                     <button type="button" id="start-simulation" class="btn btn-primary right" href=""> Run </button>
-                    <button type="button" id="hydrus-button" class="btn btn-danger right"
-                            href="{{url_for('upload_hydrus')}}" hidden>
+                    <a type="button" id="hydrus-button" class="btn btn-danger right"
+                            href="{{ url_for('upload_hydrus') }}" hidden>
                         Return to Hydrus upload
-                    </button>
-                    <button type="button" id="modflow-button" class="btn btn-danger right"
-                            href="{{url_for('upload_modflow')}}" hidden>
+                    </a>
+                    <a type="button" id="modflow-button" class="btn btn-danger right"
+                            href="{{ url_for('upload_modflow') }}" hidden>
                         Return to Modflow upload
-                    </button>
+                    </a>
                 </span>
             </div>
         </div>
