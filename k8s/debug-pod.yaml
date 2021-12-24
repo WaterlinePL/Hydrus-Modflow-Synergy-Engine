@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: testo
+spec:
+  volumes:
+  - name: local-volume
+    hostPath: 
+      path: /run/desktop/mnt/host/c/Users/micro/Desktop/Studia/Inzynierka2/water_modeling_agh/k8s
+  serviceAccountName: internal-kubectl
+  containers:
+  - name: testo
+    image: watermodelling/hydrus-modflow-synergy-engine:ubuntu-k8s
+    command:
+      - "sleep"
+      - "infinity"
+    securityContext: 
+      privileged: True 
+    volumeMounts:
+    - name: local-volume
+      mountPath: /local

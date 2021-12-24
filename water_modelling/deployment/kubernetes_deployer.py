@@ -1,30 +1,39 @@
 import os
+import uuid
 from concurrent.futures import ThreadPoolExecutor
 from typing import List
 
 from kubernetes import config, client
 
+from app_config import deployment_config
 from deployment.app_deployer_interface import IAppDeployer
 
-from hydrus.desktop.hydrus_multi_deployer import HydrusLocalMultiDeployer
-from kubernetes_controller.pod_controller import PodController
-from modflow.modflow_pod_deployer import ModflowPodDeployer
-from utils import path_formatter as PathFormatter
+from hydrus.kubernetes.hydrus_multi_job_deployer import HydrusMultiJobDeployer
+from kubernetes_controller.job_controller import JobController
+from modflow.modflow_job_deployer import ModflowJobDeployer
+from utils import path_formatter
 
 
-# TODO: adapt to kubernetes cluster
 class KubernetesDeployer(IAppDeployer):
+    SHORTENED_UUID_LENGTH = 21
 
-    def __init__(self, modflow_image: str = "observer46/water_modeling_agh:hydrus1d_linux",
-                 hydrus_image: str = "mjstealey/docker-modflow"):
+    MODFLOW_VERSIONS = ["mf2005"]
+    MODFLOW_IMAGES = ["mjstealey/docker-modflow"]
 
-        self.modflow_image = modflow_image
-        self.hydrus_image = hydrus_image
+    HYDRUS_IMAGES = ["watermodelling/hydrus-modflow-synergy-engine:hydrus1d_linux"]
 
-        config.load_kube_config()
-        self.api_instance = client.CoreV1Api()
-        self.pod_controller = PodController(self.api_instance)
-        self.namespace = "water_modelling"
+    def __init__(self):
+        self.hydrus_image = KubernetesDeployer.HYDRUS_IMAGES[0]
+        self._set_modflow(0)
+
+        if deployment_config.LOCAL_DEBUG_MODE:
+            config.load_kube_config()
+        else:
+            config.load_incluster_config()
+
+        self.core_api_instance = client.CoreV1Api()
+        self.batch_api_instance = client.BatchV1Api()
+        self.namespace = 'default'
 
     def run_hydrus(self, hydrus_dir: str, hydrus_projects: List[str], sim_id: int):
         """
@@ -35,23 +44,32 @@ class KubernetesDeployer(IAppDeployer):
         @return: None
         """
         hydrus_count = len(hydrus_projects)
-        hydrus_pod_names = ["hydrus-pod-id." + str(sim_id) + "-num." + str(i + 1) for i in
-                            range(hydrus_count)]
+        hydrus_job_names = []
+        hydrus_job_descriptions = []
+        hydrus_volumes_sub_paths = []
 
-        hydrus_volumes_paths = []
         for project_name in hydrus_projects:
             hydrus_project_path = os.path.join(hydrus_dir, project_name)
-            hydrus_volumes_paths.append(PathFormatter.format_path_to_docker(dir_path=hydrus_project_path))
-        multipod_deployer = HydrusLocalMultiDeployer(api_instance=self.api_instance,
-                                                     hydrus_projects_paths=hydrus_volumes_paths,
-                                                     pods_names=hydrus_pod_names,
-                                                     namespace=self.namespace)
+            volume_sub_path = path_formatter.format_path_to_docker(dir_path=hydrus_project_path)
+            volume_sub_path = path_formatter.extract_path_inside_workspace(volume_sub_path)[1:]
+            hydrus_volumes_sub_paths.append(volume_sub_path)
 
-        multipod_deployer.run()  # run all hydrus pods
+            job_name = f"{volume_sub_path.split('/hydrus/')[1]}-" \
+                       f"{uuid.uuid4().hex[:KubernetesDeployer.SHORTENED_UUID_LENGTH]}"
+            job_description = f"Project={volume_sub_path.split('/hydrus/')[0]}, sim-id={str(sim_id)}"
+            hydrus_job_names.append(job_name)
+            hydrus_job_descriptions.append(job_description)
+
+        multipod_deployer = HydrusMultiJobDeployer(kubernetes_deployer=self,
+                                                   hydrus_projects_paths=hydrus_volumes_sub_paths,
+                                                   job_names=hydrus_job_names,
+                                                   namespace=self.namespace,
+                                                   job_descriptions=hydrus_job_descriptions)
+
+        deployed_jobs = multipod_deployer.run()  # run all hydrus jobs inside pods
         with ThreadPoolExecutor(max_workers=hydrus_count) as exe:
-            exe.map(self.pod_controller.wait_for_pod_termination, hydrus_pod_names)
+            exe.map(JobController.wait_for_pod_termination, deployed_jobs)
 
-    # FIXME: write in docstring: modflow_dir is project dir
     def run_modflow(self, modflow_dir: str, nam_file: str, sim_id):
         """
         Run modflow simulation in kubernetes cluster
@@ -60,13 +78,23 @@ class KubernetesDeployer(IAppDeployer):
         @param sim_id: ID of the simulation
         @return: None
         """
-        modflow_pod_name = "modflow-2005-id." + str(sim_id)
-        modflow_volume_path = PathFormatter.format_path_to_docker(dir_path=modflow_dir)
-        modflow_deployer = ModflowPodDeployer(api_instance=self.api_instance, path=modflow_volume_path,
-                                              name_file=nam_file, pod_name=modflow_pod_name, namespace=self.namespace)
-        modflow_v1_pod = modflow_deployer.run()  # run modflow pod
+        volume_sub_path = path_formatter.format_path_to_docker(dir_path=modflow_dir)
+        volume_sub_path = path_formatter.extract_path_inside_workspace(volume_sub_path)[1:]
+
+        modflow_job_name = f"{volume_sub_path.split('/modflow/')[1]}-" \
+                           f"{uuid.uuid4().hex[:KubernetesDeployer.SHORTENED_UUID_LENGTH]}"
+        modflow_job_description = f"Project={volume_sub_path.split('/modflow/')[0]}, sim-id={str(sim_id)}"
+        modflow_deployer = ModflowJobDeployer(kubernetes_deployer=self, sub_path=volume_sub_path,
+                                              name_file=nam_file, job_name=modflow_job_name,
+                                              namespace=self.namespace, description=modflow_job_description)
+        modflow_deployer.run()  # run modflow job inside pod
         with ThreadPoolExecutor(max_workers=1) as exe:
-            exe.submit(self.pod_controller.wait_for_pod_termination, modflow_v1_pod.metadata.name)
+            exe.submit(JobController.wait_for_pod_termination, modflow_deployer)
+
+    def _set_modflow(self, i: int):
+        self.modflow_version = KubernetesDeployer.MODFLOW_VERSIONS[i]
+        self.modflow_image = KubernetesDeployer.MODFLOW_IMAGES[i]
 
 
-deployer = KubernetesDeployer()
+def create() -> KubernetesDeployer:
+    return KubernetesDeployer()

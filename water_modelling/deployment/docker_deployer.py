@@ -14,7 +14,7 @@ class DockerDeployer(IAppDeployer):
     MODFLOW_VERSIONS = ["mf2005"]
     MODFLOW_IMAGES = ["mjstealey/docker-modflow"]
 
-    HYDRUS_IMAGES = ["observer46/water_modeling_agh:hydrus1d_linux"]
+    HYDRUS_IMAGES = ["watermodelling/hydrus-modflow-synergy-engine:hydrus1d_linux"]
 
     def __init__(self):
         self.docker_client = docker.APIClient()
@@ -34,7 +34,8 @@ class DockerDeployer(IAppDeployer):
 
         hydrus_volumes_paths = []
         for project_name in hydrus_projects:
-            workspace_project_path = self._extract_path_inside_workspace(os.path.join(hydrus_dir, project_name))
+            workspace_project_path = path_formatter.extract_path_inside_workspace(
+                os.path.join(hydrus_dir, project_name))
             hydrus_volumes_paths.append(path_formatter.format_path_to_docker(dir_path=self.workspace_volume)
                                         + workspace_project_path)
 
@@ -50,7 +51,7 @@ class DockerDeployer(IAppDeployer):
 
     def run_modflow(self, modflow_dir: str, nam_file: str, sim_id):
         modflow_container_name = "modflow-container-2005-id." + str(sim_id)
-        workspace_project_path = self._extract_path_inside_workspace(modflow_dir)
+        workspace_project_path = path_formatter.extract_path_inside_workspace(modflow_dir)
         modflow_volume_path = path_formatter.format_path_to_docker(dir_path=self.workspace_volume) \
                               + workspace_project_path
 
@@ -63,10 +64,6 @@ class DockerDeployer(IAppDeployer):
     def _set_modflow(self, i: int):
         self.modflow_version = DockerDeployer.MODFLOW_VERSIONS[i]
         self.modflow_image = DockerDeployer.MODFLOW_IMAGES[i]
-
-    @staticmethod
-    def _extract_path_inside_workspace(hydrological_project_path: str) -> str:
-        return hydrological_project_path.split("/water_modelling/workspace")[1]  # Hardcoded ==== bad
 
 
 def create() -> DockerDeployer:

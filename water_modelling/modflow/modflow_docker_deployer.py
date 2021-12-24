@@ -12,6 +12,7 @@ if TYPE_CHECKING:
 
 
 class ModflowContainerDeployer(IModflowDeployer):
+    MODFLOW_VOLUME_MOUNT = "/workspace"
 
     def __init__(self, docker_deployer: DockerDeployer, path: str, name_file: str, container_name: str = None):
         self.docker_deployer = docker_deployer
@@ -30,8 +31,9 @@ class ModflowContainerDeployer(IModflowDeployer):
 
         if not container:
             print("Container %s does not exist. Creating it..." % self.container_name)
+            volume_mount_path = f"{self.path}:{ModflowContainerDeployer.MODFLOW_VOLUME_MOUNT}"
             host_config = self._get_docker_client().create_host_config(auto_remove=True,
-                                                                       binds=[f"{self.path}:/workspace"])
+                                                                       binds=[volume_mount_path])
 
             container = self._get_docker_client().create_container(image=self._get_modflow_image(),
                                                                    volumes=[self.path],
