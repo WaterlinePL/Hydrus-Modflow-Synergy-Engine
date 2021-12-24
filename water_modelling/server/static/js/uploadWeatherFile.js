@@ -59,10 +59,6 @@
         return false;
     }
 
-    if ( $('#error-modflow').length ){
-        $('#error-modflow').toast('show');
-    }
-
     function removeInvalid(elementId) {
         if ($(`#${elementId}`).hasClass('is-invalid')) {
             $(`#${elementId}`).removeClass('is-invalid');
