@@ -7,6 +7,11 @@
 
     var dropZone = document.getElementById('drop-zone-modflow');
 
+    $('#model-select').on('change', function() {
+      var value = $(this).val();
+      removeInvalid('model-select');
+    });
+
     async function startUploadWeatherFile(files, model_name) {
         const formData = new FormData();
         const file = files[0];
@@ -36,8 +41,12 @@
     dropZone.ondrop = function (e) {
         e.preventDefault();
         this.className = 'upload-drop-zone';
-        let model_name = document.getElementById("model-select").value
-        startUploadWeatherFile(e.dataTransfer.files, model_name)
+        const model_name = document.getElementById("model-select").value;
+        if( model_name !== undefined && model_name !== null && model_name !== ""){
+            startUploadWeatherFile(e.dataTransfer.files, model_name)
+        } else {
+            addInvalid("model-select", "Choose model from list")
+        }
     }
 
     dropZone.ondragover = function () {
@@ -50,8 +59,19 @@
         return false;
     }
 
-    if ( $('#error-modflow').length ){
-        $('#error-modflow').toast('show');
+    function removeInvalid(elementId) {
+        if ($(`#${elementId}`).hasClass('is-invalid')) {
+            $(`#${elementId}`).removeClass('is-invalid');
+        }
+    }
+
+    function addInvalid(elementId, errorText) {
+        if (!$(`#${elementId}`).hasClass('is-invalid')) {
+            $(`#${elementId}`).addClass('is-invalid');
+        }
+
+        $('#error-toast-message').text(errorText)
+        $('#error-toast').toast('show');
     }
 
 })(jQuery);
