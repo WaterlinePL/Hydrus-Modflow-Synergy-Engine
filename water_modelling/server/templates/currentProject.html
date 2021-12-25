@@ -102,6 +102,7 @@
                         </li>
                         {% endif %}
                     </ul>
+                {% if project.hydrus_models and project.hydrus_models is defined %}
                     <div class="button-edit">
                         <span class="right">
                             <a type="button" class="btn btn-secondary"
@@ -110,6 +111,7 @@
                             </a>
                         </span>
                     </div>
+                {% endif %}
                 </div>
             </div>
         </div>
