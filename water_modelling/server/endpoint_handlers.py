@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from app_utils import util, get_or_none, fix_model_name
 from datapassing.shape_data import ShapeFileData
 from flask import render_template, redirect, abort, jsonify, send_file
@@ -215,7 +217,7 @@ def upload_modflow_handler(req):
         model.save(archive_path)
         with ZipFile(archive_path, 'r') as archive:
             # get the model name and remember it
-            model_name = filename.split('.')[0]
+            model_name = separate_model_name(filename)[0]
 
             # create a dedicated catalogue and load the model into it
             model_path = os.path.join(util.get_modflow_dir(), model_name)
@@ -258,7 +260,6 @@ def upload_modflow_handler(req):
 
 
 def upload_weather_file_handler(req):
-
     # read data from request, sve file
     model_name = req.form['model_name']
     weather_file = req.files['file']
@@ -297,11 +298,11 @@ def upload_hydrus_handler(req):
 
         filename = fix_model_name(model.filename)
         if util.type_allowed(filename):
-            model_name = filename.split('.')[0]
+            model_name = separate_model_name(filename)[0]
 
             if model_name in util.loaded_project["hydrus_models"]:
                 error_idx = i
-                error = "Model with this name already exits: " + " ".join(model_name)
+                error = "Model with this name already exits: " + model_name
                 break
 
             # save, unzip, remove archive
@@ -323,7 +324,7 @@ def upload_hydrus_handler(req):
             os.remove(archive_path)
             if invalid_model:
                 error_idx = i
-                error = str("Invalid Hydrus project structure")
+                error = "Invalid Hydrus project structure"
                 shutil.rmtree(project_path, ignore_errors=True)
                 break
 
@@ -335,7 +336,7 @@ def upload_hydrus_handler(req):
 
         else:
             error_idx = i
-            error = "Invalid file type. Accepted types: " + " ".join(util.allowed_types)
+            error = "Invalid file type. Accepted types: " + ", ".join(util.allowed_types)
             break
 
     if error is not None:
@@ -352,6 +353,14 @@ def upload_hydrus_handler(req):
     return redirect(endpoints.UPLOAD_HYDRUS)
 
 
+def separate_model_name(filename: str) -> Tuple[str, str]:
+    """
+    Separates filename and its extension
+    @param filename: name of the file including the extension
+    @return: Tuple of 2 strings: (name of the file, extension)
+    """
+    split = filename.split('.')
+    return '.'.join(split[:-1]), split[-1]
 
 
 def remove_hydrus_handler(req):
