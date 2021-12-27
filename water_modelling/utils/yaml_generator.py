@@ -1,12 +1,14 @@
 import os
 
+from app_config import deployment_config
 from utils.yaml_data import YamlData
 
 
 class YamlGenerator:
-
-    VOLUME_NAME = "project-volume"
+    # IMPORTANT: create env variable 'PVC' with name of PVC
+    # (default from .yaml: 'nfs-pvc')
     PVC_NAME = os.environ['PVC']
+    VOLUME_NAME = "project-volume"
     BACKOFF_LIMIT = 2
 
     def __init__(self, data: YamlData):

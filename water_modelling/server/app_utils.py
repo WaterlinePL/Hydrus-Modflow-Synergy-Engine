@@ -55,7 +55,7 @@ class AppUtils:
         self.project_root = os.path.abspath(PROJECT_ROOT)
         self.workspace_dir = os.path.join(self.project_root, 'workspace')
         self.loaded_project = None
-        self.simulation_service = None
+        self.simulation_service: SimulationService = None
         self.current_method = None
         self.recharge_masks = []
         self.models_masks_ids = {}

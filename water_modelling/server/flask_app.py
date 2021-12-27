@@ -183,9 +183,7 @@ def run_simulation():
     if check_previous_steps:
         return check_previous_steps
 
-    if util.loaded_project is not None:
-        simulation_service = SimulationService(util.get_hydrus_dir(), util.get_modflow_dir())
-
+    simulation_service = SimulationService(util.get_hydrus_dir(), util.get_modflow_dir())
     util.set_simulation_serivce(simulation_service)
     sim = util.simulation_service.prepare_simulation()
 
@@ -202,7 +200,22 @@ def run_simulation():
 
 @app.route(endpoints.SIMULATION_CHECK, methods=['GET'])
 def check_simulation_status(simulation_id: int):
-    hydrus_finished, passing_finished, modflow_finished = util.simulation_service.check_simulation_status(
+    hydrus_stage_status, passing_stage_status, modflow_stage_status = util.simulation_service.check_simulation_status(
         int(simulation_id))
-    response = {'hydrus': hydrus_finished, 'passing': passing_finished, 'modflow': modflow_finished}
+
+    response = {
+        'hydrus': {
+            'finished': hydrus_stage_status.has_ended(),
+            'errors': [str(sim_error) for sim_error in hydrus_stage_status.get_errors()]
+        },
+        'passing': {
+            'finished': passing_stage_status.has_ended(),
+            'errors': [str(sim_error) for sim_error in passing_stage_status.get_errors()]
+        },
+        'modflow': {
+            'finished': modflow_stage_status.has_ended(),
+            'errors': [str(sim_error) for sim_error in modflow_stage_status.get_errors()]
+        }
+    }
+
     return jsonify(response)
