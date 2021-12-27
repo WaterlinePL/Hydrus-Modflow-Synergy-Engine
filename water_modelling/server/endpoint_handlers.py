@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from app_utils import util, get_or_none, fix_model_name
 from datapassing.shape_data import ShapeFileData
 from flask import render_template, redirect, abort, jsonify, send_file
@@ -215,7 +217,7 @@ def upload_modflow_handler(req):
         model.save(archive_path)
         with ZipFile(archive_path, 'r') as archive:
             # get the model name and remember it
-            model_name = filename.split('.')[0]
+            model_name = separate_model_name(filename)[0]
 
             # create a dedicated catalogue and load the model into it
             model_path = os.path.join(util.get_modflow_dir(), model_name)
@@ -258,7 +260,6 @@ def upload_modflow_handler(req):
 
 
 def upload_weather_file_handler(req):
-
     # read data from request, sve file
     model_name = req.form['model_name']
     weather_file = req.files['file']
@@ -289,10 +290,20 @@ def remove_modflow_handler(req):
 def upload_hydrus_handler(req):
     models = req.files.getlist('archive-input')
 
-    for model in models:
+    error = None
+    error_idx = 0
+    start_count = len(util.loaded_project["hydrus_models"])
+
+    for i, model in enumerate(models):
 
         filename = fix_model_name(model.filename)
         if util.type_allowed(filename):
+            model_name = separate_model_name(filename)[0]
+
+            if model_name in util.loaded_project["hydrus_models"]:
+                error_idx = i
+                error = "Model with this name already exits: " + model_name
+                break
 
             # save, unzip, remove archive
             archive_path = os.path.join(util.get_hydrus_dir(), filename)
@@ -300,7 +311,7 @@ def upload_hydrus_handler(req):
 
             with ZipFile(archive_path, 'r') as archive:
                 # get the project name and remember it
-                model_name = filename.split('.')[0]
+
                 project_path = os.path.join(util.get_hydrus_dir(), model_name)
 
                 # create a dedicated catalogue and load the project into it
@@ -312,8 +323,10 @@ def upload_hydrus_handler(req):
 
             os.remove(archive_path)
             if invalid_model:
-                shutil.rmtree(project_path, ignore_errors=True)  # remove invalid project dir
-                return jsonify(error=str("Invalid Hydrus project structure")), 500
+                error_idx = i
+                error = "Invalid Hydrus project structure"
+                shutil.rmtree(project_path, ignore_errors=True)
+                break
 
             # update project JSON
             updates = {
@@ -322,13 +335,32 @@ def upload_hydrus_handler(req):
             dao.update(util.loaded_project["name"], updates)
 
         else:
-            print("Invalid archive format, must be one of: ", end='')
-            print(util.allowed_types)
+            error_idx = i
+            error = "Invalid file type. Accepted types: " + ", ".join(util.allowed_types)
+            break
 
-            return jsonify(error=str("Invalid file type. Accepted types: " + " ".join(util.allowed_types))), 500
+    if error is not None:
+        for _ in range(error_idx):
+            model_name = util.loaded_project["hydrus_models"].pop(start_count)
+
+            shutil.rmtree(os.path.join(util.get_hydrus_dir(), model_name),
+                          ignore_errors=True)  # remove invalid project dir
+
+        print(error)
+        return jsonify(error=error), 500
 
     print("Hydrus model uploaded successfully")
     return redirect(endpoints.UPLOAD_HYDRUS)
+
+
+def separate_model_name(filename: str) -> Tuple[str, str]:
+    """
+    Separates filename and its extension
+    @param filename: name of the file including the extension
+    @return: Tuple of 2 strings: (name of the file, extension)
+    """
+    split = filename.split('.')
+    return '.'.join(split[:-1]), split[-1]
 
 
 def remove_hydrus_handler(req):
