@@ -183,10 +183,7 @@ def run_simulation():
     if check_previous_steps:
         return check_previous_steps
 
-    # FIXME: czy ten if tu ma sens? Na podstawie historii gitowej wydaje się być ze względu na dużo merogów :P
-    if util.loaded_project is not None:
-        simulation_service = SimulationService(util.get_hydrus_dir(), util.get_modflow_dir())
-
+    simulation_service = SimulationService(util.get_hydrus_dir(), util.get_modflow_dir())
     util.set_simulation_serivce(simulation_service)
     sim = util.simulation_service.prepare_simulation()
 

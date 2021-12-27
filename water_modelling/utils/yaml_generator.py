@@ -5,8 +5,10 @@ from utils.yaml_data import YamlData
 
 
 class YamlGenerator:
+    # IMPORTANT: create env variable 'PVC' with name of PVC
+    # (default from .yaml: 'nfs-pvc')
+    PVC_NAME = os.environ['PVC']
     VOLUME_NAME = "project-volume"
-    PVC_NAME = "nfs-pvc"  # os.environ['PVC']   # Fix that somehow
     BACKOFF_LIMIT = 2
 
     def __init__(self, data: YamlData):

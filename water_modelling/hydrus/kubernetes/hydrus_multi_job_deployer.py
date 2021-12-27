@@ -13,17 +13,13 @@ if TYPE_CHECKING:
 class HydrusMultiJobDeployer(IHydrusDeployer):
 
     def __init__(self, kubernetes_deployer: KubernetesDeployer, hydrus_projects_paths: List[str], job_names: List[str],
-                 job_descriptions: List[str], namespace: str = ' default'):
+                 job_descriptions: List[str], namespace: str = 'default'):
         self.hydrus_instances = []
         for i, path in enumerate(hydrus_projects_paths):
             self.hydrus_instances.append(
                 _HydrusJobDeployer(kubernetes_deployer, path, job_names[i], job_descriptions[i], namespace=namespace))
 
     def run(self):
-        # deployed_jobs = []
-        # for pod in self.hydrus_instances:
-        #     deployed_jobs.append(pod.run())
-        # return deployed_jobs
         for job in self.hydrus_instances:
             job.run()
         return self.hydrus_instances

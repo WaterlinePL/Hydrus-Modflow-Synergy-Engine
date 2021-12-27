@@ -66,9 +66,9 @@ def _check_no_file_error(log_to_analyze: JoinedLogLines, model_name: str) -> Opt
 
 # Delete values in one row of ATMOSPH.IN but leave number at the beginning of the row (tAtm)
 def _check_convergence_error(log_to_analyze: JoinedLogLines) -> Optional[ErrorDescription]:
-    error_msg_content_part1 = "Numerical solution"
-    error_msg_content_part2 = "not converged"
-    if error_msg_content_part1 in log_to_analyze and error_msg_content_part2 in log_to_analyze:
+    error_msg_numerical_content = "Numerical solution"
+    error_msg_convergence_content = "not converged"
+    if error_msg_numerical_content in log_to_analyze and error_msg_convergence_content in log_to_analyze:
         return "Numerical solution cannot converge - check if input data is correct."
     return None
 
@@ -92,17 +92,17 @@ def _check_basic_info_error(log_to_analyze: JoinedLogLines) -> Optional[ErrorDes
 
 # Check if simulation ended successfully, if not return unknown error
 def _check_for_unknown_error(log_to_analyze: JoinedLogLines, log_lines: List[LogLine]) -> Optional[ErrorDescription]:
-    successful_simulation_msg1 = "Calculation complete"
-    successful_simulation_msg2 = "successfully"
+    successful_simulation_docker = "Calculation complete"
+    successful_simulation_local = "successfully"
     time_word = "time"
 
     if time_word in log_to_analyze and \
-            (successful_simulation_msg1 in log_to_analyze or successful_simulation_msg2 in log_to_analyze):
+            (successful_simulation_docker in log_to_analyze or successful_simulation_local in log_to_analyze):
         return None
 
     log_without_backtrace = create_log_without_backtrace(log_lines)
     unknown_error_log_line_count = min(UNKNOWN_ERROR_LAST_LINES_LOG, len(log_without_backtrace))
-    return f"Unknown error, last log lines: {'<br/>'.join(log_without_backtrace[-unknown_error_log_line_count:])}"
+    return f"Unknown error, last log lines: {'<br>'.join(log_without_backtrace[-unknown_error_log_line_count:])}"
 
 
 def create_log_without_backtrace(log_lines: List[LogLine]) -> List[LogLine]:

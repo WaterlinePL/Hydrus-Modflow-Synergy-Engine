@@ -163,7 +163,7 @@ def _check_for_unknown_error(log_to_analyze: JoinedLogLines, log_lines: List[Log
 
     clean_log_lines = log_lines_without_stacktrace(log_lines)
     unknown_error_log_line_count = min(UNKNOWN_ERROR_LAST_LINES_LOG, len(clean_log_lines))
-    return f"Unknown error, last log lines: {'<br/>'.join(clean_log_lines[-unknown_error_log_line_count:])}"
+    return f"Unknown error, last log lines: {'<br>'.join(clean_log_lines[-unknown_error_log_line_count:])}"
 
 
 # Utility functions
