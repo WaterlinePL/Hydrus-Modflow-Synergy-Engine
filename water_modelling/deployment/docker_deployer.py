@@ -22,7 +22,10 @@ class DockerDeployer(IAppDeployer):
 
         # Works, provided we maintain the order of volumes inside docker-compose.yml -> ['Mounts'][0]['Source']
         # as workspace volume is first on the list
-        self.workspace_volume = self.docker_client.inspect_container(os.environ["HOSTNAME"])['Mounts'][0]['Source']
+        self.workspace_volume = DockerDeployer._get_workspace_mount(
+            self.docker_client.inspect_container(
+                os.environ["HOSTNAME"])['Mounts'])
+
         print(f"Workspace original path: {self.workspace_volume}")
 
         self.hydrus_image = DockerDeployer.HYDRUS_IMAGES[0]
@@ -76,6 +79,13 @@ class DockerDeployer(IAppDeployer):
     def _set_modflow(self, i: int):
         self.modflow_version = DockerDeployer.MODFLOW_VERSIONS[i]
         self.modflow_image = DockerDeployer.MODFLOW_IMAGES[i]
+
+    @staticmethod
+    def _get_workspace_mount(mounts):
+        socket_path = "/var/run/docker.sock"
+        for mount in mounts:
+            if socket_path not in mount['Source']:
+                return mount['Source']
 
 
 def create() -> DockerDeployer:
