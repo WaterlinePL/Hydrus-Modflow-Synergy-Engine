@@ -20,7 +20,6 @@ class HydrusDockerContainerDeployer(IHydrusDeployer):
         self.docker_deployer = docker_deployer
         self.path = path
         self.container_name = container_name
-        self.path = path
         self.container_data = None
 
     def run(self):
