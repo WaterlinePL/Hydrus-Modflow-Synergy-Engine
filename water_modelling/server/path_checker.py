@@ -1,74 +1,89 @@
 from typing import Optional
 
-from flask import Response, redirect, url_for
+from flask import Response, redirect
 
 from server import endpoints
-from server.app_utils import AppUtils
+from server.user_state import UserState
 import server.local_configuration_dao as lcd
 
 
-def path_check_simulate_access(util: AppUtils) -> Optional[Response]:
+def path_check_cookie(state: UserState) -> Optional[Response]:
     """
-    @param util: AppUtils containing current state of application.
+    @param state: UserState containing current state of application.
+    @return: Optional redirect to main page with getting cookie.
+    """
+
+    if not state:
+        return redirect(endpoints.HOME)
+    return None
+
+
+def path_check_simulate_access(state: UserState) -> Optional[Response]:
+    """
+    @param state: UserState containing current state of application.
     @return: Optional redirect to configuration if no paths for Hydrus and Modflow are specified.
     """
 
+    check_previous = path_check_cookie(state)
+    if check_previous:
+        return check_previous
+
     # TODO: add some condition if its a local version
     if not lcd.read_configuration()["modflow_exe"] or not lcd.read_configuration()["hydrus_exe"]:
-        util.activate_error_flag()
+        state.activate_error_flag()
         return redirect(endpoints.CONFIGURATION)
 
     return None
 
 
-def path_check_modflow_step(util: AppUtils) -> Optional[Response]:
+def path_check_modflow_step(state: UserState) -> Optional[Response]:
     """
-    @param util: AppUtils containing current state of application.
+    @param state: UserState containing current state of application.
     @return: Optional redirect to first incorrect step up to upload_modflow (first step).
     """
 
-    check_previous = path_check_simulate_access(util)
+    check_previous = path_check_simulate_access(state)
     if check_previous:
         return check_previous
 
-    if util.get_modflow_dir() is None or not util.loaded_project["modflow_model"]:
-        util.activate_error_flag()
+    if state.get_modflow_dir() is None or not state.loaded_project["modflow_model"]:
+        state.activate_error_flag()
         return redirect(endpoints.UPLOAD_MODFLOW)
 
     return None
 
 
-def path_check_hydrus_step(util: AppUtils) -> Optional[Response]:
+def path_check_hydrus_step(state: UserState) -> Optional[Response]:
     """
-    @param util: AppUtils containing current state of application.
+    @param state: UserState containing current state of application.
     @return: Optional redirect to first incorrect step up to upload_hydrus.
     """
 
-    check_previous = path_check_modflow_step(util)
+    check_previous = path_check_modflow_step(state)
     if check_previous:
         return check_previous
 
     # TODO: check if Hydrus step was visited? (upload of projects is not mandatory)
-    if util.get_hydrus_dir() is None or not util.loaded_project["hydrus_models"]:
-        util.activate_error_flag()
+    if state.get_hydrus_dir() is None or not state.loaded_project["hydrus_models"]:
+        state.activate_error_flag()
         return redirect(endpoints.UPLOAD_HYDRUS)
 
     return None
 
 
-def path_check_define_shapes_method(util: AppUtils) -> Optional[Response]:
+def path_check_define_shapes_method(state: UserState) -> Optional[Response]:
     """
-    @param util: AppUtils containing current state of application.
+    @param state: UserState containing current state of application.
     @return: Optional redirect to first incorrect step up to define_method.
     """
 
-    check_previous = path_check_hydrus_step(util)
+    check_previous = path_check_hydrus_step(state)
     if check_previous:
         return check_previous
 
-    if util.current_method is None or util.loaded_shapes is None:
+    if state.current_method is None or state.loaded_shapes is None:
         # redirect to define method page if method was not selected
-        util.activate_error_flag()
+        state.activate_error_flag()
         return redirect(endpoints.DEFINE_METHOD)
 
     return None

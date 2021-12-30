@@ -1,14 +1,15 @@
 from typing import Tuple
-
-from app_utils import util, get_or_none, fix_model_name
+from app_config import deployment_config
 from datapassing.shape_data import ShapeFileData
-from flask import render_template, redirect, abort, jsonify, send_file
+from flask import render_template, redirect, abort, jsonify, send_file, request
 from flask_paginate import Pagination, get_page_args
 from hydrus import hydrus_utils
 from modflow import modflow_utils
 from server import endpoints, template
 from zipfile import ZipFile
+from utils import path_formatter
 
+import app_utils
 import dao
 import weather_util
 import json
@@ -18,13 +19,14 @@ import shutil
 import local_configuration_dao as lcd
 
 
-def create_project_handler(req):
-    name = req.json['name']
-    lat = req.json['lat']
-    long = req.json["long"]
-    start_date = req.json["start_date"]
-    end_date = req.json["end_date"]
-    spin_up = req.json["spin_up"]
+def create_project_handler():
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
+    name = request.json['name']
+    lat = request.json['lat']
+    long = request.json["long"]
+    start_date = request.json["start_date"]
+    end_date = request.json["end_date"]
+    spin_up = request.json["spin_up"]
 
     # check for name collision
     lowercase_project_names = [name.lower() for name in dao.read_all()]
@@ -48,8 +50,8 @@ def create_project_handler(req):
         "hydrus_models": []
     }
     dao.create(project)
-    util.reset_project_data()
-    util.loaded_project = project
+    state.reset_project_data()
+    state.loaded_project = project
     return json.dumps({'status': 'OK'})
 
 
@@ -58,6 +60,7 @@ def get_projects(projects, offset=0, per_page=10):
 
 
 def project_list_handler(search):
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
     projects = dao.read_all()
 
     if search:
@@ -77,25 +80,27 @@ def project_list_handler(search):
                            page=page,
                            per_page=per_page,
                            pagination=pagination,
-                           error_project_name=util.get_error_flag()
+                           error_project_name=state.get_error_flag()
                            )
 
 
-def remove_project_handler(req):
-    body = json.loads(req.data)
+def remove_project_handler():
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
+    body = json.loads(request.data)
     if body['projectName']:
-        dao.remove_project(body['projectName'])
+        dao.remove_project(body['projectName'], state)
     return redirect(endpoints.PROJECT_LIST, code=303)
 
 
 def project_handler(project_name):
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
     if project_name is None:
         # case 1 - there is already a project loaded and we just want to see it
-        if util.loaded_project is not None:
-            return render_template(template.PROJECT, project=util.loaded_project)
+        if state.loaded_project is not None:
+            return render_template(template.PROJECT, project=state.loaded_project)
         # case 2 - there is no project loaded, the user should be redirected to the project list to select a project
         else:
-            util.activate_error_flag()
+            state.activate_error_flag()
             return redirect(endpoints.PROJECT_LIST)
     # case 3 - we're selecting a new project
     else:
@@ -103,66 +108,69 @@ def project_handler(project_name):
             chosen_project = dao.read(project_name)
         # case 3a - the project does not exist
         except FileNotFoundError:
-            util.activate_error_flag()
+            state.activate_error_flag()
             return redirect(endpoints.PROJECT_LIST)
         else:
 
             # clear old data and load new project
-            util.reset_project_data()
-            util.loaded_project = chosen_project
+            state.reset_project_data()
+            state.loaded_project = chosen_project
 
-            if util.loaded_project["modflow_model"]:
-                model_path = os.path.join(util.get_modflow_dir(), util.loaded_project["modflow_model"])
+            if state.loaded_project["modflow_model"]:
+                model_path = os.path.join(state.get_modflow_dir(), state.loaded_project["modflow_model"])
                 nam_file_name = modflow_utils.get_nam_file(model_path)
                 model_data = modflow_utils.get_model_data(model_path, nam_file_name)
-                util.recharge_masks = modflow_utils.get_shapes_from_rch(
+                state.recharge_masks = modflow_utils.get_shapes_from_rch(
                     model_path, nam_file_name, (model_data["rows"], model_data["cols"])
                 )
 
-            print(util.loaded_project)
+            print(state.loaded_project)
             return render_template(template.PROJECT, project=chosen_project)
 
 
 def project_is_finished_handler(project_name):
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
     if project_name is not None:
         try:
             project = dao.read(project_name)
         except FileNotFoundError:  # the project does not exist
-            util.error_flag = True
+            state.error_flag = True
             return redirect(endpoints.PROJECT_LIST)
 
-        if os.path.exists(os.path.join(util.get_modflow_dir_by_project_name(project_name=project_name), "finished.0")):
+        if os.path.exists(os.path.join(state.get_modflow_dir_by_project_name(project_name=project_name), "finished.0")):
             return json.dumps({'status': 'OK'})
 
-    elif util.loaded_project is not None:
-        if os.path.exists(os.path.join(util.get_modflow_dir(), "finished.0")):
+    elif state.loaded_project is not None:
+        if os.path.exists(os.path.join(state.get_modflow_dir(), "finished.0")):
             return json.dumps({'status': 'OK'})
 
     return json.dumps({'status': 'No Content'})
 
 
 def project_download_handler(project_name):
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
     if project_name is not None:
         try:
             project = dao.read(project_name)
         except FileNotFoundError:  # the project does not exist
-            util.error_flag = True
+            state.error_flag = True
             return redirect(endpoints.PROJECT_LIST)
     else:
-        project = util.loaded_project
+        project = state.loaded_project
 
     if project is not None:
-        project_dir = os.path.join(util.workspace_dir, project["name"])
+        project_dir = os.path.join(deployment_config.WORKSPACE_DIR, project["name"])
         zip_file = shutil.make_archive(project_dir, 'zip', project_dir)
         return send_file(zip_file, as_attachment=True)
     return '', 204
 
 
 def edit_project_handler(project_name):
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
     try:
         project = dao.read(project_name)
     except FileNotFoundError:
-        util.activate_error_flag()
+        state.activate_error_flag()
         return redirect(endpoints.PROJECT_LIST)
     else:
         return render_template(
@@ -176,18 +184,19 @@ def edit_project_handler(project_name):
         )
 
 
-def update_project_settings(req):
-    name = req.json['name']
-    lat = req.json['lat']
-    long = req.json["long"]
-    start_date = req.json["start_date"]
-    end_date = req.json["end_date"]
-    spin_up = req.json['spin_up']
+def update_project_settings():
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
+    name = request.json['name']
+    lat = request.json['lat']
+    long = request.json["long"]
+    start_date = request.json["start_date"]
+    end_date = request.json["end_date"]
+    spin_up = request.json['spin_up']
 
     try:
         prev_project = dao.read(name)
     except FileNotFoundError:
-        util.activate_error_flag()
+        state.activate_error_flag()
         return redirect(endpoints.PROJECT_LIST)
 
     prev_project["name"] = name
@@ -197,30 +206,32 @@ def update_project_settings(req):
     prev_project["end_date"] = end_date
     prev_project['spin_up'] = spin_up
 
-    dao.update(name, prev_project)
+    dao.update(name, prev_project, state)
     return json.dumps({'status': 'OK'})
 
 
-def upload_modflow_handler(req):
+def upload_modflow_handler():
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
+
     # every uploaded model needs to belong to a project;
     # if there is no active project, we cannot upload a model
-    if util.loaded_project is None:
+    if state.loaded_project is None:
         return redirect(endpoints.PROJECT_LIST)
 
-    model = req.files['archive-input']  # matches HTML input name
-    filename = fix_model_name(model.filename)
+    model = request.files['archive-input']  # matches HTML input name
+    filename = path_formatter.fix_model_name(model.filename)
 
-    if util.type_allowed(filename):
+    if state.type_allowed(model.filename):
 
         # save, unzip, remove archive
-        archive_path = os.path.join(util.get_modflow_dir(), filename)
+        archive_path = os.path.join(state.get_modflow_dir(), filename)
         model.save(archive_path)
         with ZipFile(archive_path, 'r') as archive:
             # get the model name and remember it
             model_name = separate_model_name(filename)[0]
 
             # create a dedicated catalogue and load the model into it
-            model_path = os.path.join(util.get_modflow_dir(), model_name)
+            model_path = os.path.join(state.get_modflow_dir(), model_name)
             os.system('mkdir ' + model_path)
             archive.extractall(model_path)
 
@@ -236,7 +247,7 @@ def upload_modflow_handler(req):
         # if model is valid, read its parameters and store them
         model_data = modflow_utils.get_model_data(model_path, nam_file_name)
 
-        util.recharge_masks = modflow_utils.get_shapes_from_rch(model_path, nam_file_name,
+        state.recharge_masks = modflow_utils.get_shapes_from_rch(model_path, nam_file_name,
                                                                 (model_data["rows"], model_data["cols"]))
 
         # update project JSON
@@ -248,29 +259,31 @@ def upload_modflow_handler(req):
             "row_cells": model_data["row_cells"],
             "col_cells": model_data["col_cells"]
         }
-        dao.update(util.loaded_project["name"], updates)
+        dao.update(state.loaded_project["name"], updates, state)
 
         print("Modflow model uploaded successfully")
         return redirect(endpoints.UPLOAD_MODFLOW)
 
     else:
         print("Invalid archive format, must be one of: ", end='')
-        print(util.allowed_types)
+        print(deployment_config.ALLOWED_TYPES)
         return abort(500)
 
 
-def upload_weather_file_handler(req):
+def upload_weather_file_handler():
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
+
     # read data from request, sve file
-    model_name = req.form['model_name']
-    weather_file = req.files['file']
-    filepath = os.path.join(util.get_hydrus_dir(), model_name, weather_file.filename)
+    model_name = request.form['model_name']
+    weather_file = request.files['file']
+    filepath = os.path.join(state   .get_hydrus_dir(), model_name, weather_file.filename)
     weather_file.save(filepath)
 
     # update hydrus project
-    length_unit = dao.get_hydrus_length_unit(model_name)
+    length_unit = dao.get_hydrus_length_unit(model_name, state)
     raw_data = weather_util.read_weather_csv(filepath)
     ready_data = weather_util.adapt_data(raw_data, length_unit)
-    success = dao.add_weather_to_hydrus_model(model_name, ready_data)
+    success = dao.add_weather_to_hydrus_model(model_name, ready_data, state)
 
     os.remove(filepath)
 
@@ -280,39 +293,41 @@ def upload_weather_file_handler(req):
     return "Success", 200
 
 
-def remove_modflow_handler(req):
-    body = json.loads(req.data)
+def remove_modflow_handler():
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
+    body = json.loads(request.data)
     if body['modelName']:
-        dao.remove_model('modflow', body["modelName"])
+        dao.remove_model('modflow', body["modelName"], state)
     return redirect(endpoints.UPLOAD_MODFLOW, code=303)
 
 
-def upload_hydrus_handler(req):
-    models = req.files.getlist('archive-input')
+def upload_hydrus_handler():
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
+    models = request.files.getlist('archive-input')
 
     error = None
     error_idx = 0
-    start_count = len(util.loaded_project["hydrus_models"])
+    start_count = len(state.loaded_project["hydrus_models"])
 
     for i, model in enumerate(models):
 
-        filename = fix_model_name(model.filename)
-        if util.type_allowed(filename):
+        filename = path_formatter.fix_model_name(model.filename)
+        if state.type_allowed(filename):
             model_name = separate_model_name(filename)[0]
 
-            if model_name in util.loaded_project["hydrus_models"]:
+            if model_name in state.loaded_project["hydrus_models"]:
                 error_idx = i
                 error = "Model with this name already exits: " + model_name
                 break
 
             # save, unzip, remove archive
-            archive_path = os.path.join(util.get_hydrus_dir(), filename)
+            archive_path = os.path.join(state.get_hydrus_dir(), filename)
             model.save(archive_path)
 
             with ZipFile(archive_path, 'r') as archive:
                 # get the project name and remember it
-
-                project_path = os.path.join(util.get_hydrus_dir(), model_name)
+                model_name = model.filename.split('.')[0]
+                project_path = os.path.join(state.get_hydrus_dir(), model_name)
 
                 # create a dedicated catalogue and load the project into it
                 os.system('mkdir ' + project_path)
@@ -330,20 +345,20 @@ def upload_hydrus_handler(req):
 
             # update project JSON
             updates = {
-                "hydrus_models": util.loaded_project["hydrus_models"] + [model_name]
+                "hydrus_models": state.loaded_project["hydrus_models"] + [model_name]
             }
-            dao.update(util.loaded_project["name"], updates)
+            dao.update(state.loaded_project["name"], updates, state)
 
         else:
             error_idx = i
-            error = "Invalid file type. Accepted types: " + ", ".join(util.allowed_types)
+            error = "Invalid file type. Accepted types: " + ", ".join(deployment_config.ALLOWED_TYPES)
             break
 
     if error is not None:
         for _ in range(error_idx):
-            model_name = util.loaded_project["hydrus_models"].pop(start_count)
+            model_name = state.loaded_project["hydrus_models"].pop(start_count)
 
-            shutil.rmtree(os.path.join(util.get_hydrus_dir(), model_name),
+            shutil.rmtree(os.path.join(state.get_hydrus_dir(), model_name),
                           ignore_errors=True)  # remove invalid project dir
 
         print(error)
@@ -363,98 +378,105 @@ def separate_model_name(filename: str) -> Tuple[str, str]:
     return '.'.join(split[:-1]), split[-1]
 
 
-def remove_hydrus_handler(req):
-    body = json.loads(req.data)
+def remove_hydrus_handler():
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
+    body = json.loads(request.data)
     hydrus_model_name = body['modelName']
     print("received call")
     print(hydrus_model_name)
     if hydrus_model_name:
-        dao.remove_model('hydrus', hydrus_model_name)
-        if hydrus_model_name in util.loaded_shapes.keys():
-            del util.loaded_shapes[hydrus_model_name]
-        if hydrus_model_name in util.models_masks_ids.keys():
-            del util.models_masks_ids[hydrus_model_name]
+        dao.remove_model('hydrus', hydrus_model_name, state)
+        if hydrus_model_name in state.loaded_shapes.keys():
+            del state.loaded_shapes[hydrus_model_name]
+        if hydrus_model_name in state.models_masks_ids.keys():
+            del state.models_masks_ids[hydrus_model_name]
     return redirect(endpoints.UPLOAD_HYDRUS, code=303)
 
 
 def upload_shape_handler(req, hydrus_model_index):
-    # if not yet done, initialize the shape arrays list to the amount of models
-    if len(util.loaded_shapes) < len(util.loaded_project["hydrus_models"]):
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
 
-        for hydrus_model in util.loaded_project["hydrus_models"]:
-            util.loaded_shapes[hydrus_model] = None
-        # util.loaded_shapes = [None for _ in range(len(util.loaded_project["hydrus_models"]))]
+    # if not yet done, initialize the shape arrays list to the amount of models
+    if len(state.loaded_shapes) < len(state.loaded_project["hydrus_models"]):
+
+        for hydrus_model in state.loaded_project["hydrus_models"]:
+            state.loaded_shapes[hydrus_model] = None
 
     # read the array from the request and store it
     shape_array = req.get_json(force=True)
     np_array_shape = np.array(shape_array)
-    util.loaded_shapes[util.loaded_project["hydrus_models"][hydrus_model_index]] = ShapeFileData(
+    state.loaded_shapes[state.loaded_project["hydrus_models"][hydrus_model_index]] = ShapeFileData(
         shape_mask_array=np_array_shape)
 
     return json.dumps({'status': 'OK'})
 
 
 def next_model_redirect_handler(hydrus_model_index, error_flag):
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
+
     # check if we still have models to go, if not, redirect to next section
-    if hydrus_model_index >= len(util.loaded_project["hydrus_models"]):
-        for key in util.loaded_shapes:
-            print(key, '->\n', util.loaded_shapes[key].shape_mask)
+    if hydrus_model_index >= len(state.loaded_project["hydrus_models"]):
+        for key in state.loaded_shapes:
+            print(key, '->\n', state.loaded_shapes[key].shape_mask)
         return redirect(endpoints.SIMULATION)
 
     else:
-        rows_height, cols_width = modflow_utils.scale_cells_size(util.loaded_project['row_cells'],
-                                                                 util.loaded_project['col_cells'], 500)
+        rows_height, cols_width = modflow_utils.scale_cells_size(state.loaded_project['row_cells'],
+                                                                 state.loaded_project['col_cells'], 500)
         return render_template(
             template.DEFINE_SHAPES,
-            rowAmount=util.loaded_project["rows"],
-            colAmount=util.loaded_project["cols"],
-            rows=[str(x) for x in range(util.loaded_project["rows"])],
-            cols=[str(x) for x in range(util.loaded_project["cols"])],
+            rowAmount=state.loaded_project["rows"],
+            colAmount=state.loaded_project["cols"],
+            rows=[str(x) for x in range(state.loaded_project["rows"])],
+            cols=[str(x) for x in range(state.loaded_project["cols"])],
             cols_width=cols_width,
             rows_height=rows_height,
             modelIndex=hydrus_model_index,
-            modelName=util.loaded_project["hydrus_models"][hydrus_model_index],
+            modelName=state.loaded_project["hydrus_models"][hydrus_model_index],
             upload_error=error_flag
         )
 
 
 def next_shape_redirect_handler(rch_shape_index):
-    if rch_shape_index >= len(util.recharge_masks):
-        util.get_shapes_from_masks_ids()
-        for key in util.loaded_shapes:
-            print(key, '->\n', util.loaded_shapes[key].shape_mask)
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
+
+    if rch_shape_index >= len(state.recharge_masks):
+        state.get_shapes_from_masks_ids()
+        for key in state.loaded_shapes:
+            print(key, '->\n', state.loaded_shapes[key].shape_mask)
         return redirect(endpoints.SIMULATION)
     else:
-        current_model = util.get_current_model_by_id(rch_shape_index)
-        rows_height, cols_width = modflow_utils.scale_cells_size(util.loaded_project['row_cells'],
-                                                                 util.loaded_project['col_cells'], 500)
-        return render_template(template.RCH_SHAPES, hydrus_models=util.loaded_project["hydrus_models"],
-                               shape_mask=util.recharge_masks[rch_shape_index], rch_shape_index=rch_shape_index,
+        current_model = state.get_current_model_by_id(rch_shape_index)
+        rows_height, cols_width = modflow_utils.scale_cells_size(state.loaded_project['row_cells'],
+                                                                 state.loaded_project['col_cells'], 500)
+        return render_template(template.RCH_SHAPES, hydrus_models=state.loaded_project["hydrus_models"],
+                               shape_mask=state.recharge_masks[rch_shape_index], rch_shape_index=rch_shape_index,
                                rows_height=rows_height, cols_width=cols_width, current_model=current_model)
 
 
 def assign_model_to_shape(req, rch_shape_index):
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
     hydrus_model_name = req.json["hydrusModel"]
-    previos_hydrus_model_name = req.json["previousModel"]
+    previous_hydrus_model_name = req.json["previousModel"]
 
-    if previos_hydrus_model_name:
-        util.models_masks_ids[previos_hydrus_model_name].remove(rch_shape_index)
+    if previous_hydrus_model_name:
+        state.models_masks_ids[previous_hydrus_model_name].remove(rch_shape_index)
 
     if hydrus_model_name == "":
         return json.dumps({'status': 'OK'})
 
-    if hydrus_model_name not in util.models_masks_ids or util.models_masks_ids[hydrus_model_name] is None:
-        util.loaded_shapes[hydrus_model_name] = None
-        util.models_masks_ids[hydrus_model_name] = [rch_shape_index]
+    if hydrus_model_name not in state.models_masks_ids or state.models_masks_ids[hydrus_model_name] is None:
+        state.loaded_shapes[hydrus_model_name] = None
+        state.models_masks_ids[hydrus_model_name] = [rch_shape_index]
     else:
-        util.models_masks_ids[hydrus_model_name].append(rch_shape_index)
+        state.models_masks_ids[hydrus_model_name].append(rch_shape_index)
 
     return json.dumps({'status': 'OK'})
 
 
-def upload_new_configurations(req):
-    modflow_exe = req.json['modflowExe']
-    hydrus_exe = req.json['hydrusExe']
+def upload_new_configurations():
+    modflow_exe = request.json['modflowExe']
+    hydrus_exe = request.json['hydrusExe']
     print(modflow_exe, hydrus_exe)
 
     if not os.path.exists(modflow_exe):
@@ -469,13 +491,15 @@ def upload_new_configurations(req):
 
 
 def simulation_summary_handler():
-    rows_height, cols_width = modflow_utils.scale_cells_size(util.loaded_project['row_cells'],
-                                                             util.loaded_project['col_cells'], 500)
+    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
+
+    rows_height, cols_width = modflow_utils.scale_cells_size(state.loaded_project['row_cells'],
+                                                             state.loaded_project['col_cells'], 500)
 
     return render_template(
         template.SIMULATION,
-        modflow_proj=util.loaded_project["modflow_model"],
-        shapes=util.loaded_shapes,
+        modflow_proj=state.loaded_project["modflow_model"],
+        shapes=state.loaded_shapes,
         cols_width=cols_width,
         rows_height=rows_height,
     )

@@ -5,7 +5,7 @@ services:
 #    build:
 #      context: .
 #      dockerfile: Dockerfile.debug
-    image: water_modelling
+    image: watermodelling/hydrus-modflow-synergy-engine:water-modelling-standalone
     ports:
       - "5000:5000"
     volumes:
