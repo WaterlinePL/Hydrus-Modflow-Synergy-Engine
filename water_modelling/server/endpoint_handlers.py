@@ -16,7 +16,6 @@ import json
 import numpy as np
 import os
 import shutil
-import local_configuration_dao as lcd
 
 
 def create_project_handler():
@@ -470,22 +469,6 @@ def assign_model_to_shape(req, rch_shape_index):
         state.models_masks_ids[hydrus_model_name] = [rch_shape_index]
     else:
         state.models_masks_ids[hydrus_model_name].append(rch_shape_index)
-
-    return json.dumps({'status': 'OK'})
-
-
-def upload_new_configurations():
-    modflow_exe = request.json['modflowExe']
-    hydrus_exe = request.json['hydrusExe']
-    print(modflow_exe, hydrus_exe)
-
-    if not os.path.exists(modflow_exe):
-        return jsonify(error=str("Incorrect Modflow exe path"), model=str("modflow")), 404
-
-    if not os.path.exists(hydrus_exe):
-        return jsonify(error=str("Incorrect Hydrus exe path"), model=str("hydrus")), 404
-
-    lcd.update_configuration(hydrus_exe, modflow_exe)
 
     return json.dumps({'status': 'OK'})
 
