@@ -132,5 +132,16 @@ class UserState:
 
                 self.loaded_shapes[hydrus_model] = ShapeFileData(shape_mask_array=shape_mask)
             else:
-                shape = (self.loaded_project["rows"], self.loaded_project["cols"])
-                self.loaded_shapes[hydrus_model] = ShapeFileData(shape_mask_array=np.zeros(shape))
+                self.loaded_shapes[hydrus_model] = self.create_empty_mask()
+
+    def create_empty_mask(self) -> Optional[ShapeFileData]:
+        """
+        creates an empty shape mask
+
+        @return: a ShapeFileData instance with an empty mask the size of the currently loaded model,
+            or None if no project is loaded
+        """
+        if not self.loaded_project:
+            return None
+        else:
+            return ShapeFileData(shape_mask_array=np.zeros((self.loaded_project["rows"], self.loaded_project["cols"])))
