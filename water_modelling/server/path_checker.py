@@ -4,7 +4,6 @@ from flask import Response, redirect
 
 from server import endpoints
 from server.user_state import UserState
-import server.local_configuration_dao as lcd
 
 
 def path_check_cookie(state: UserState) -> Optional[Response]:
@@ -27,11 +26,6 @@ def path_check_simulate_access(state: UserState) -> Optional[Response]:
     check_previous = path_check_cookie(state)
     if check_previous:
         return check_previous
-
-    # TODO: add some condition if its a local version
-    if not lcd.read_configuration()["modflow_exe"] or not lcd.read_configuration()["hydrus_exe"]:
-        state.activate_error_flag()
-        return redirect(endpoints.CONFIGURATION)
 
     return None
 

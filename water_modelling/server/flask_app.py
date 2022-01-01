@@ -5,7 +5,6 @@ from server import endpoints, template, path_checker
 import app_utils
 import threading
 import endpoint_handlers
-import local_configuration_dao as lcd
 from simulation.simulation_service import SimulationService
 
 app = Flask("App")
@@ -25,25 +24,6 @@ def home():
         res.set_cookie(app_utils.COOKIE_NAME, cookie, max_age=60 * 60 * 24 * 365 * 2)
         app_utils.add_user(cookie)
     return res
-
-
-# TODO: add some condition if its a local version / hide endpoint
-@app.route(endpoints.CONFIGURATION, methods=['GET', 'POST'])
-def configuration():
-    state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
-    check_previous_steps = path_checker.path_check_cookie(state)
-
-    if check_previous_steps:
-        return check_previous_steps
-
-    if request.method == 'POST':
-        return endpoint_handlers.upload_new_configurations()
-    else:
-        config = lcd.read_configuration()
-        return render_template(template.CONFIGURATION,
-                               modflow_exe=config["modflow_exe"],
-                               hydrus_exe=config["hydrus_exe"],
-                               paths_incorrect=state.get_error_flag())
 
 
 @app.route(endpoints.CREATE_PROJECT, methods=['GET', 'POST'])
