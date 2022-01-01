@@ -10,6 +10,7 @@ if platform == "linux" or platform == "linux2" or platform == "darwin":
 else:
     PROJECT_ROOT = os.path.abspath("..\\")
 
+# Logs more info on console (ex. logs from hydrological simulation)
 LOCAL_DEBUG_MODE = False  # Remember to make it 'False' before uploading to DockerHub
 
 CONFIG_FOLDER_NAME = "app_config"

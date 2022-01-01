@@ -1,8 +1,7 @@
 from time import sleep
-from typing import Optional, List, Tuple
+from typing import List, Tuple
 
 from deployment.kubernetes_job_interface import IKubernetesJob
-from simulation.simulation_error import SimulationError
 from utils.yaml_generator import YamlGenerator
 
 LOG_LINE = str

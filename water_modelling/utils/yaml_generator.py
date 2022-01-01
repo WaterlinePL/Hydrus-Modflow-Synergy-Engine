@@ -1,6 +1,5 @@
 import os
 
-from app_config import deployment_config
 from utils.yaml_data import YamlData
 
 

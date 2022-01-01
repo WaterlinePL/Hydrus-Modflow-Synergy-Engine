@@ -6,9 +6,7 @@ import phydrus as ph
 
 class ShapeFileData:
 
-    # FIXME: shape_mask_filepath probably deprecated, constructor might require a rework
-    def __init__(self, shape_mask_filepath: str = None, hydrus_output_filepath: str = None,
-                 shape_mask_array: np.ndarray = None):
+    def __init__(self, shape_mask_array: np.ndarray = None):
 
         if hydrus_output_filepath is not None:
             self.hydrus_recharge_output = ShapeFileData.read_hydrus_output(hydrus_output_filepath)
@@ -30,14 +28,6 @@ class ShapeFileData:
             return t_level['sum(vBot)']
         except FileNotFoundError as err:
             print(f"No file found containing hydrus output: {err}")
-
-    # FIXME: Probably useless, loads mask from file containing numpy array
-    @staticmethod
-    def read_shape_mask(shape_mask_filepath: str) -> np.array:
-        try:
-            return np.load(shape_mask_filepath)
-        except FileNotFoundError as err:
-            print(f"No file found containing numpy shape mask: {err}")
 
     def set_hydrus_recharge_output(self, hydrus_output_filepath: str):
         self.hydrus_recharge_output = ShapeFileData.read_hydrus_output(hydrus_output_filepath)

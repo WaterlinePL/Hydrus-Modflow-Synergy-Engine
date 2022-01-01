@@ -1,5 +1,4 @@
 import re
-from sys import platform
 
 DOCKER_CONST_PATH = "/run/desktop/mnt/host"
 
@@ -21,7 +20,15 @@ def convert_backslashes_to_slashes(path: str):
 
 
 def extract_path_inside_workspace(hydrological_project_path: str) -> str:
-    return hydrological_project_path.split("/water_modelling/workspace")[1]  # Hardcoded ==== bad
+    return hydrological_project_path.split("/water_modelling/workspace")[1]
+
+
+def extract_project_name(hydrological_project_path: str) -> str:
+    return extract_path_inside_workspace(hydrological_project_path).split('/')[0]
+
+
+def extract_hydrological_model_name(hydrological_project_path: str) -> str:
+    return extract_path_inside_workspace(hydrological_project_path).split('/')[2]
 
 
 def fix_model_name(name: str):

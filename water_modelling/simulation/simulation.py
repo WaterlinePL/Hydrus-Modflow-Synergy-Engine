@@ -1,5 +1,4 @@
 import os.path
-from typing import Tuple
 
 from datapassing.hydrus_modflow_passing import HydrusModflowPassing
 from deployment.app_deployer_interface import IAppDeployer
