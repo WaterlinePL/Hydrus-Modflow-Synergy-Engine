@@ -4,23 +4,32 @@ import numpy as np
 import phydrus as ph
 
 
-class ShapeFileData:
+class ShapeMetadata:
 
-    def __init__(self, shape_mask_array: np.ndarray = None):
+    def __init__(self, shape_mask_array: np.ndarray):
+        """
+        This class contains metadata stored for defining and presenting shape masks to the user in UI.
+        @param shape_mask_array: NumPy 2D array representing bitmask of a particular shape
+        """
+        self.shape_mask = shape_mask_array
 
-        if hydrus_output_filepath is not None:
-            self.hydrus_recharge_output = ShapeFileData.read_hydrus_output(hydrus_output_filepath)
 
-        if hydrus_output_filepath is not None:
-            self.shape_mask = ShapeFileData.read_shape_mask(shape_mask_filepath)
-        elif shape_mask_array is not None:
-            self.shape_mask = shape_mask_array
+class Shape:
+
+    def __init__(self, mask_array: np.array, hydrus_output_filepath: str):
+        """
+        This class contains shape data used for passing output of Hydrus (recharge) as an input of Modflow.
+        @param mask_array: NumPy 2D array representing bitmask of a particular shape
+        @param hydrus_output_filepath: Path to the Hydrus output file - T_Level.out containing 'sum vBot' (recharge)
+        """
+        self.mask_array = mask_array
+        self.recharge = Shape._read_hydrus_output(hydrus_output_filepath)
 
     @staticmethod
-    def read_hydrus_output(hydrus_output_filepath: str) -> List[float]:
+    def _read_hydrus_output(hydrus_output_filepath: str) -> List[float]:
         """
         Read Hydrus simulation output from file T_Level.out (read all entries of sum(vBot))
-        @param hydrus_output_filepath: P
+        @param hydrus_output_filepath: Path to T_Level.out
         @return:
         """
         try:
@@ -28,19 +37,3 @@ class ShapeFileData:
             return t_level['sum(vBot)']
         except FileNotFoundError as err:
             print(f"No file found containing hydrus output: {err}")
-
-    def set_hydrus_recharge_output(self, hydrus_output_filepath: str):
-        self.hydrus_recharge_output = ShapeFileData.read_hydrus_output(hydrus_output_filepath)
-
-
-class Shape:
-
-    def __init__(self, mask_array: np.array, values: List[float]):
-        self.mask_array = mask_array
-        self.values = values
-
-    def get_mask(self) -> np.array:
-        return self.mask_array
-
-    def get_recharge(self) -> List[float]:
-        return self.values

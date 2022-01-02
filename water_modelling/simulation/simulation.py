@@ -1,6 +1,8 @@
 import os.path
+from typing import Dict
 
 from datapassing.hydrus_modflow_passing import HydrusModflowPassing
+from datapassing.shape_data import Shape
 from deployment.app_deployer_interface import IAppDeployer
 from modflow import modflow_utils
 from simulation.exceptions import UnsuccessfulSimulationException
@@ -51,13 +53,13 @@ class Simulation:
 
     def pass_data_from_hydrus_to_modflow(self, hydrus_dir, modflow_dir, nam_file: str):
         # Add hydrus result file paths (T_Level.out) to loaded_shapes (shape_file_info)
+        shapes = []
         for model_name_key in self.loaded_shapes:
-            self.loaded_shapes[model_name_key].set_hydrus_recharge_output(
-                os.path.join(hydrus_dir, model_name_key, "T_Level.out"))
+            t_level_path = os.path.join(hydrus_dir, model_name_key, "T_Level.out")
+            shapes.append(Shape(self.loaded_shapes[model_name_key], t_level_path))
 
         # Shapes list initialization from shape_file_info list
         print("Nam file", nam_file)
-        shapes = HydrusModflowPassing.read_shapes_from_files(list(self.loaded_shapes.values()))
         result = HydrusModflowPassing(os.path.join(modflow_dir, self.modflow_project), nam_file, shapes)
         result.update_rch(spin_up=self.spin_up)
 
