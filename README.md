@@ -44,7 +44,7 @@ as for creating test data inside `water_modelling`
   + `hydrus` - module with logic related to launching Hydrus simulations
   + `kubernetes_controller` - module with logic related to monitoring kubernetes jobs (simulations are 
   launched as kubernetes jobs inside the cluster)
-  + `modflow` - module with logic related to launching Hydrus simulations
+  + `modflow` - module with logic related to launching Modflow simulations
   + `sample` - sample data meant to be copied and used for tests (there is a script that makes a `tests` folder 
   with content from `sample`)
   + `server` - module with web application components (endpoints, states, page templates and their javascript
