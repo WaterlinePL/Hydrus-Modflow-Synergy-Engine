@@ -24,11 +24,11 @@ def extract_path_inside_workspace(hydrological_project_path: str) -> str:
 
 
 def extract_project_name(hydrological_project_path: str) -> str:
-    return extract_path_inside_workspace(hydrological_project_path).split('/')[0]
+    return extract_path_inside_workspace(hydrological_project_path).split('/')[1]
 
 
 def extract_hydrological_model_name(hydrological_project_path: str) -> str:
-    return extract_path_inside_workspace(hydrological_project_path).split('/')[2]
+    return extract_path_inside_workspace(hydrological_project_path).split('/')[3]
 
 
 def fix_model_name(name: str):
