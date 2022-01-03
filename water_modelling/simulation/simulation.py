@@ -51,8 +51,7 @@ class Simulation:
 
         if contains_errors:
             self._hydrus_stage_status.set_ended(True)
-            raise UnsuccessfulSimulationException("Hydrus simulations failed! Check 'simulation.log' files "
-                                                  "inside model folders for full logs.")
+            raise UnsuccessfulSimulationException("Hydrus simulations failed! Check full logs for details.")
         self._hydrus_stage_status.set_ended(True)
         print('Hydrus simulations finished successfully')
 
@@ -79,8 +78,7 @@ class Simulation:
         if simulation_error:
             self._modflow_stage_status.add_error(simulation_error)
             self._modflow_stage_status.set_ended(True)
-            raise UnsuccessfulSimulationException("Modflow simulation failed! Check 'simulation.log' file "
-                                                  "inside model folder for full logs.")
+            raise UnsuccessfulSimulationException("Modflow simulation failed! Check full logs for details.")
         
         self.convert_results_to_json(modflow_dir, nam_file)
         self._modflow_stage_status.set_ended(True)
