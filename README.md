@@ -51,3 +51,56 @@ as for creating test data inside `water_modelling`
   functionalities)
   + `simulation` - module related to launching simulation (hydrus -> data passing -> modflow)
   + `workspace` - necessary folder where all created projects is stored (content is ignored by `.gitignore`)
+
+
+
+### Simulation results
+##### Archive Structure
+```
+├── hydrus
+│   ├── hydrus_model_name_01
+│   |   └── ...
+|   └── hydrus_model_name_02
+│       └── ...
+├── modflow
+│   ├── modflow_model_name
+│   |   └── ...
+│   └── results.json
+└── project_name.json
+```
+
+##### Project metadata - *[project_name.json]*
+```json
+{
+    "name": "Project_01",           // name of the project
+    "lat": "12.12",                 // modflow model top right corner latitude
+    "long": "13.13",                // modflow model top right corner longitude
+    "start_date": "2001-01-12",     // modflow model start date
+    "end_date": "2002-02-03",       // modlow model end date 
+    "spin_up": "2",                 // hydrus spin-up in days
+    "rows": 5,                      // modflow model rows count
+    "cols": 5,                      // modflow model columns count
+    "grid_unit": "meters",          // modflow model length unit
+    "row_cells": [100.0, 100.0, 100.0, 100.0, 100.0],   // modflow model cell width along rows (given in the grid unit)
+    "col_cells": [100.0, 100.0, 100.0, 100.0, 100.0],   // modflow model cell width along columns (given in the grid unit)
+    "modflow_model": "project_01_modflow",              // modflow model name
+    "hydrus_models": ["project_01_hydrus", "project_02_hydrus"]   // names of the hydrus models
+}
+```
+
+##### Modflow simulation results - *[results.json]*
+```
+Contents of 4 dimentional array - modflow_output[stress_period][layer][row][col]
+ex. [
+      [
+        [ 
+          [0.1, 0.5, 0.1], 
+          [0.1, 0.5, 0.1] 
+        ],
+        [ 
+          [0.1, 0.5, 0.1],
+          [0.1, 0.5, 0.1] 
+        ]
+      ]
+    ] (1 stress period, 2 layers, 2 rows, 3 columns)
+```
