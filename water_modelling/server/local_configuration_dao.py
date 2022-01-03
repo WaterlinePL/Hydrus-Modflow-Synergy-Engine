@@ -13,10 +13,11 @@ Config .json file specification:
 
 
 def read_configuration():
-    if not os.path.exists(deployment_config.CONFIG_PATH):
+    if not os.path.exists(deployment_config.CONFIG_FILE_PATH):
+        os.makedirs(deployment_config.CONFIG_FOLDER_PATH)
         update_configuration(None, None)
 
-    return json.load(open(deployment_config.CONFIG_PATH))
+    return json.load(open(deployment_config.CONFIG_FILE_PATH))
 
 
 def update_configuration(hydrus_exe, modflow_exe):
@@ -25,5 +26,5 @@ def update_configuration(hydrus_exe, modflow_exe):
         "modflow_exe": modflow_exe
     }
 
-    file_desc = open(deployment_config.CONFIG_PATH, "w")
+    file_desc = open(deployment_config.CONFIG_FILE_PATH, "w")
     json.dump(config, file_desc)

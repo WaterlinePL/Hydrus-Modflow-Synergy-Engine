@@ -13,8 +13,10 @@ else:
 LOCAL_DEBUG_MODE = False  # Remember to make it 'False' before uploading to DockerHub
 
 CONFIG_FOLDER_NAME = "app_config"
-FILE_NAME = "config.json"
-CONFIG_PATH = os.path.join(PROJECT_ROOT, CONFIG_FOLDER_NAME, FILE_NAME)
+CONFIG_FILE_NAME = "config.json"
+
+CONFIG_FOLDER_PATH = os.path.join(PROJECT_ROOT, CONFIG_FOLDER_NAME)
+CONFIG_FILE_PATH = os.path.join(CONFIG_FOLDER_PATH, CONFIG_FILE_NAME)
 
 ALLOWED_TYPES = ["ZIP"]
 WORKSPACE_DIR = os.path.join(PROJECT_ROOT, 'workspace')
