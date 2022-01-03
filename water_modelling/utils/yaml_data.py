@@ -5,7 +5,7 @@ class YamlData:
 
     def __init__(self, job_name: str, container_image: str, container_name: str,
                  mount_path: str, args: List[str], sub_path: str,
-                 hydro_programme: str, description: str):
+                 hydro_program: str, description: str):
 
         self.job_name = job_name
         self.container_image = container_image
@@ -13,5 +13,5 @@ class YamlData:
         self.mount_path = mount_path
         self.args = args
         self.sub_path = sub_path
-        self.hydro_programme = hydro_programme
+        self.hydro_program = hydro_program
         self.description = description

@@ -1,9 +1,10 @@
-from typing import List, Tuple, Optional
+from typing import List, Optional
 
+import flopy.utils.util_array as flopy_array
 import numpy as np
 import flopy
 
-from datapassing.shape_data import ShapeFileData, Shape
+from datapassing.shape_data import Shape
 
 
 class HydrusModflowPassing:
@@ -14,7 +15,7 @@ class HydrusModflowPassing:
         self.nam_file = nam_file
         self.shapes = shapes
 
-    def update_rch(self, spin_up=0) -> Optional[np.ndarray]:
+    def update_rch(self, spin_up=0) -> Optional[flopy_array.Transient2d]:
         """
         Update recharge based on shapes containing results of Hydrus simulations.
         @param spin_up: hydrus spin up period (in days)
@@ -37,7 +38,7 @@ class HydrusModflowPassing:
                 modflow_model.rch.rech[idx] = recharge_modflow_array
 
         for shape in self.shapes:
-            sum_v_bot = shape.get_recharge()  # get sum(vBot) values
+            sum_v_bot = shape.recharge  # get sum(vBot) values
             if spin_up >= len(sum_v_bot):
                 raise ValueError('Spin up is longer than hydrus model time')
             sum_v_bot = (-np.diff(sum_v_bot))[spin_up:]  # calc differance for each day (excluding spin_up period)
@@ -73,30 +74,3 @@ class HydrusModflowPassing:
                                  irch=rch_package.irch).write_file(check=False)
 
         return new_recharge
-
-    @staticmethod
-    def read_shapes_from_files(shape_info_files: List[ShapeFileData]) -> List[Shape]:
-        """
-        Read Modflow shape data from Hydrus output files and masks (metadata) and convert it to Shape class instances
-        @param shape_info_files: List of metadata (contains Hydrus model and mask info)
-        @return: List of shapes (Shape class instances) with info about mask and result of Hydrus simulation
-        """
-
-        shapes = []
-        for shape_info in shape_info_files:
-            shapes.append(Shape(
-                shape_info.shape_mask,
-                shape_info.hydrus_recharge_output
-            ))
-        return shapes
-
-    # FIXME: probably useless
-    @staticmethod
-    def create_shape_info_data(shape_data_files: List[Tuple[str, str]]) -> List[ShapeFileData]:
-        shape_info_files = []
-        for shape_mask_file, hydrus_output_file in shape_data_files:
-            shape_info_files.append(ShapeFileData(
-                shape_mask_file,
-                hydrus_output_file
-            ))
-        return shape_info_files
