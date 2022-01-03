@@ -61,7 +61,7 @@ class Simulation:
         shapes = []
         for model_name_key in self.loaded_shapes:
             t_level_path = os.path.join(hydrus_dir, model_name_key, "T_Level.out")
-            shapes.append(Shape(self.loaded_shapes[model_name_key], t_level_path))
+            shapes.append(Shape(self.loaded_shapes[model_name_key].shape_mask, t_level_path))
 
         # Shapes list initialization from shape_file_info list
         print("Nam file", nam_file)
