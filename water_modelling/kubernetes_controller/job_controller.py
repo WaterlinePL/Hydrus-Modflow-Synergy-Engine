@@ -1,9 +1,8 @@
 from time import sleep
-from typing import Optional, List, Tuple
+from typing import List, Tuple
 
 from deployment.kubernetes_job_interface import IKubernetesJob
-from simulation.simulation_error import SimulationError
-from utils.yaml_generator import YamlGenerator
+from utils.yaml_job_generator import YamlJobGenerator
 
 LOG_LINE = str
 MODEL_NAME = str
@@ -11,7 +10,7 @@ MODEL_NAME = str
 
 class JobController:
     INITIALIZATION_MAX_RETRIES = 3
-    MAX_FAILED_JOBS = YamlGenerator.BACKOFF_LIMIT + 1
+    MAX_FAILED_JOBS = YamlJobGenerator.BACKOFF_LIMIT + 1
     LATEST_POD_STATUS_CHECK_FREQUENCY = 5
 
     @staticmethod

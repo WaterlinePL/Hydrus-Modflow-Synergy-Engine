@@ -1,4 +1,5 @@
 import os
+import uuid
 from concurrent.futures import ThreadPoolExecutor
 from typing import List, Optional
 
@@ -32,14 +33,16 @@ class DockerDeployer(IAppDeployer):
         self._set_modflow(0)
 
     def run_hydrus(self, hydrus_dir: str, hydrus_projects: List[str], sim_id: int) -> List[SimulationError]:
-        hydrus_count = len(hydrus_projects)
-        hydrus_container_names = ["hydrus-container-id." + str(sim_id) + "-num." + str(i + 1) for i in
-                                  range(hydrus_count)]
-
+        project_name = path_formatter.extract_project_name(hydrus_dir)
         hydrus_volumes_paths = []
-        for project_name in hydrus_projects:
+        hydrus_container_names = []
+
+        for hydrus_model_name in hydrus_projects:
+            hydrus_container_names.append(f"{sim_id}-{project_name}-hydrus-{hydrus_model_name}-{uuid.uuid4().hex}")
+
             workspace_project_path = path_formatter.extract_path_inside_workspace(
-                os.path.join(hydrus_dir, project_name))
+                os.path.join(hydrus_dir, hydrus_model_name))
+
             hydrus_volumes_paths.append(path_formatter.format_path_to_docker(dir_path=self.workspace_volume)
                                         + workspace_project_path)
 
@@ -61,8 +64,11 @@ class DockerDeployer(IAppDeployer):
             return simulation_errors
 
     def run_modflow(self, modflow_dir: str, nam_file: str, sim_id) -> Optional[SimulationError]:
-        modflow_container_name = "modflow-container-2005-id." + str(sim_id)
+        project_name = path_formatter.extract_project_name(modflow_dir)
+        modflow_model_name = path_formatter.extract_hydrological_model_name(modflow_dir)
+        modflow_container_name = f"{sim_id}-{project_name}-modflow-{modflow_model_name}-{uuid.uuid4().hex}"
         workspace_project_path = path_formatter.extract_path_inside_workspace(modflow_dir)
+
         modflow_volume_path = path_formatter.format_path_to_docker(dir_path=self.workspace_volume) \
                               + workspace_project_path
 

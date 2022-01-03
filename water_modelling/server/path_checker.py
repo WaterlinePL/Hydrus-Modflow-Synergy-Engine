@@ -80,6 +80,10 @@ def path_check_define_shapes_method(state: UserState) -> Optional[Response]:
         state.activate_error_flag()
         return redirect(endpoints.DEFINE_METHOD)
 
+    for hydrus_model in state.loaded_project["hydrus_models"]:
+        if hydrus_model not in state.loaded_shapes.keys():
+            state.loaded_shapes[hydrus_model] = state.create_empty_mask()
+
     return None
 
 

@@ -1,10 +1,9 @@
 import os
 
-from app_config import deployment_config
 from utils.yaml_data import YamlData
 
 
-class YamlGenerator:
+class YamlJobGenerator:
     # IMPORTANT: create env variable 'PVC' with name of PVC
     # (default from .yaml: 'nfs-pvc')
     PVC_NAME = os.environ['PVC']
@@ -20,16 +19,16 @@ class YamlGenerator:
             'name': self.data.container_name,
             'volumeMounts': [{
                 'mountPath': self.data.mount_path,
-                'name': YamlGenerator.VOLUME_NAME,
+                'name': YamlJobGenerator.VOLUME_NAME,
                 'subPath': self.data.sub_path
             }],
             'args': self.data.args
         }]
 
         volumes = [{
-            'name': YamlGenerator.VOLUME_NAME,
+            'name': YamlJobGenerator.VOLUME_NAME,
             'persistentVolumeClaim': {
-                'claimName': YamlGenerator.PVC_NAME
+                'claimName': YamlJobGenerator.PVC_NAME
             }
         }]
 
@@ -45,7 +44,7 @@ class YamlGenerator:
             'metadata': {
                 'name': self.data.job_name,
                 'annotations': {
-                    'programme': self.data.hydro_programme,
+                    'program': self.data.hydro_program,
                     'description': self.data.description
                 }
             },
@@ -53,7 +52,7 @@ class YamlGenerator:
                 'template': {
                     'spec': spec
                 },
-                'backoffLimit': YamlGenerator.BACKOFF_LIMIT
+                'backoffLimit': YamlJobGenerator.BACKOFF_LIMIT
             }
         }
 
