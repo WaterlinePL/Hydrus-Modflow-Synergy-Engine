@@ -6,7 +6,7 @@ from kubernetes.client.rest import ApiException
 
 from deployment.kubernetes_job_interface import IKubernetesJob
 from utils.yaml_data import YamlData
-from utils.yaml_generator import YamlGenerator
+from utils.yaml_job_generator import YamlJobGenerator
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -49,10 +49,10 @@ class ModflowJobDeployer(IKubernetesJob):
                              args=[self._get_modflow_version(),
                                    self.name_file],
                              sub_path=self.sub_path,
-                             hydro_programme=ModflowJobDeployer.PROGRAMME_NAME,
+                             hydro_program=ModflowJobDeployer.PROGRAMME_NAME,
                              description=self.description)
 
-        yaml_gen = YamlGenerator(yaml_data)
+        yaml_gen = YamlJobGenerator(yaml_data)
         job_manifest = yaml_gen.prepare_kubernetes_job()
 
         print("Job %s does not exist. Creating it..." % self.job_name)

@@ -1,6 +1,6 @@
 from typing import Tuple
 from app_config import deployment_config
-from datapassing.shape_data import ShapeFileData
+from datapassing.shape_data import ShapeMetadata
 from flask import render_template, redirect, abort, jsonify, send_file, request
 from flask_paginate import Pagination, get_page_args
 from hydrus import hydrus_utils
@@ -405,7 +405,7 @@ def upload_shape_handler(req, hydrus_model_index):
     # read the array from the request and store it
     shape_array = req.get_json(force=True)
     np_array_shape = np.array(shape_array)
-    state.loaded_shapes[state.loaded_project["hydrus_models"][hydrus_model_index]] = ShapeFileData(
+    state.loaded_shapes[state.loaded_project["hydrus_models"][hydrus_model_index]] = ShapeMetadata(
         shape_mask_array=np_array_shape)
 
     return json.dumps({'status': 'OK'})
