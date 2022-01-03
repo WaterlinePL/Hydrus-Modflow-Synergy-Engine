@@ -6,7 +6,7 @@ import os
 
 import numpy as np
 from app_config import deployment_config
-from datapassing.shape_data import ShapeFileData
+from datapassing.shape_data import ShapeMetadata
 
 if TYPE_CHECKING:
     from simulation.simulation_service import SimulationService
@@ -121,7 +121,7 @@ class UserState:
                 shapes_count = len(self.models_masks_ids[hydrus_model])
 
             if shapes_count == 1:
-                self.loaded_shapes[hydrus_model] = ShapeFileData(shape_mask_array=
+                self.loaded_shapes[hydrus_model] = ShapeMetadata(shape_mask_array=
                                                                  self.recharge_masks[
                                                                      self.models_masks_ids[hydrus_model][0]])
             elif shapes_count > 1:
@@ -130,7 +130,18 @@ class UserState:
                     shape_mask = np.logical_or(shape_mask,
                                                self.recharge_masks[self.models_masks_ids[hydrus_model][idx]])
 
-                self.loaded_shapes[hydrus_model] = ShapeFileData(shape_mask_array=shape_mask)
+                self.loaded_shapes[hydrus_model] = ShapeMetadata(shape_mask_array=shape_mask)
             else:
-                shape = (self.loaded_project["rows"], self.loaded_project["cols"])
-                self.loaded_shapes[hydrus_model] = ShapeFileData(shape_mask_array=np.zeros(shape))
+                self.loaded_shapes[hydrus_model] = self.create_empty_mask()
+
+    def create_empty_mask(self) -> Optional[ShapeMetadata]:
+        """
+        creates an empty shape mask
+
+        @return: a ShapeFileData instance with an empty mask the size of the currently loaded model,
+            or None if no project is loaded
+        """
+        if not self.loaded_project:
+            return None
+        else:
+            return ShapeMetadata(shape_mask_array=np.zeros((self.loaded_project["rows"], self.loaded_project["cols"])))
