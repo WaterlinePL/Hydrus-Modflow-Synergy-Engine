@@ -67,7 +67,7 @@ You have to create a **.csv file with correct columns** and values:
 * `Min Temperature` - minimum temperature in Celsius Degrees
 * `Precipitation` - precipitation in the same length unit as used in the Hydrus model for example meters
 * `Wind` - wind in km/day
-* `Relative Humidity` - relative humidity in percents
+* `Relative Humidity` - relative humidity in percentages
 * `Solar` - solar radiation in MJ/m2
 
 To obtain data you can check out 
