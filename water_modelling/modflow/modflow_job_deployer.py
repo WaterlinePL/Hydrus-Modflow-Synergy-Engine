@@ -27,7 +27,7 @@ class ModflowJobDeployer(IKubernetesJob):
     def run(self):
         resp = None
         try:
-            resp = self._get_k8s_core_client().list_namespaced_pod(namespace="default",
+            resp = self._get_k8s_core_client().list_namespaced_pod(namespace=self.namespace,
                                                                    label_selector=f"job-name={self.job_name}")
 
         except ApiException as e:
@@ -37,7 +37,7 @@ class ModflowJobDeployer(IKubernetesJob):
 
         if resp.items:
             while resp.items:
-                self.job_name = f"{self.sub_path.split('/hydrus/')[1]}-" \
+                self.job_name = f"{self.sub_path.split('/modflow/')[1]}-" \
                                 f"{uuid.uuid4().hex[:ModflowJobDeployer.SHORTENED_UUID_LENGTH]}"
                 resp = self._get_k8s_core_client().list_namespaced_pod(namespace=self.namespace,
                                                                        label_selector=f"job-name={self.job_name}")
