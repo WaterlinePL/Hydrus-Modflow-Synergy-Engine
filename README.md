@@ -14,7 +14,15 @@ The branches have been preconfigured in the `water_modelling/app_config/deployme
 to ease testing, launching and mitigate problems with changing deployment config while committing 
 to a single branch.
 
-#### Important: For application to run properly, it is required to have *cookies* enabled in the web browser.
+### Important
+* For application to run properly, it is required to have *cookies* enabled in the web browser.
+* Sample projects are located in the `sample` folder. **TESTS SHOULD NOT BE RUN ON PROJECTS FROM THE `sample` FOLDER**.
+Instead, they should be copied to a new `tests` folder using scripts.
+	+ Linux script: scripts/copy_projects.sh (suggested)
+	+ Windows 10 script: scripts/copy_projects.ps (requires enabled Powershell scripts)
+	+ For further information refer to the comments in the scripts.
+* Hydrus and Modflow projects used in Docker and Kubernetes deployment **MUST** be named in lowercase. Uppercase
+symbols are not allowed due to Docker and Kubernetes naming policy
 
 ### Assumed workflow
 * if a new feature relates to every deployment:
@@ -26,14 +34,6 @@ to a single branch.
 
 More detailed README files are located on the deployments' branches.
 
-### Important
-Sample projects are located in the `sample` folder. **TESTS SHOULD NOT BE RUN ON PROJECTS FROM THE `sample` FOLDER**.
-Instead, they should be copied to a new `tests` folder using scripts.
-
-* Linux script: scripts/copy_projects.sh (suggested)
-* Windows 10 script: scripts/copy_projects.ps (requires enabled Powershell scripts)
-
-For further information refer to the comments in the scripts.
 
 ### Environment Configuration For Developers
 Application was tested on two Python versions: 3.8 and 3.9. 
