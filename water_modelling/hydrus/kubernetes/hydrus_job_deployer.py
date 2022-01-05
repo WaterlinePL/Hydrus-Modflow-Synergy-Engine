@@ -20,13 +20,13 @@ class _HydrusJobDeployer(IKubernetesJob):
     SHORTENED_UUID_LENGTH = 21
 
     def __init__(self, kubernetes_deployer: KubernetesDeployer, sub_path: str,
-                 job_name: str, description: str , namespace: str = 'default'):
+                 job_name: str, description: str, namespace: str = 'default'):
         super().__init__(kubernetes_deployer, job_name, sub_path, description, namespace)
 
     def run(self):
         resp = None
         try:
-            resp = self._get_k8s_core_client().list_namespaced_pod(namespace="default",
+            resp = self._get_k8s_core_client().list_namespaced_pod(namespace=self.namespace,
                                                                    label_selector=f"job-name={self.job_name}")
 
         except ApiException as e:

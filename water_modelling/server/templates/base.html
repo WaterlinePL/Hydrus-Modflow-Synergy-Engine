@@ -8,48 +8,46 @@
 </head>
 <body>
 <div style="min-height:100vh">
-<nav class="navbar navbar-expand-md navbar-dark bg-primary">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="{{ url_for('home')}}">HM Synergy Engine</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggler"
-            aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarToggler">
-            <ul class="navbar-nav ml-auto">
-                <li class='nav-item {% block home_active %} {% endblock %}'>
-                    <a class="nav-link" href="{{ url_for('home')}}">Home <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item {% block simulation_active %} {% endblock %}">
-                    <a class="nav-link" href="{{ url_for('upload_modflow')}}">Simulate</a>
-                </li>
-                <li class="nav-item {% block project_list_active %} {% endblock %}">
-                    <a class="nav-link" href="{{ url_for('project_list')}}">List of projects</a>
-                </li>
-                <li class="nav-item {% block current_project_active %} {% endblock %}">
-                    <a class="nav-link" href="{{ url_for('project')}}">Current project</a>
-                </li>
-            </ul>
+    <nav class="navbar navbar-expand-md navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('home')}}">HM Synergy Engine</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggler"
+                aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarToggler">
+                <ul class="navbar-nav ml-auto">
+                    <li class='nav-item {% block home_active %} {% endblock %}'>
+                        <a class="nav-link" href="{{ url_for('home')}}">Home <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item {% block simulation_active %} {% endblock %}">
+                        <a class="nav-link" href="{{ url_for('upload_modflow')}}">Simulate</a>
+                    </li>
+                    <li class="nav-item {% block project_list_active %} {% endblock %}">
+                        <a class="nav-link" href="{{ url_for('project_list')}}">List of projects</a>
+                    </li>
+                    <li class="nav-item {% block current_project_active %} {% endblock %}">
+                        <a class="nav-link" href="{{ url_for('project')}}">Current project</a>
+                    </li>
+                </ul>
+            </div>
         </div>
+    </nav>
+
+    <div style="margin-bottom: 230px">
+        {% block body %}
+        {% endblock %}
     </div>
-</nav>
 
-<div style="margin-bottom: 230px">
-{% block body %}
-{% endblock %}
-</div>
-
-<div class="p-3" style="position: fixed; bottom: 0; right: 0; z-index: 11">
-    {% block toasts %} {% endblock %}
-</div>
+    <div class="p-3" style="position: fixed; bottom: 0; right: 0; z-index: 11">
+        {% block toasts %} {% endblock %}
+    </div>
 </div>
 <footer class="footer bg-primary text-white">
     <div class="container" id="footer-content">
         <div class="row justify-content-md-center">
             <div class="col-lg-9">
                 <div class="text-center">
-                    <a href="" type="button"
-                       class="btn btn-outline-light" style="margin: 5px 0 1rem;">Contact</a>
                     <h6>@ 2021 All rights reserved @ AGH University of Science and Technology</h6>
                 </div>
             </div>
