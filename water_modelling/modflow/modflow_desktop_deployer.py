@@ -29,7 +29,7 @@ class ModflowDesktopDeployer(IModflowDeployer):
         os.chdir(current_dir)
 
     def wait_for_termination(self) -> Optional[SimulationError]:
-        self.proc.communicate(input="\n")
+        self.proc.communicate(input="\n")  # Press enter to close program (blocking)
 
         # analyze output and return SimulationError if made
         with open(self._get_path_to_log(), 'r') as handle:
