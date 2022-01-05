@@ -1,7 +1,7 @@
-from app_utils import util
-
 import json
 import os
+
+from app_config import deployment_config
 
 """
 Config .json file specification:
@@ -10,16 +10,14 @@ Config .json file specification:
     "modflow_exe": string - current path to modflow program executable file
 }
 """
-CONFIG_FOLDER_NAME = "app_config"
-FILE_NAME = "config.json"
-CONFIG_PATH = os.path.join(util.project_root, CONFIG_FOLDER_NAME, FILE_NAME)
 
 
 def read_configuration():
-    if not os.path.exists(CONFIG_PATH):
+    if not os.path.exists(deployment_config.CONFIG_FILE_PATH):
+        os.makedirs(deployment_config.CONFIG_FOLDER_PATH, exist_ok=True)
         update_configuration(None, None)
 
-    return json.load(open(CONFIG_PATH))
+    return json.load(open(deployment_config.CONFIG_FILE_PATH))
 
 
 def update_configuration(hydrus_exe, modflow_exe):
@@ -28,6 +26,5 @@ def update_configuration(hydrus_exe, modflow_exe):
         "modflow_exe": modflow_exe
     }
 
-    file_desc = open(CONFIG_PATH, "w")
+    file_desc = open(deployment_config.CONFIG_FILE_PATH, "w")
     json.dump(config, file_desc)
-

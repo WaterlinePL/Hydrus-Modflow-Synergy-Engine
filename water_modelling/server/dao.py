@@ -2,7 +2,8 @@ import json
 import os
 import shutil
 
-from app_utils import util
+from app_config import deployment_config
+from server.user_state import UserState
 
 """
 A project .json file contains the following:
@@ -35,7 +36,7 @@ def create(project: dict):
     """
     # create catalogue structure
     # TODO - check for collision?
-    project_root = os.path.join(util.workspace_dir, project['name'])
+    project_root = os.path.join(deployment_config.WORKSPACE_DIR, project['name'])
     hydrus_folder = os.path.join(project_root, 'hydrus')
     modflow_folder = os.path.join(project_root, 'modflow')
     os.mkdir(project_root)
@@ -43,7 +44,7 @@ def create(project: dict):
     os.mkdir(modflow_folder)
 
     # save project JSON file
-    file_path = os.path.join(project_root, project['name']+'.json')
+    file_path = os.path.join(project_root, project['name'] + '.json')
     file = open(file_path, 'w+')
     json.dump(project, file)
 
@@ -55,7 +56,7 @@ def read(project_name: str):
     :param project_name: string, the name of the project whose JSON file we want to retrieve
     :return: the project's JSON file
     """
-    return json.load(open(os.path.join(util.workspace_dir, project_name, project_name+".json")))
+    return json.load(open(os.path.join(deployment_config.WORKSPACE_DIR, project_name, project_name + ".json")))
 
 
 def read_all():
@@ -64,16 +65,18 @@ def read_all():
 
     :return: a list of strings, the project names
     """
-    return [name for name in os.listdir(util.workspace_dir) if os.path.isdir(os.path.join(util.workspace_dir, name))]
+    return [name for name in os.listdir(deployment_config.WORKSPACE_DIR)
+            if os.path.isdir(os.path.join(deployment_config.WORKSPACE_DIR, name))]
 
 
-def update(project_name: str, changed_fields: dict):
+def update(project_name: str, changed_fields: dict, state: UserState):
     """
     Updates the given fields in a given project, leaving the rest unchanged. The name field cannot be modified.
     If the project that was updated was currently loaded, the app utility will be given this updated object as well.
 
     :param project_name: string, the project whose fields to update
     :param changed_fields: dict, the fields to be updated
+    :param state: Current user's state
     :return: None
     """
     # read and update project file
@@ -83,62 +86,46 @@ def update(project_name: str, changed_fields: dict):
             project[field] = changed_fields[field]
 
     # if that project is currently loaded, and it probably is, update the record in the utility
-    if util.loaded_project and util.loaded_project["name"] == project_name:
-        util.loaded_project = project
+    if state.loaded_project and state.loaded_project["name"] == project_name:
+        state.loaded_project = project
 
     # write the updated project into the JSON file
-    file = open(os.path.join(util.workspace_dir, project_name, project_name+".json"), "w")
+    file = open(os.path.join(deployment_config.WORKSPACE_DIR, project_name, project_name + ".json"), "w")
     json.dump(project, file)
 
 
-def remove_model(model_type: str, model_name: str):
+def remove_model(model_type: str, model_name: str, state: UserState):
     """
     Removes an already loaded model from the project.
 
     :param model_type: string, the type of model to delete, "hydrus" or "modflow"
     :param model_name: string, the name of the model to delete
+    :param state: Current user's state
     :return: None
     """
-    model_path = os.path.join(util.workspace_dir, util.loaded_project["name"], model_type, model_name)
+
+    model_path = os.path.join(deployment_config.WORKSPACE_DIR, state.loaded_project["name"], model_type, model_name)
     if os.path.isdir(model_path):
         shutil.rmtree(model_path)
         if model_type == 'modflow':
-            update(util.loaded_project["name"], {"modflow_model": None})
+            update(state.loaded_project["name"], {"modflow_model": None}, state)
         else:
-            new_list = util.loaded_project["hydrus_models"]
+            new_list = state.loaded_project["hydrus_models"]
             new_list.remove(model_name)
-            print(new_list)
             if new_list is None:
                 new_list = []
-            update(util.loaded_project["name"], {"hydrus_models": new_list})
+            update(state.loaded_project["name"], {"hydrus_models": new_list}, state)
 
 
-def remove_project(project_name: str):
-    """
-    Removes an existing project from the workspace
-
-    :param project_name: the name of the project to be removed
-    :return: None
-    """
-    project_path = os.path.join(util.workspace_dir, project_name)
-
-    # remove project
-    if os.path.isdir(project_path):
-        shutil.rmtree(project_path)
-
-    # if project was currently loaded, remove it and reset util fields
-    if util.loaded_project is not None and util.loaded_project['name'] == project_name:
-        util.reset_project_data()
-
-
-def get_hydrus_length_unit(model_name: str):
+def get_hydrus_length_unit(model_name: str, state: UserState):
     """
     Extracts the length unit used for a given hydrus model.
 
     :param model_name: the model to get the unit fro
+    :param state: Current user's state
     :return: unit, string - "m", "cm" or "mm"
     """
-    filepath = os.path.join(util.get_hydrus_dir(), model_name, "SELECTOR.IN")
+    filepath = os.path.join(state.get_hydrus_dir(), model_name, "SELECTOR.IN")
     selector_file = open(filepath, 'r')
 
     lines = selector_file.readlines()
@@ -154,6 +141,25 @@ def get_hydrus_length_unit(model_name: str):
         i += 1
 
 
+def remove_project(project_name: str, state: UserState):
+    """
+    Removes an existing project from the workspace
+
+    :param project_name: the name of the project to be removed
+    :param state: Current user's state
+    :return: None
+    """
+    project_path = os.path.join(deployment_config.WORKSPACE_DIR, project_name)
+
+    # remove project
+    if os.path.isdir(project_path):
+        shutil.rmtree(project_path)
+
+    # if project was currently loaded, remove it and reset util fields
+    if state.loaded_project is not None and state.loaded_project['name'] == project_name:
+        state.reset_project_data()
+
+
 #  ----- weather file data keys -----
 LATITUDE = 'Latitude'
 ELEVATION = 'Elevation'
@@ -165,15 +171,16 @@ WIND = 'Wind'
 PRECIPITATION = 'Precipitation'
 
 
-def add_weather_to_hydrus_model(model_name: str, data: dict):
+def add_weather_to_hydrus_model(model_name: str, data: dict, state: UserState):
     """
     Enriches the target hydrus model with weather file data.
 
     :param model_name: the name of the model to modify
     :param data: a dictionary with the loaded weather data
+    :param state: Current user's state
     :return: success - boolean, true if model was updated successfully, false otherwise
     """
-    model_dir = os.path.join(util.get_hydrus_dir(), model_name)
+    model_dir = os.path.join(state.get_hydrus_dir(), model_name)
 
     # modify meteo file if it exists, return if encountered issues
     if os.path.isfile(os.path.join(model_dir, "METEO.IN")):

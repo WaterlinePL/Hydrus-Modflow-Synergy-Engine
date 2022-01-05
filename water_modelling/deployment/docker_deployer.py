@@ -1,4 +1,5 @@
 import os
+import uuid
 from concurrent.futures import ThreadPoolExecutor
 from typing import List, Optional
 
@@ -22,21 +23,26 @@ class DockerDeployer(IAppDeployer):
 
         # Works, provided we maintain the order of volumes inside docker-compose.yml -> ['Mounts'][0]['Source']
         # as workspace volume is first on the list
-        self.workspace_volume = self.docker_client.inspect_container(os.environ["HOSTNAME"])['Mounts'][0]['Source']
+        self.workspace_volume = DockerDeployer._get_workspace_mount(
+            self.docker_client.inspect_container(
+                os.environ["HOSTNAME"])['Mounts'])
+
         print(f"Workspace original path: {self.workspace_volume}")
 
         self.hydrus_image = DockerDeployer.HYDRUS_IMAGES[0]
         self._set_modflow(0)
 
     def run_hydrus(self, hydrus_dir: str, hydrus_projects: List[str], sim_id: int) -> List[SimulationError]:
-        hydrus_count = len(hydrus_projects)
-        hydrus_container_names = ["hydrus-container-id." + str(sim_id) + "-num." + str(i + 1) for i in
-                                  range(hydrus_count)]
-
+        project_name = path_formatter.extract_project_name(hydrus_dir)
         hydrus_volumes_paths = []
-        for project_name in hydrus_projects:
+        hydrus_container_names = []
+
+        for hydrus_model_name in hydrus_projects:
+            hydrus_container_names.append(f"{sim_id}-{project_name}-hydrus-{hydrus_model_name}-{uuid.uuid4().hex}")
+
             workspace_project_path = path_formatter.extract_path_inside_workspace(
-                os.path.join(hydrus_dir, project_name))
+                os.path.join(hydrus_dir, hydrus_model_name))
+
             hydrus_volumes_paths.append(path_formatter.format_path_to_docker(dir_path=self.workspace_volume)
                                         + workspace_project_path)
 
@@ -58,8 +64,11 @@ class DockerDeployer(IAppDeployer):
             return simulation_errors
 
     def run_modflow(self, modflow_dir: str, nam_file: str, sim_id) -> Optional[SimulationError]:
-        modflow_container_name = "modflow-container-2005-id." + str(sim_id)
+        project_name = path_formatter.extract_project_name(modflow_dir)
+        modflow_model_name = path_formatter.extract_hydrological_model_name(modflow_dir)
+        modflow_container_name = f"{sim_id}-{project_name}-modflow-{modflow_model_name}-{uuid.uuid4().hex}"
         workspace_project_path = path_formatter.extract_path_inside_workspace(modflow_dir)
+
         modflow_volume_path = path_formatter.format_path_to_docker(dir_path=self.workspace_volume) \
                               + workspace_project_path
 
@@ -76,6 +85,13 @@ class DockerDeployer(IAppDeployer):
     def _set_modflow(self, i: int):
         self.modflow_version = DockerDeployer.MODFLOW_VERSIONS[i]
         self.modflow_image = DockerDeployer.MODFLOW_IMAGES[i]
+
+    @staticmethod
+    def _get_workspace_mount(mounts):
+        socket_path = "/var/run/docker.sock"
+        for mount in mounts:
+            if socket_path not in mount['Source']:
+                return mount['Source']
 
 
 def create() -> DockerDeployer:

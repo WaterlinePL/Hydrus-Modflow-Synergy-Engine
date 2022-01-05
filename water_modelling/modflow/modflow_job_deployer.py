@@ -6,7 +6,7 @@ from kubernetes.client.rest import ApiException
 
 from deployment.kubernetes_job_interface import IKubernetesJob
 from utils.yaml_data import YamlData
-from utils.yaml_generator import YamlGenerator
+from utils.yaml_job_generator import YamlJobGenerator
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -27,7 +27,7 @@ class ModflowJobDeployer(IKubernetesJob):
     def run(self):
         resp = None
         try:
-            resp = self._get_k8s_core_client().list_namespaced_pod(namespace="default",
+            resp = self._get_k8s_core_client().list_namespaced_pod(namespace=self.namespace,
                                                                    label_selector=f"job-name={self.job_name}")
 
         except ApiException as e:
@@ -37,7 +37,7 @@ class ModflowJobDeployer(IKubernetesJob):
 
         if resp.items:
             while resp.items:
-                self.job_name = f"{self.sub_path.split('/hydrus/')[1]}-" \
+                self.job_name = f"{self.sub_path.split('/modflow/')[1]}-" \
                                 f"{uuid.uuid4().hex[:ModflowJobDeployer.SHORTENED_UUID_LENGTH]}"
                 resp = self._get_k8s_core_client().list_namespaced_pod(namespace=self.namespace,
                                                                        label_selector=f"job-name={self.job_name}")
@@ -49,10 +49,10 @@ class ModflowJobDeployer(IKubernetesJob):
                              args=[self._get_modflow_version(),
                                    self.name_file],
                              sub_path=self.sub_path,
-                             hydro_programme=ModflowJobDeployer.PROGRAMME_NAME,
+                             hydro_program=ModflowJobDeployer.PROGRAMME_NAME,
                              description=self.description)
 
-        yaml_gen = YamlGenerator(yaml_data)
+        yaml_gen = YamlJobGenerator(yaml_data)
         job_manifest = yaml_gen.prepare_kubernetes_job()
 
         print("Job %s does not exist. Creating it..." % self.job_name)
