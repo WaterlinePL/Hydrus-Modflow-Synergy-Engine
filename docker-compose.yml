@@ -1,10 +1,6 @@
 version: "3.8"
 services:
   webapp:
-# build not working yet, build with 'docker build -t water_modelling .' inside main repo folder
-#    build:
-#      context: .
-#      dockerfile: Dockerfile.debug
     image: watermodelling/hydrus-modflow-synergy-engine:water-modelling-standalone
     ports:
       - "5000:5000"

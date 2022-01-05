@@ -112,7 +112,6 @@ def remove_model(model_type: str, model_name: str, state: UserState):
         else:
             new_list = state.loaded_project["hydrus_models"]
             new_list.remove(model_name)
-            print(new_list)
             if new_list is None:
                 new_list = []
             update(state.loaded_project["name"], {"hydrus_models": new_list}, state)
