@@ -28,11 +28,11 @@
                                 {% endif %}
                                value="{{ name if name else '' }}">
                         <br>
-                        <label for="lat">Latitude:</label>
+                        <label for="lat">Latitude (DD format):</label>
                         <input type="text" class="form-control" name="lat" id="lat"
                                value="{{ prev_lat if prev_lat else '' }}" placeholder="e.g. 54.11">
                         <br>
-                        <label for="long">Longitude:</label>
+                        <label for="long">Longitude (DD format):</label>
                         <input type="text" class="form-control" name="long" id="long"
                                value="{{ prev_long if prev_long else '' }}" placeholder="e.g. -1.121">
                         <br>

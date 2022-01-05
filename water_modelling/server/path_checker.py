@@ -28,7 +28,6 @@ def path_check_simulate_access(state: UserState) -> Optional[Response]:
     if check_previous:
         return check_previous
 
-    # TODO: add some condition if its a local version
     if not lcd.read_configuration()["modflow_exe"] or not lcd.read_configuration()["hydrus_exe"]:
         state.activate_error_flag()
         return redirect(endpoints.CONFIGURATION)

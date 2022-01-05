@@ -35,6 +35,22 @@ Instead, they should be copied to a new `tests` folder using scripts.
 
 For further information refer to the comments in the scripts.
 
+### Environment Configuration For Developers
+Application was tested on two Python versions: 3.8 and 3.9. 
+#### Pycharm configuration
+It is necessary to set **water_modelling** directory as **Source** in project settings.
+
+![Project Config](water_modelling/sample/screenshots/project_config.PNG)
+
+#### Line Separators
+Additional changes apply to line separators. Due to some .sh scrips, they need to be set to LF. 
+Those files are prepared for Docker and Kubernetes versions running on linux os. Click
+[here](https://www.jetbrains.com/help/idea/configuring-line-endings-and-line-separators.html) for further instruction.
+#### Run/Debug Configuration
+Provide correct main.py *Run and Debug Configuration* as presented below.
+
+![Run/Debug Config](water_modelling/sample/screenshots/run_debug_config.PNG)
+
 ### Repository structure
 * **hydrus_docker** - contains data related to the Docker image we created for Hydrus (hydrus executable compiled
 from this [repository](https://github.com/AgriHarmony/HYDRUS-1-D-gfortran)
