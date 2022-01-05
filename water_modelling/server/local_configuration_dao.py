@@ -14,7 +14,8 @@ Config .json file specification:
 
 def read_configuration():
     if not os.path.exists(deployment_config.CONFIG_FILE_PATH):
-        os.makedirs(deployment_config.CONFIG_FOLDER_PATH)
+        if not os.path.exists(deployment_config.CONFIG_FOLDER_PATH):
+            os.makedirs(deployment_config.CONFIG_FOLDER_PATH)
         update_configuration(None, None)
 
     return json.load(open(deployment_config.CONFIG_FILE_PATH))
