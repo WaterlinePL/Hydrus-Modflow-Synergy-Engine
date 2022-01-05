@@ -1,4 +1,4 @@
-# AGH WATER MODELING
+# Hydrus-Modflow Synergy Engine - AGH WATER MODELING
 This repository is an engineering project that is also a part of WATERLINE project
 
 ## Welcome to the main branch
@@ -12,6 +12,8 @@ These versions of application are located on the branches with same name as depl
 Each branch has been preconfigured in the file `water_modelling/app_config/deployment_config.py`
 to ease testing, launching and mitigate problem with changing deployment config while committing 
 to one branch (thus we split master into 3 deployment branches).
+
+#### Important: For application to run properly, it is required to have *cookies* enabled in the web browser.
 
 ### Assumed workflow
 * if a new feature relates to every application deployment:
