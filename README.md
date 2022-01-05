@@ -52,7 +52,28 @@ as for creating test data inside `water_modelling`
   + `simulation` - module related to launching simulation (hydrus -> data passing -> modflow)
   + `workspace` - necessary folder where all created projects is stored (content is ignored by `.gitignore`)
 
+### Simulation input files
+#### Upload Modflow, Hydrus models
+It is necessary to upload a model in a correct archive structure.
+You need to provide it in a **.zip archive, with the model files placed directly in the root**.
+#### Upload Weather Data
+It is optional to modify a hydrus model with meteorological data. 
+You have to create a **.csv file with correct columns** and values:
+* `Date` - date in format m/d/yyy (US format)
+* `Longitude` - longitude in Decimal Degrees (DD) format
+* `Latitude` - latitude in Decimal Degrees (DD) format
+* `Elevation` - elevation over the sea level (altitude) in meters
+* `Max Temperature` - maximum temperature in Celsius Degrees
+* `Min Temperature` - minimum temperature in Celsius Degrees
+* `Precipitation` - precipitation in the same length unit as used in the Hydrus model for example meters
+* `Wind` - wind in km/day
+* `Relative Humidity` - relative humidity in percentages
+* `Solar` - solar radiation in MJ/m2
 
+To obtain data you can check out 
+[Global Weather Data for SWAT](https://globalweather.tamu.edu) and adjust it to the correct format of your Hydrus model.
+
+[Example weather file](water_modelling/sample/weather_data/weatherdata.csv)
 
 ### Simulation results
 ##### Archive Structure
