@@ -1,106 +1,53 @@
-# AGH WATER MODELING
-This repository is an engineering project that is also a part of WATERLINE project
+# Hydrus-Modflow Synergy Engine - AGH WATER MODELING
+This repository is an engineering project that is also a part of WATERLINE project. 
+Please refer to the README.md file on the main branch for general information about the project and a tutorial.
 
-## Welcome to the main branch
-This branch serves as a repository for common components that are used by every deployment. 
-So far we have 3 deployments:
-* `desktop`
-* `docker`
-* `kubernetes`
+## Welcome to the kubernetes branch
+This branch serves as a repository for k8s deployment. It is preconfigured for launching Kubernetes version of HMSE. 
 
-These versions of application are located on the branches with same name as deployment name.
-Each branch has been preconfigured in the file `water_modelling/app_config/deployment_config.py`
-to ease testing, launching and mitigate problem with changing deployment config while committing 
-to one branch (thus we split master into 3 deployment branches).
+### Add NFS Server Provisioner to the cluster
+It is required to have the [NFS Server Provisioner](https://github.com/helm/charts/tree/master/stable/nfs-server-provisioner) 
+installed in the cluster using [Helm](https://helm.sh/docs/intro/install/). To install it, invoke following commands:
+* `helm install nfs1 stable/nfs-server-provisioner`
+* if this command causes trouble:
+  * download whole [repository from GitHub](https://github.com/helm/charts)
+  * find a folder `nfs-server-provisioner` inside the `stable` folder
+  * create .tar: 
+  ```
+  helm package nfs-server-provisioner
+  ```
+  * install provisioner inside the cluster:
+  ```
+  helm install nfs1 nfs-server-provisioner-1.1.3.tar
+  ```
+* in order to customize the chart (ex. in order to give data persistence), it probably needs to be downloaded anyways
+* Note: This chart is deprecated.
 
-### Assumed workflow
-* if a new feature relates to every application deployment:
-  + create a Pull Request to `master`
-  + after merging it, rebase other branches to `master`  - while on another branch,
-  use `git fetch origin master:master` and then `git rebase master`
-* if a new feature relates to two deployments - create two Pull Requests to each branch
-* if a new feature relates to only one deployment - create Pull Request to the deployment's branch
+### Launch Kubernetes Deployment
+Whole project is launched using .yaml manifests stored in `k8s` folder. To set up the cluster:
+* `kubectl apply -f  k8s/nfs-pvc.yaml` - create PersistentVolumeClaim (acquire storage) 
+* `kubectl apply -f  k8s/web-app-role.yaml` - create roles allowing particular Pods to create another Pods, Jobs, etc.
+* `kubectl apply -f  k8s/web-app-deployment.yaml` - create Deployment of the application (launch application)
 
-More detailed README are located on the deployments' branches.
-### Important
-* sample projects are located in folder `sample`
-* TESTS SHOULD NOT BE RUN ON PROJECT FROM `sample` FOLDER
-* instead, they should be copied to new folder `tests` using scripts
-* copy sample projects (please refer to the comments in the scripts):
-    + Linux script: scripts/copy_projects.sh (suggested)
-    + Windows 10 script: scripts/copy_projects.ps (requires enabled Powershell scripts)
-
-### Repository structure
-* **hydrus_docker** - folder with data related to hydrus docker image created by us (hydrus executable compiled
-from this [repository](https://github.com/AgriHarmony/HYDRUS-1-D-gfortran)
-* **k8s** - .yaml kubernetes manifests related to kubernetes deployment, contains also debug manifests
-* **scripts** - bash and PowerShell (not recommended) scripts for building and pushing docker images as well 
-as for creating test data inside `water_modelling`
-* **water_modelling** - main application
-  + `app_config` - module containing deployment settings, modified on each deployment's branch
-  + `datapassing` - module containing logic related to passing output from the Hydrus simulation 
-  as input to the Modflow simulation 
-  + `deployment` - module with deployers for each deployment version (desktop, docker, kubernetes)
-  + `hydrus` - module with logic related to launching Hydrus simulations
-  + `kubernetes_controller` - module with logic related to monitoring kubernetes jobs (simulations are 
-  launched as kubernetes jobs inside the cluster)
-  + `modflow` - module with logic related to launching Modflow simulations
-  + `sample` - sample data meant to be copied and used for tests (there is a script that makes a `tests` folder 
-  with content from `sample`)
-  + `server` - module with web application components (endpoints, states, page templates and their javascript
-  functionalities)
-  + `simulation` - module related to launching simulation (hydrus -> data passing -> modflow)
-  + `workspace` - necessary folder where all created projects is stored (content is ignored by `.gitignore`)
-
-
-
-### Simulation results
-##### Archive Structure
+**Application can be accessed under `localhost:30036`**
+### Kubernetes deployment development
+* Building Docker image of the application - invoke inside the root of the repository:
 ```
-├── hydrus
-│   ├── hydrus_model_name_01
-│   |   └── ...
-|   └── hydrus_model_name_02
-│       └── ...
-├── modflow
-│   ├── modflow_model_name
-│   |   └── ...
-│   └── results.json
-└── project_name.json
+docker build -t watermodelling/hydrus-modflow-synergy-engine:water-modelling-k8s -f Dockerfile.k8s .
 ```
+* Building and pushing to DockerHub (for credentials please refer to the owners of the project) - invoke inside
+the root of the repository:
+```
+sh scripts/build_and_push_k8s_image.sh 
+```
+Pushing project with `LOCAL_DEBUG_MODE` will most likely cause it not to work properly.
 
-##### Project metadata - *[project_name.json]*
-```json
-{
-    "name": "Project_01",           // name of the project
-    "lat": "12.12",                 // modflow model top right corner latitude
-    "long": "13.13",                // modflow model top right corner longitude
-    "start_date": "2001-01-12",     // modflow model start date
-    "end_date": "2002-02-03",       // modlow model end date 
-    "spin_up": "2",                 // hydrus spin-up in days
-    "rows": 5,                      // modflow model rows count
-    "cols": 5,                      // modflow model columns count
-    "grid_unit": "meters",          // modflow model length unit
-    "row_cells": [100.0, 100.0, 100.0, 100.0, 100.0],   // modflow model cell width along rows (given in the grid unit)
-    "col_cells": [100.0, 100.0, 100.0, 100.0, 100.0],   // modflow model cell width along columns (given in the grid unit)
-    "modflow_model": "project_01_modflow",              // modflow model name
-    "hydrus_models": ["project_01_hydrus", "project_02_hydrus"]   // names of the hydrus models
-}
-```
-
-##### Modflow simulation results - *[results.json]*
-```
-Contents of 4 dimentional array - modflow_output[stress_period][layer][row][col]
-ex. [
-      [
-        [ 
-          [0.1, 0.5, 0.1], 
-          [0.1, 0.5, 0.1] 
-        ],
-        [ 
-          [0.1, 0.5, 0.1],
-          [0.1, 0.5, 0.1] 
-        ]
-      ]
-    ] (1 stress period, 2 layers, 2 rows, 3 columns)
-```
+### Important notes:
+* Deployment (`web-app-deployment.yaml`) has environmental variable `PVC` with the name of PVC.
+It is used in code to create Job manifests with same PVC as main Pod.
+* The manifest creating PVC (`nfs-pvc.yaml`) is adapted to small local environment, before launching it is essential
+to increase its size
+* For more advanced local test, there is a manifest `kind-dev-cluster.yaml` that creates local cluster
+with 2 Control Panels and 3 Worker Nodes - it simulates cloud environment
+* In `k8s` there are debug manifests which might be used to test changes done to different k8s componenets,
+such as PVC
