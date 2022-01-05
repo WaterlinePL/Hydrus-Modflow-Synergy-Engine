@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 from sys import platform
 
-from deployment import desktop_deployer  # docker_deployer, kubernetes_deployer
+from deployment import desktop_deployer
 
 if platform == "linux" or platform == "linux2" or platform == "darwin":
     PROJECT_ROOT = os.path.abspath("../")
@@ -21,5 +21,4 @@ CONFIG_FILE_PATH = os.path.join(CONFIG_FOLDER_PATH, CONFIG_FILE_NAME)
 
 ALLOWED_TYPES = ["ZIP"]
 WORKSPACE_DIR = os.path.join(PROJECT_ROOT, 'workspace')
-
 DEPLOYER = desktop_deployer.create()
