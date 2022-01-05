@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 from sys import platform
+
 from deployment import desktop_deployer
 
 if platform == "linux" or platform == "linux2" or platform == "darwin":

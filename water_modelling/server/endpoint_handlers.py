@@ -124,7 +124,6 @@ def project_handler(project_name):
                     model_path, nam_file_name, (model_data["rows"], model_data["cols"])
                 )
 
-            print(state.loaded_project)
             return render_template(template.PROJECT, project=chosen_project)
 
 
@@ -477,7 +476,6 @@ def assign_model_to_shape(req, rch_shape_index):
 def upload_new_configurations():
     modflow_exe = request.json['modflowExe']
     hydrus_exe = request.json['hydrusExe']
-    print(modflow_exe, hydrus_exe)
 
     if not os.path.exists(modflow_exe):
         return jsonify(error=str("Incorrect Modflow exe path"), model=str("modflow")), 404

@@ -27,7 +27,6 @@ def home():
     return res
 
 
-# TODO: add some condition if its a local version / hide endpoint
 @app.route(endpoints.CONFIGURATION, methods=['GET', 'POST'])
 def configuration():
     state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
