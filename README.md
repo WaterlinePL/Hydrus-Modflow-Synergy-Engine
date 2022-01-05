@@ -1,106 +1,40 @@
-# AGH WATER MODELING
-This repository is an engineering project that is also a part of WATERLINE project
+# Hydrus-Modflow Synergy Engine - AGH WATER MODELING
+This repository is an engineering project that is also a part of WATERLINE project. 
+Please refer to the README.md file on the main branch for general information about the project and a tutorial.
 
-## Welcome to the main branch
-This branch serves as a repository for common components that are used by every deployment. 
-So far we have 3 deployments:
-* `desktop`
-* `docker`
-* `kubernetes`
+## Welcome to the docker branch
+This branch serves as a repository for docker deployment. It is preconfigured for launching Docker version of HMSE. 
 
-These versions of application are located on the branches with same name as deployment name.
-Each branch has been preconfigured in the file `water_modelling/app_config/deployment_config.py`
-to ease testing, launching and mitigate problem with changing deployment config while committing 
-to one branch (thus we split master into 3 deployment branches).
-
-### Assumed workflow
-* if a new feature relates to every application deployment:
-  + create a Pull Request to `master`
-  + after merging it, rebase other branches to `master`  - while on another branch,
-  use `git fetch origin master:master` and then `git rebase master`
-* if a new feature relates to two deployments - create two Pull Requests to each branch
-* if a new feature relates to only one deployment - create Pull Request to the deployment's branch
-
-More detailed README are located on the deployments' branches.
-### Important
-* sample projects are located in folder `sample`
-* TESTS SHOULD NOT BE RUN ON PROJECT FROM `sample` FOLDER
-* instead, they should be copied to new folder `tests` using scripts
-* copy sample projects (please refer to the comments in the scripts):
-    + Linux script: scripts/copy_projects.sh (suggested)
-    + Windows 10 script: scripts/copy_projects.ps (requires enabled Powershell scripts)
-
-### Repository structure
-* **hydrus_docker** - folder with data related to hydrus docker image created by us (hydrus executable compiled
-from this [repository](https://github.com/AgriHarmony/HYDRUS-1-D-gfortran)
-* **k8s** - .yaml kubernetes manifests related to kubernetes deployment, contains also debug manifests
-* **scripts** - bash and PowerShell (not recommended) scripts for building and pushing docker images as well 
-as for creating test data inside `water_modelling`
-* **water_modelling** - main application
-  + `app_config` - module containing deployment settings, modified on each deployment's branch
-  + `datapassing` - module containing logic related to passing output from the Hydrus simulation 
-  as input to the Modflow simulation 
-  + `deployment` - module with deployers for each deployment version (desktop, docker, kubernetes)
-  + `hydrus` - module with logic related to launching Hydrus simulations
-  + `kubernetes_controller` - module with logic related to monitoring kubernetes jobs (simulations are 
-  launched as kubernetes jobs inside the cluster)
-  + `modflow` - module with logic related to launching Modflow simulations
-  + `sample` - sample data meant to be copied and used for tests (there is a script that makes a `tests` folder 
-  with content from `sample`)
-  + `server` - module with web application components (endpoints, states, page templates and their javascript
-  functionalities)
-  + `simulation` - module related to launching simulation (hydrus -> data passing -> modflow)
-  + `workspace` - necessary folder where all created projects is stored (content is ignored by `.gitignore`)
-
-
-
-### Simulation results
-##### Archive Structure
+### Run application container
+* use `docker compose` for automated approach - invoke inside the root of the repository:
 ```
-├── hydrus
-│   ├── hydrus_model_name_01
-│   |   └── ...
-|   └── hydrus_model_name_02
-│       └── ...
-├── modflow
-│   ├── modflow_model_name
-│   |   └── ...
-│   └── results.json
-└── project_name.json
+docker compose up
 ```
 
-##### Project metadata - *[project_name.json]*
-```json
-{
-    "name": "Project_01",           // name of the project
-    "lat": "12.12",                 // modflow model top right corner latitude
-    "long": "13.13",                // modflow model top right corner longitude
-    "start_date": "2001-01-12",     // modflow model start date
-    "end_date": "2002-02-03",       // modlow model end date 
-    "spin_up": "2",                 // hydrus spin-up in days
-    "rows": 5,                      // modflow model rows count
-    "cols": 5,                      // modflow model columns count
-    "grid_unit": "meters",          // modflow model length unit
-    "row_cells": [100.0, 100.0, 100.0, 100.0, 100.0],   // modflow model cell width along rows (given in the grid unit)
-    "col_cells": [100.0, 100.0, 100.0, 100.0, 100.0],   // modflow model cell width along columns (given in the grid unit)
-    "modflow_model": "project_01_modflow",              // modflow model name
-    "hydrus_models": ["project_01_hydrus", "project_02_hydrus"]   // names of the hydrus models
-}
+* alternatively - manually pull and run image:
+  * pull image from DockerHub:
+  ```
+  docker pull watermodelling/hydrus-modflow-synergy-engine:water-modelling-standalone
+  ```
+   * run image (for Windows an absolute path is probably required instead):
+  ```
+  docker run -p 5000:5000 -v ./water_modelling/workspace:/workspace watermodelling/hydrus-modflow-synergy-engine:water-modelling-standalone
+  ```
+* Note: it requires `water_modelling/workspace` to exist (mounted as a volume) in current PWD 
+(recommended invoking commands inside the root of the repository or prepared earlier workspace) - this folder
+is mounted to the image and will be used to store all the project created in the application
+
+**Access the application from browser under `localhost:5000`.**
+
+### Docker image development
+* Building Docker image - invoke inside the root of the repository:
+```
+docker build -t watermodelling/hydrus-modflow-synergy-engine:water-modelling-standalone -f Dockerfile.docker .
+```
+* Building and pushing to DockerHub (for credentials please refer to the owners of the project) - invoke inside
+the root of the repository:
+```
+sh scripts/build_and_push_docker_image.sh 
 ```
 
-##### Modflow simulation results - *[results.json]*
-```
-Contents of 4 dimentional array - modflow_output[stress_period][layer][row][col]
-ex. [
-      [
-        [ 
-          [0.1, 0.5, 0.1], 
-          [0.1, 0.5, 0.1] 
-        ],
-        [ 
-          [0.1, 0.5, 0.1],
-          [0.1, 0.5, 0.1] 
-        ]
-      ]
-    ] (1 stress period, 2 layers, 2 rows, 3 columns)
-```
+
