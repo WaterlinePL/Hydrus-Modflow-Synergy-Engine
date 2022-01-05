@@ -121,7 +121,6 @@ def get_shapes_from_rch(project_path: str, nam_file_name: str, project_shape: Tu
                                      row=row, col=col,
                                      value=recharge_array[row][col])
 
-    print(recharge_masks)
     return recharge_masks
 
 
