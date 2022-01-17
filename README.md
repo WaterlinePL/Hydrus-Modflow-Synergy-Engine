@@ -39,7 +39,7 @@ More detailed README files are located on the deployments' branches.
 Application was tested on two Python versions: 3.8 and 3.9. 
 #### Pycharm configuration
 It is necessary to set **water_modelling** directory as **Source** in project settings.
-
+ 
 ![Project Config](water_modelling/sample/screenshots/project_config.PNG)
 
 #### Line Separators
