@@ -107,7 +107,7 @@ You can also check out this [example weather file](water_modelling/sample/weathe
 
 
 ### Simulation results
-##### Archive Structure
+#### Archive Structure
 ```
 ├── hydrus
 │   ├── hydrus_model_name_01
@@ -127,7 +127,7 @@ as well if you need to.
 
 The `project_name.json` file contains the project metadata, as described below.
 
-##### Project metadata - *[project_name.json]*
+#### Project metadata - *[project_name.json]*
 ```json
 {
     "name": "Project_01",           // project name
@@ -146,7 +146,7 @@ The `project_name.json` file contains the project metadata, as described below.
 }
 ```
 
-##### Modflow simulation results - *[results.json]*
+#### Modflow simulation results - *[results.json]*
 ```
 Contains a 4D array, indexed with [stress_period][layer][row][col]
 ex. [
@@ -162,3 +162,53 @@ ex. [
       ]
     ] (1 stress period, 2 layers, 2 rows, 3 columns)
 ```
+
+### Contributors
+#### [Izabela Czajowska](https://github.com/iczajowska)
+* Running the Modflow simulation using the Kubernetes platform. Creation of the Kubernetes manifest as YAML files. Implementation of abstractions to generate manifests for Job Modflow and Hydrus.
+* Development of the graphical interface using bootstrap technology
+* Creation of the navigation to enable simple usage of the web application
+* Views for uploading Modflow, Hydrus models.
+* Securing application endpoints in order to correctly move between simulation windows.
+* View for defining areas with the use of data retrieved from an RCH file.
+* Creating an interface for defining local paths to Modflow and Hydrus programs.
+* Saving application metadata with local paths to Modflow and Hydrus using the DAO design pattern.
+* View of the list of simulation projects.
+* Validation of uploaded by user metadata of newly created projects.
+* Adaptation of the application for usage by many users at the same time. 
+
+#### [Jerzy Jędrzejaszek](https://github.com/FluffyNinjaBrick) 
+* Preparation of REST API using Flask library, partial implementation. Simple application views using Flask package. Connecting the frontend and backend - implementation of the functionality of loading models by the user.
+* Basic view and logic managing the assignment of Hydrus models to areas designated in the Modflow model.
+* Create a state tool to store cache variables and add a level of abstraction necessary for project management.
+* Implementation of the project mechanism (Simulation abstraction).
+* File persistence of project metadata (name, model coordinates, simulation duration) and information about loaded models (names, resolutions, dimensions of the rows and columns).
+* Extracting the simulation results from the Hydrus and Modflow models, providing the simulation results to the user.
+* Implementation of loading weather data from files.
+* Building a desktop implementation of the project to the executable EXE file.
+
+#### [Mateusz Pawłowicz](https://github.com/Observer46) 
+* Checking the correct loading of the Hydrus model.
+* Dockerization of the Hydrus-1D program. Adaptation of the developer version of Hydrus in order to run it on Linux distribution.
+* Launching the parallel conversion of Hydrus-1D models.
+* Transcription of the results of the Hydrus-1D models into the corresponding sub-areas.
+* Creation of a component for uploading ZIP models using the drag and drop method.
+* Dockerization of the created project and launching new containers from the main container.
+* Implementation of monitoring module to check status of Hydrus and Modflow simulations.
+* Code refactoring 
+* Separation of the three types of deployment: desktop, docker, kubernetes
+* Handling of hydrological simulation errors.
+* Creation of the Kubernetes cluster architecture
+* Adaptation of the application for usage by many users at the same time. 
+
+#### [Maria Polak](https://github.com/BlqMary) 
+* Analysis of Flopy and pHydrus libraries for convenient operation of Modflow and Hydrus model, respectively.
+* Analysis of the result files of Hydrus and Modflow programs
+* Implementation of pods management using Kubernetes platform
+* Checking the correctness of the Modflow project provided by the user
+* Implementation of Hydrus Modflow integration. Integration of simulation components.
+* Modification of the RCH file based on the result from the Hydrus models
+* Extracting Modflow model areas based on the input values in the RCH file. Implementing the DFS algorithm to search the Modflow mesh.
+* Drawing complex and compacted Modflow model meshes.
+* Preparation of compressed result data in an archive for the user.
+
