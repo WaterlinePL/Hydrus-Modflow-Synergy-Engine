@@ -1,6 +1,6 @@
 # Hydrus-Modflow Synergy Engine - AGH WATER MODELING
 This is the repository of the HMSE application, a thesis project aiming
-to combine the functionalities of the Hydrus and Modflow simulation programs.
+to combine the functionalities of the Hydrus and Modflow simulation programs. 
 
 ## Welcome to the master branch
 This branch serves as a repository for common components that are used by every deployment. 
