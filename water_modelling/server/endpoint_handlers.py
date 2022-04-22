@@ -10,7 +10,7 @@ from zipfile import ZipFile
 from utils import path_formatter
 
 import app_utils
-import dao
+from water_modelling.metadata import dao
 import weather_util
 import json
 import numpy as np
