@@ -1,12 +1,17 @@
 import json
 import os
 import shutil
+from typing import List
 
 from app_config import deployment_config
+from metadata.hydrological_model_enum import HydrologicalModelEnum
 from server.user_state import UserState
+from metadata.project_metadata import ProjectMetadata
+
+ProjectName = str
 
 
-def create(project: dict):
+def create(project: ProjectMetadata):
     """
     Creates a new project in the workspace. The project consists of a root directory, which contains
     a modflow folder for the modflow model, a hydrus folder for the hydrus models, and a JSON file
@@ -30,17 +35,19 @@ def create(project: dict):
     json.dump(project, file)
 
 
-def read(project_name: str):
+def read(project_name: str) -> ProjectMetadata:
     """
     Reads and returns the JSON file for the project with the specified name.
 
     :param project_name: string, the name of the project whose JSON file we want to retrieve
     :return: the project's JSON file
     """
-    return json.load(open(os.path.join(deployment_config.WORKSPACE_DIR, project_name, project_name + ".json")))
+    path_to_project = os.path.join(deployment_config.WORKSPACE_DIR, project_name, project_name + ".json")
+    with open(path_to_project) as handle:
+        return json.load(handle, object_hook=lambda d: ProjectMetadata(**d))
 
 
-def read_all():
+def read_all() -> List[ProjectName]:
     """
     Returns a list of names of all projects existing in the system.
 
@@ -50,54 +57,58 @@ def read_all():
             if os.path.isdir(os.path.join(deployment_config.WORKSPACE_DIR, name))]
 
 
-def update(project_name: str, changed_fields: dict, state: UserState):
+def save_or_update(project: ProjectMetadata, state: UserState):
     """
     Updates the given fields in a given project, leaving the rest unchanged. The name field cannot be modified.
     If the project that was updated was currently loaded, the app utility will be given this updated object as well.
 
-    :param project_name: string, the project whose fields to update
-    :param changed_fields: dict, the fields to be updated
+    TODO: DEL :param project_name: string, the project whose fields to update
+    :param project: dict, the fields to be updated
     :param state: Current user's state
     :return: None
     """
     # read and update project file
-    project = read(project_name)
-    for field in changed_fields.keys():
-        if field != "name":
-            project[field] = changed_fields[field]
+    # project = read(project_name)
+    # for field in project.keys():
+    #     if field != "name":
+    #         project[field] = project[field]
 
     # if that project is currently loaded, and it probably is, update the record in the utility
-    if state.loaded_project and state.loaded_project["name"] == project_name:
+    # TODO: is this really needed?
+    if state.loaded_project and state.loaded_project["name"] == project.name:
         state.loaded_project = project
 
     # write the updated project into the JSON file
-    file = open(os.path.join(deployment_config.WORKSPACE_DIR, project_name, project_name + ".json"), "w")
-    json.dump(project, file)
+    with open(os.path.join(deployment_config.WORKSPACE_DIR, project.name, project.name + ".json"), "w") as file:
+        json.dump(project, file)
 
 
-def remove_model(model_type: str, model_name: str, state: UserState):
+# TODO: this method should be in ProjectMetadataService
+def remove_model(model_type: HydrologicalModelEnum, model_name: str, state: UserState):
     """
     Removes an already loaded model from the project.
 
-    :param model_type: string, the type of model to delete, "hydrus" or "modflow"
-    :param model_name: string, the name of the model to delete
+    :param model_type: enum, the type of model to delete, hydrus or modflow
+    :param model_name: string, the name of the hydrological model to delete
     :param state: Current user's state
     :return: None
     """
 
+    # TODO: Use model and update it
     model_path = os.path.join(deployment_config.WORKSPACE_DIR, state.loaded_project["name"], model_type, model_name)
     if os.path.isdir(model_path):
         shutil.rmtree(model_path)
-        if model_type == 'modflow':
-            update(state.loaded_project["name"], {"modflow_model": None}, state)
-        else:
+        if model_type == HydrologicalModelEnum.MODFLOW:
+            save_or_update(state.loaded_project["name"], {"modflow_model": None}, state)
+        elif model_type == HydrologicalModelEnum.HYDRUS:
             new_list = state.loaded_project["hydrus_models"]
             new_list.remove(model_name)
             if new_list is None:
                 new_list = []
-            update(state.loaded_project["name"], {"hydrus_models": new_list}, state)
+            save_or_update(state.loaded_project["name"], {"hydrus_models": new_list}, state)
 
 
+# TODO: this method should be in ProjectMetadataService
 def get_hydrus_length_unit(model_name: str, state: UserState):
     """
     Extracts the length unit used for a given hydrus model.
@@ -117,7 +128,7 @@ def get_hydrus_length_unit(model_name: str, state: UserState):
             raise LookupError(f"ERROR: invalid SELECTOR.IN file for model {model_name}, no length unit found")
         curr_line = lines[i]
         if "LUnit" in curr_line:
-            unit = lines[i+1].strip()
+            unit = lines[i + 1].strip()
             return unit
         i += 1
 
@@ -141,6 +152,7 @@ def remove_project(project_name: str, state: UserState):
         state.reset_project_data()
 
 
+# TODO: stuff below goes to another file
 #  ----- weather file data keys -----
 LATITUDE = 'Latitude'
 ELEVATION = 'Elevation'
@@ -185,7 +197,7 @@ def modify_meteo_file(model_dir, data):
 
     old_file_lines = meteo_file.readlines()
     # remove trailing empty lines from end of file
-    while old_file_lines[len(old_file_lines)-1].strip() == "":
+    while old_file_lines[len(old_file_lines) - 1].strip() == "":
         old_file_lines.pop()
     new_file_lines = []
 
@@ -222,9 +234,10 @@ def modify_meteo_file(model_dir, data):
 
     # verify if weather file length is at least the same as data;
     # i+1 for 0-indexing, +1 for the sum to be correct, then -1 for the EOF line
-    data_lines = len(old_file_lines) - (i+1)
+    data_lines = len(old_file_lines) - (i + 1)
     if len(data[LATITUDE]) < data_lines:
-        print(f"WARNING: insufficient weather file size - expected at least {data_lines} records, got {len(data[LATITUDE])}")
+        print(
+            f"WARNING: insufficient weather file size - expected at least {data_lines} records, got {len(data[LATITUDE])}")
         return False
 
     # write new table values, only change columns for which we have data
@@ -264,13 +277,12 @@ def modify_meteo_file(model_dir, data):
 
 
 def modify_atmosph_file(model_dir, data):
-
     atmosph_file_path = os.path.join(model_dir, "ATMOSPH.IN")
     atmosph_file = open(atmosph_file_path, "r+")
 
     old_file_lines = atmosph_file.readlines()
     # remove trailing empty lines from end of file
-    while old_file_lines[len(old_file_lines)-1].strip() == "":
+    while old_file_lines[len(old_file_lines) - 1].strip() == "":
         old_file_lines.pop()
     new_file_lines = []
 
@@ -286,9 +298,10 @@ def modify_atmosph_file(model_dir, data):
 
     # verify if weather file length is at least the same as data;
     # i+1 for 0-indexing, +1 for the sum to be correct, then -1 for the EOF line
-    data_lines = len(old_file_lines) - (i+1)
+    data_lines = len(old_file_lines) - (i + 1)
     if len(data[LATITUDE]) < data_lines:
-        print(f"WARNING: insufficient weather file size - expected at least {data_lines} records, got {len(data[LATITUDE])}")
+        print(
+            f"WARNING: insufficient weather file size - expected at least {data_lines} records, got {len(data[LATITUDE])}")
         return False
 
     # modify table

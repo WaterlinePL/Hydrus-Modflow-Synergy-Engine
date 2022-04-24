@@ -53,7 +53,7 @@ class UserState:
 
         # check if it's allowed
         extension = filename.rsplit('.', 1)[1]
-        return extension.upper() in deployment_config.ALLOWED_TYPES
+        return extension.upper() in deployment_config.ALLOWED_UPLOAD_TYPES
 
     def setup(self) -> None:
         self.reset_project_data()

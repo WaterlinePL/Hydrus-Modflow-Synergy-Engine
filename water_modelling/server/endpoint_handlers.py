@@ -4,6 +4,7 @@ from datapassing.shape_data import ShapeMetadata
 from flask import render_template, redirect, abort, jsonify, send_file, request
 from flask_paginate import Pagination, get_page_args
 from hydrus import hydrus_utils
+from metadata.hydrological_model_enum import HydrologicalModelEnum
 from modflow import modflow_utils
 from server import endpoints, template
 from zipfile import ZipFile
@@ -33,6 +34,7 @@ def create_project_handler():
     if name.lower() in lowercase_project_names:
         return jsonify(error=str("A project with this name already exists (names are case-insensitive)")), 404
 
+    # TODO: make ProjectMetadata
     project = {
         "name": name,
         "lat": lat,
@@ -198,14 +200,14 @@ def update_project_settings():
         state.activate_error_flag()
         return redirect(endpoints.PROJECT_LIST)
 
-    prev_project["name"] = name
-    prev_project["lat"] = lat
-    prev_project["long"] = long
-    prev_project["start_date"] = start_date
-    prev_project["end_date"] = end_date
-    prev_project['spin_up'] = spin_up
+    prev_project.name = name
+    prev_project.lat = lat
+    prev_project.long = long
+    prev_project.start_date = start_date
+    prev_project.end_date = end_date
+    prev_project.spin_up = spin_up
 
-    dao.update(name, prev_project, state)
+    dao.save_or_update(name, prev_project, state)
     return json.dumps({'status': 'OK'})
 
 
@@ -250,6 +252,7 @@ def upload_modflow_handler():
                                                                 (model_data["rows"], model_data["cols"]))
 
         # update project JSON
+        # TODO: read file, update, save
         updates = {
             "modflow_model": model_name,
             "rows": model_data["rows"],
@@ -258,14 +261,15 @@ def upload_modflow_handler():
             "row_cells": model_data["row_cells"],
             "col_cells": model_data["col_cells"]
         }
-        dao.update(state.loaded_project["name"], updates, state)
+        ####
+        dao.save_or_update(state.loaded_project["name"], updates, state)
 
         print("Modflow model uploaded successfully")
         return redirect(endpoints.UPLOAD_MODFLOW)
 
     else:
         print("Invalid archive format, must be one of: ", end='')
-        print(deployment_config.ALLOWED_TYPES)
+        print(deployment_config.ALLOWED_UPLOAD_TYPES)
         return abort(500)
 
 
@@ -296,7 +300,7 @@ def remove_modflow_handler():
     state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
     body = json.loads(request.data)
     if body['modelName']:
-        dao.remove_model('modflow', body["modelName"], state)
+        dao.remove_model(HydrologicalModelEnum.MODFLOW, body["modelName"], state)
     return redirect(endpoints.UPLOAD_MODFLOW, code=303)
 
 
@@ -346,11 +350,11 @@ def upload_hydrus_handler():
             updates = {
                 "hydrus_models": state.loaded_project["hydrus_models"] + [model_name]
             }
-            dao.update(state.loaded_project["name"], updates, state)
+            dao.save_or_update(state.loaded_project["name"], updates, state)
 
         else:
             error_idx = i
-            error = "Invalid file type. Accepted types: " + ", ".join(deployment_config.ALLOWED_TYPES)
+            error = "Invalid file type. Accepted types: " + ", ".join(deployment_config.ALLOWED_UPLOAD_TYPES)
             break
 
     if error is not None:
@@ -384,7 +388,7 @@ def remove_hydrus_handler():
     print("received call")
     print(hydrus_model_name)
     if hydrus_model_name:
-        dao.remove_model('hydrus', hydrus_model_name, state)
+        dao.remove_model(HydrologicalModelEnum.HYDRUS, hydrus_model_name, state)
         if hydrus_model_name in state.loaded_shapes.keys():
             del state.loaded_shapes[hydrus_model_name]
         if hydrus_model_name in state.models_masks_ids.keys():
@@ -404,8 +408,10 @@ def upload_shape_handler(req, hydrus_model_index):
     # read the array from the request and store it
     shape_array = req.get_json(force=True)
     np_array_shape = np.array(shape_array)
-    state.loaded_shapes[state.loaded_project["hydrus_models"][hydrus_model_index]] = ShapeMetadata(
-        shape_mask_array=np_array_shape)
+
+    shape_metadata = ShapeMetadata(shape_mask_array=np_array_shape, main_project_name=state.loaded_project["name"],)    # I think metadata needs to be used right now ehhh
+    state.loaded_shapes[state.loaded_project["hydrus_models"][hydrus_model_index]] = shape_metadata
+    shape_metadata.dump_to_file()
 
     return json.dumps({'status': 'OK'})
 

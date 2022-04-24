@@ -1,17 +1,26 @@
+import os.path
 from typing import List
 
 import numpy as np
 import phydrus as ph
+import app_config.deployment_config as deployment_config
 
 
 class ShapeMetadata:
 
-    def __init__(self, shape_mask_array: np.ndarray):
+    def __init__(self, shape_mask_array: np.ndarray, main_project_name: str, hydrus_model_name: str):
         """
         This class contains metadata stored for defining and presenting shape masks to the user in UI.
         @param shape_mask_array: NumPy 2D array representing bitmask of a particular shape
         """
         self.shape_mask = shape_mask_array
+        self.model_name = main_project_name
+        self.hydrus_model_name = hydrus_model_name
+
+    def dump_to_file(self):
+        self.shape_mask.dump(os.path.join(deployment_config.WORKSPACE_DIR,
+                                          self.model_name,
+                                          self.hydrus_model_name))
 
 
 class Shape:
