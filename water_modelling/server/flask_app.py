@@ -254,7 +254,7 @@ def run_simulation():
         return check_previous_steps
 
     simulation_service = SimulationService(state.get_hydrus_dir(), state.get_modflow_dir())
-    state.set_simulation_serivce(simulation_service)
+    state.set_simulation_service(simulation_service)
     sim = state.simulation_service.prepare_simulation()
 
     sim.set_modflow_project(modflow_project=state.loaded_project["modflow_model"])

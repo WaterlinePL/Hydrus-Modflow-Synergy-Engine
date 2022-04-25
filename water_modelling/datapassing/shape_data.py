@@ -7,6 +7,7 @@ import app_config.deployment_config as deployment_config
 
 
 class ShapeMetadata:
+    MASK_FILETYPE = ".np"
 
     def __init__(self, shape_mask_array: np.ndarray, main_project_name: str, hydrus_model_name: str):
         """
@@ -18,14 +19,16 @@ class ShapeMetadata:
         self.hydrus_model_name = hydrus_model_name
 
     def dump_to_file(self):
-        self.shape_mask.dump(os.path.join(deployment_config.WORKSPACE_DIR,
-                                          self.model_name,
-                                          self.hydrus_model_name))
+        path = os.path.join(deployment_config.WORKSPACE_DIR,
+                            self.model_name,
+                            self.hydrus_model_name)
+        file = path + ShapeMetadata.MASK_FILETYPE
+        self.shape_mask.dump(file)
 
 
 class Shape:
 
-    def __init__(self, mask_array: np.array, hydrus_output_filepath: str):
+    def __init__(self, mask_array: np.ndarray, hydrus_output_filepath: str):
         """
         This class contains shape data used for passing output of Hydrus (recharge) as an input of Modflow.
         @param mask_array: NumPy 2D array representing bitmask of a particular shape

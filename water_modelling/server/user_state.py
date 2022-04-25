@@ -7,6 +7,7 @@ import os
 import numpy as np
 from app_config import deployment_config
 from datapassing.shape_data import ShapeMetadata
+from simulation.exceptions import NoLoadedProjectException
 
 if TYPE_CHECKING:
     from simulation.simulation_service import SimulationService
@@ -88,7 +89,7 @@ class UserState:
     def activate_error_flag(self):
         self._error_flag = True
 
-    def set_simulation_serivce(self, simulation_service: SimulationService):
+    def set_simulation_service(self, simulation_service: SimulationService):
         self.simulation_service = simulation_service
 
     def set_method(self, method):
@@ -121,27 +122,32 @@ class UserState:
                 shapes_count = len(self.models_masks_ids[hydrus_model])
 
             if shapes_count == 1:
-                self.loaded_shapes[hydrus_model] = ShapeMetadata(shape_mask_array=
-                                                                 self.recharge_masks[
-                                                                     self.models_masks_ids[hydrus_model][0]])
+                shape_mask = self.recharge_masks[self.models_masks_ids[hydrus_model][0]]
+
             elif shapes_count > 1:
                 shape_mask = self.recharge_masks[self.models_masks_ids[hydrus_model][0]]
                 for idx in range(1, shapes_count):
-                    shape_mask = np.logical_or(shape_mask,
-                                               self.recharge_masks[self.models_masks_ids[hydrus_model][idx]])
+                    another_mask = self.recharge_masks[self.models_masks_ids[hydrus_model][idx]]
+                    shape_mask = np.logical_or(shape_mask, another_mask)
 
-                self.loaded_shapes[hydrus_model] = ShapeMetadata(shape_mask_array=shape_mask)
             else:
-                self.loaded_shapes[hydrus_model] = self.create_empty_mask()
+                shape_mask = self.create_empty_mask()
 
-    def create_empty_mask(self) -> Optional[ShapeMetadata]:
+            shape_metadata = ShapeMetadata(shape_mask_array=shape_mask,
+                                           main_project_name=self.loaded_project["name"],
+                                           hydrus_model_name=hydrus_model)
+            self.loaded_shapes[hydrus_model] = shape_metadata
+            shape_metadata.dump_to_file()
+
+    # TODO: Probably move elsewhere
+    def create_empty_mask(self) -> Optional[np.ndarray]:
         """
-        creates an empty shape mask
+        Creates an empty shape mask as an NumPy array
 
         @return: a ShapeFileData instance with an empty mask the size of the currently loaded model,
             or None if no project is loaded
         """
         if not self.loaded_project:
-            return None
+            raise NoLoadedProjectException("Tried to create empty mask without loading a project!")
         else:
-            return ShapeMetadata(shape_mask_array=np.zeros((self.loaded_project["rows"], self.loaded_project["cols"])))
+            return np.zeros((self.loaded_project["rows"], self.loaded_project["cols"]))

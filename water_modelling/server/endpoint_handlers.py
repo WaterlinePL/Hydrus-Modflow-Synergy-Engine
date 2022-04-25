@@ -401,16 +401,17 @@ def upload_shape_handler(req, hydrus_model_index):
 
     # if not yet done, initialize the shape arrays list to the amount of models
     if len(state.loaded_shapes) < len(state.loaded_project["hydrus_models"]):
-
         for hydrus_model in state.loaded_project["hydrus_models"]:
             state.loaded_shapes[hydrus_model] = None
 
     # read the array from the request and store it
-    shape_array = req.get_json(force=True)
-    np_array_shape = np.array(shape_array)
+    hydrus_model = state.loaded_project["hydrus_models"][hydrus_model_index]
+    shape_array = np.array(req.get_json(force=True))
+    shape_metadata = ShapeMetadata(shape_mask_array=shape_array,
+                                   main_project_name=state.loaded_project["name"],
+                                   hydrus_model_name=hydrus_model)
 
-    shape_metadata = ShapeMetadata(shape_mask_array=np_array_shape, main_project_name=state.loaded_project["name"],)    # I think metadata needs to be used right now ehhh
-    state.loaded_shapes[state.loaded_project["hydrus_models"][hydrus_model_index]] = shape_metadata
+    state.loaded_shapes[hydrus_model] = shape_metadata
     shape_metadata.dump_to_file()
 
     return json.dumps({'status': 'OK'})
@@ -442,7 +443,7 @@ def next_model_redirect_handler(hydrus_model_index, error_flag):
         )
 
 
-def next_shape_redirect_handler(rch_shape_index):
+def next_shape_redirect_handler(rch_shape_index: int):
     state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
 
     if rch_shape_index >= len(state.recharge_masks):
