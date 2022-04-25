@@ -7,6 +7,7 @@ import numpy as np
 from collections import deque
 
 
+# TODO: return object?
 def get_model_data(project_path: str, nam_file_name: str) -> dict:
     """
     Get the following info about the modflow model:

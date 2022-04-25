@@ -18,6 +18,7 @@ class ShapeMetadata:
         self.model_name = main_project_name
         self.hydrus_model_name = hydrus_model_name
 
+    # TODO: migrate to MaskDao (and make it)
     def dump_to_file(self):
         path = os.path.join(deployment_config.WORKSPACE_DIR,
                             self.model_name,

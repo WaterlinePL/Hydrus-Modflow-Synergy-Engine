@@ -45,7 +45,7 @@ def path_check_modflow_step(state: UserState) -> Optional[Response]:
     if check_previous:
         return check_previous
 
-    if state.get_modflow_dir() is None or not state.loaded_project["modflow_model"]:
+    if state.get_modflow_dir() is None or not state.loaded_project.modflow_model:
         state.activate_error_flag()
         return redirect(endpoints.UPLOAD_MODFLOW)
 
@@ -63,7 +63,7 @@ def path_check_hydrus_step(state: UserState) -> Optional[Response]:
         return check_previous
 
     # TODO: check if Hydrus step was visited? (upload of projects is not mandatory)
-    if state.get_hydrus_dir() is None or not state.loaded_project["hydrus_models"]:
+    if state.get_hydrus_dir() is None or not state.loaded_project.hydrus_models:
         state.activate_error_flag()
         return redirect(endpoints.UPLOAD_HYDRUS)
 
@@ -85,7 +85,7 @@ def path_check_define_shapes_method(state: UserState) -> Optional[Response]:
         state.activate_error_flag()
         return redirect(endpoints.DEFINE_METHOD)
 
-    for hydrus_model in state.loaded_project["hydrus_models"]:
+    for hydrus_model in state.loaded_project.hydrus_models:
         if hydrus_model not in state.loaded_shapes.keys():
             state.loaded_shapes[hydrus_model] = state.create_empty_mask()
 

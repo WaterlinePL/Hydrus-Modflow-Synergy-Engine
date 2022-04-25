@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from typing import List, Optional
-from project_step_enum import ProjectStepEnum
+from metadata.project_step_enum import ProjectStepEnum
 
 
 # Is represented as .json file in store, accessed via dao

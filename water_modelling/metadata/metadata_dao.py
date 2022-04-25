@@ -22,7 +22,7 @@ def create(project: ProjectMetadata):
     """
     # create catalogue structure
     # TODO - check for collision?
-    project_root = os.path.join(deployment_config.WORKSPACE_DIR, project['name'])
+    project_root = os.path.join(deployment_config.WORKSPACE_DIR, project.name)
     hydrus_folder = os.path.join(project_root, 'hydrus')
     modflow_folder = os.path.join(project_root, 'modflow')
     os.mkdir(project_root)
@@ -30,7 +30,7 @@ def create(project: ProjectMetadata):
     os.mkdir(modflow_folder)
 
     # save project JSON file
-    file_path = os.path.join(project_root, project['name'] + '.json')
+    file_path = os.path.join(project_root, project.name + '.json')
     file = open(file_path, 'w+')
     json.dump(project, file)
 
@@ -75,7 +75,7 @@ def save_or_update(project: ProjectMetadata, state: UserState):
 
     # if that project is currently loaded, and it probably is, update the record in the utility
     # TODO: is this really needed?
-    if state.loaded_project and state.loaded_project["name"] == project.name:
+    if state.loaded_project and state.loaded_project.name == project.name:
         state.loaded_project = project
 
     # write the updated project into the JSON file
@@ -94,18 +94,21 @@ def remove_model(model_type: HydrologicalModelEnum, model_name: str, state: User
     :return: None
     """
 
-    # TODO: Use model and update it
     model_path = os.path.join(deployment_config.WORKSPACE_DIR, state.loaded_project["name"], model_type, model_name)
     if os.path.isdir(model_path):
         shutil.rmtree(model_path)
+        metadata = state.loaded_project
         if model_type == HydrologicalModelEnum.MODFLOW:
-            save_or_update(state.loaded_project["name"], {"modflow_model": None}, state)
+            metadata.remove_modflow_model()
+            save_or_update(metadata, state)
         elif model_type == HydrologicalModelEnum.HYDRUS:
-            new_list = state.loaded_project["hydrus_models"]
-            new_list.remove(model_name)
-            if new_list is None:
-                new_list = []
-            save_or_update(state.loaded_project["name"], {"hydrus_models": new_list}, state)
+            metadata.remove_hydrus_model(model_name)
+
+            # TODO: probably not needed
+            # if new_list is None:
+            #     new_list = []
+
+            save_or_update(metadata, state)
 
 
 # TODO: this method should be in ProjectMetadataService
@@ -148,7 +151,7 @@ def remove_project(project_name: str, state: UserState):
         shutil.rmtree(project_path)
 
     # if project was currently loaded, remove it and reset util fields
-    if state.loaded_project is not None and state.loaded_project['name'] == project_name:
+    if state.loaded_project is not None and state.loaded_project.name == project_name:
         state.reset_project_data()
 
 

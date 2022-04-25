@@ -7,10 +7,12 @@ import os
 import numpy as np
 from app_config import deployment_config
 from datapassing.shape_data import ShapeMetadata
+
 from simulation.exceptions import NoLoadedProjectException
 
 if TYPE_CHECKING:
     from simulation.simulation_service import SimulationService
+    from metadata.project_metadata import ProjectMetadata
 
 
 def verify_dir_exists_or_create(path: str):
@@ -26,7 +28,7 @@ def get_or_none(req, key):
 class UserState:
 
     def __init__(self):
-        self.loaded_project = None
+        self.loaded_project: Optional[ProjectMetadata] = None
         self.simulation_service: Optional[SimulationService] = None
         self.current_method = None
         self.recharge_masks = []
@@ -71,13 +73,13 @@ class UserState:
 
     def get_modflow_dir(self):
         if self.loaded_project is not None:
-            return os.path.join(deployment_config.WORKSPACE_DIR, self.loaded_project['name'], 'modflow')
+            return os.path.join(deployment_config.WORKSPACE_DIR, self.loaded_project.name, 'modflow')
         else:
             return None
 
     def get_hydrus_dir(self):
         if self.loaded_project is not None:
-            return os.path.join(deployment_config.WORKSPACE_DIR, self.loaded_project['name'], 'hydrus')
+            return os.path.join(deployment_config.WORKSPACE_DIR, self.loaded_project.name, 'hydrus')
         else:
             return None
 
@@ -134,7 +136,7 @@ class UserState:
                 shape_mask = self.create_empty_mask()
 
             shape_metadata = ShapeMetadata(shape_mask_array=shape_mask,
-                                           main_project_name=self.loaded_project["name"],
+                                           main_project_name=self.loaded_project.name,
                                            hydrus_model_name=hydrus_model)
             self.loaded_shapes[hydrus_model] = shape_metadata
             shape_metadata.dump_to_file()
@@ -150,4 +152,4 @@ class UserState:
         if not self.loaded_project:
             raise NoLoadedProjectException("Tried to create empty mask without loading a project!")
         else:
-            return np.zeros((self.loaded_project["rows"], self.loaded_project["cols"]))
+            return np.zeros((self.loaded_project.rows, self.loaded_project.cols))
