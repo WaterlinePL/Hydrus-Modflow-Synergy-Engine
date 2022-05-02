@@ -1,30 +1,20 @@
-import os.path
+from dataclasses import dataclass
 from typing import List
 
 import numpy as np
 import phydrus as ph
-import app_config.deployment_config as deployment_config
+from datapassing import shape_data_json_dao
 
 
-class ShapeMetadata:
-    MASK_FILETYPE = ".np"
-
-    def __init__(self, shape_mask_array: np.ndarray, main_project_name: str, hydrus_model_name: str):
-        """
-        This class contains metadata stored for defining and presenting shape masks to the user in UI.
-        @param shape_mask_array: NumPy 2D array representing bitmask of a particular shape
-        """
-        self.shape_mask = shape_mask_array
-        self.model_name = main_project_name
-        self.hydrus_model_name = hydrus_model_name
+@dataclass
+class ShapeMetadata:    # shape on which hydrus model will be applied
+    shape_mask: np.ndarray
+    project_name: str
+    hydrus_model_name: str
 
     # TODO: migrate to MaskDao (and make it)
     def dump_to_file(self):
-        path = os.path.join(deployment_config.WORKSPACE_DIR,
-                            self.model_name,
-                            self.hydrus_model_name)
-        file = path + ShapeMetadata.MASK_FILETYPE
-        self.shape_mask.dump(file)
+        shape_data_json_dao.save_or_update(self)
 
 
 class Shape:
