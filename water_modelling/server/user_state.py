@@ -7,6 +7,7 @@ import os
 import numpy as np
 from app_config import deployment_config
 from datapassing.shape_data import ShapeMetadata
+from deployment import daos
 
 from simulation.exceptions import NoLoadedProjectException
 
@@ -135,11 +136,9 @@ class UserState:
             else:
                 shape_mask = self.create_empty_mask()
 
-            shape_metadata = ShapeMetadata(shape_mask_array=shape_mask,
-                                           main_project_name=self.loaded_project.name,
-                                           hydrus_model_name=hydrus_model)
+            shape_metadata = ShapeMetadata(shape_mask, self.loaded_project.name, hydrus_model)
             self.loaded_shapes[hydrus_model] = shape_metadata
-            shape_metadata.dump_to_file()
+            daos.mask_dao.save_or_update(shape_metadata)
 
     # TODO: Probably move elsewhere
     def create_empty_mask(self) -> Optional[np.ndarray]:

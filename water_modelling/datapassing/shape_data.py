@@ -3,7 +3,6 @@ from typing import List
 
 import numpy as np
 import phydrus as ph
-from datapassing import shape_data_json_dao
 
 
 @dataclass
@@ -11,10 +10,6 @@ class ShapeMetadata:    # shape on which hydrus model will be applied
     shape_mask: np.ndarray
     project_name: str
     hydrus_model_name: str
-
-    # TODO: migrate to MaskDao (and make it)
-    def dump_to_file(self):
-        shape_data_json_dao.save_or_update(self)
 
 
 class Shape:
@@ -39,4 +34,4 @@ class Shape:
             t_level = ph.read.read_tlevel(path=hydrus_output_filepath)
             return t_level['sum(vBot)']
         except FileNotFoundError as err:
-            print(f"No file found containing hydrus output: {err}")
+            print(f"No file found containing hydrus output: {err}") # TODO: Logger

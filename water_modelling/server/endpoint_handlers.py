@@ -3,6 +3,8 @@ from app_config import deployment_config
 from datapassing.shape_data import ShapeMetadata
 from flask import render_template, redirect, abort, jsonify, send_file, request
 from flask_paginate import Pagination, get_page_args
+
+from deployment import daos
 from hydrus import hydrus_utils
 from metadata.hydrological_model_enum import HydrologicalModelEnum
 from metadata.project_metadata import ProjectMetadata
@@ -410,13 +412,10 @@ def upload_shape_handler(req, hydrus_model_index):
     # read the array from the request and store it
     hydrus_model = state.loaded_project.hydrus_models[hydrus_model_index]
     shape_array = np.array(req.get_json(force=True))
-    shape_metadata = ShapeMetadata(shape_mask_array=shape_array,
-                                   main_project_name=state.loaded_project.name,
-                                   hydrus_model_name=hydrus_model)
-
+    shape_metadata = ShapeMetadata(shape_array, state.loaded_project.name, hydrus_model)
     state.loaded_shapes[hydrus_model] = shape_metadata
-    shape_metadata.dump_to_file()
 
+    daos.mask_dao.save_or_update(shape_metadata)
     return json.dumps({'status': 'OK'})
 
 
