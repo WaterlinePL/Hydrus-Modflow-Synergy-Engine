@@ -1,12 +1,17 @@
+from __future__ import annotations
+
 import json
 import os
 import shutil
-from typing import List
 
 from app_config import deployment_config
+from deployment import daos
 from metadata.hydrological_model_enum import HydrologicalModelEnum
-from server.user_state import UserState
 from metadata.project_metadata import ProjectMetadata
+from typing import List, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from server.user_state import UserState
 
 ProjectName = str
 
@@ -32,7 +37,7 @@ def create(project: ProjectMetadata):
     # save project JSON file
     file_path = os.path.join(project_root, project.name + '.json')
     file = open(file_path, 'w+')
-    json.dump(project, file)
+    json.dump(project.to_json(), file)
 
 
 def read(project_name: str) -> ProjectMetadata:
@@ -80,7 +85,7 @@ def save_or_update(project: ProjectMetadata, state: UserState):
 
     # write the updated project into the JSON file
     with open(os.path.join(deployment_config.WORKSPACE_DIR, project.name, project.name + ".json"), "w") as file:
-        json.dump(project, file)
+        json.dump(project.to_json(), file)
 
 
 # TODO: this method should be in ProjectMetadataService
@@ -88,27 +93,28 @@ def remove_model(model_type: HydrologicalModelEnum, model_name: str, state: User
     """
     Removes an already loaded model from the project.
 
-    :param model_type: enum, the type of model to delete, hydrus or modflow
-    :param model_name: string, the name of the hydrological model to delete
-    :param state: Current user's state
-    :return: None
+    @param model_type: enum, the type of model to delete, hydrus or modflow
+    @param model_name: string, the name of the hydrological model to delete
+    @param state: Current user's state
+    @return: None
     """
 
-    model_path = os.path.join(deployment_config.WORKSPACE_DIR, state.loaded_project["name"], model_type, model_name)
+    model_path = os.path.join(deployment_config.WORKSPACE_DIR, state.loaded_project.name, model_type, model_name)
     if os.path.isdir(model_path):
         shutil.rmtree(model_path)
-        metadata = state.loaded_project
+        loaded_metadata = state.loaded_project
         if model_type == HydrologicalModelEnum.MODFLOW:
-            metadata.remove_modflow_model()
-            save_or_update(metadata, state)
+            loaded_metadata.remove_modflow_model()
+            state.reset_shaping()
+            save_or_update(loaded_metadata, state)
         elif model_type == HydrologicalModelEnum.HYDRUS:
-            metadata.remove_hydrus_model(model_name)
+            loaded_metadata.remove_hydrus_model(model_name)
 
             # TODO: probably not needed
             # if new_list is None:
             #     new_list = []
 
-            save_or_update(metadata, state)
+            save_or_update(loaded_metadata, state)
 
 
 # TODO: this method should be in ProjectMetadataService

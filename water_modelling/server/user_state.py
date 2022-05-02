@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Dict, List
 
 import os
 
@@ -16,14 +16,15 @@ if TYPE_CHECKING:
     from metadata.project_metadata import ProjectMetadata
 
 
+# TODO: should be invoked on startup or sth (maybe in main)
 def verify_dir_exists_or_create(path: str):
     if not os.path.isdir(path):
         print('Directory ' + path + ' does not exist, creating...')
-        os.system('mkdir ' + path)
+        os.mkdir(path)
 
 
-def get_or_none(req, key):
-    return req.form[key] if req.form[key] != "" else None
+HydrusModelName = str
+HydrusModelIndices = List[int]
 
 
 class UserState:
@@ -32,12 +33,13 @@ class UserState:
         self.loaded_project: Optional[ProjectMetadata] = None
         self.simulation_service: Optional[SimulationService] = None
         self.current_method = None
-        self.recharge_masks = []
-        self.models_masks_ids = {}
-        self.loaded_shapes = {}
+        self.recharge_masks: List[np.ndarray] = []  # masks from .rch file
+        self.models_masks_ids: Dict[HydrusModelName, HydrusModelIndices] = {}
+        self.loaded_shapes: Dict[HydrusModelName, ShapeMetadata] = {}
         self._error_flag = False
 
     @staticmethod
+    # TODO: to ModflowDAO
     def get_modflow_dir_by_project_name(project_name):
         if project_name is not None:
             return os.path.join(deployment_config.WORKSPACE_DIR, project_name, 'modflow')
@@ -45,6 +47,7 @@ class UserState:
             return None
 
     @staticmethod
+    # TODO: throw it elsewhere
     def type_allowed(filename: str) -> bool:
         """
         @param filename: Path to the file whose extension needs to be checked
@@ -72,12 +75,14 @@ class UserState:
         self.loaded_shapes = {}
         self._error_flag = False
 
+    # TODO: to ModflowDAO
     def get_modflow_dir(self):
         if self.loaded_project is not None:
             return os.path.join(deployment_config.WORKSPACE_DIR, self.loaded_project.name, 'modflow')
         else:
             return None
 
+    # TODO: to HydrusDAO
     def get_hydrus_dir(self):
         if self.loaded_project is not None:
             return os.path.join(deployment_config.WORKSPACE_DIR, self.loaded_project.name, 'hydrus')
@@ -97,9 +102,12 @@ class UserState:
 
     def set_method(self, method):
         if self.current_method != method:
-            self.models_masks_ids = {}
-            self.loaded_shapes = {}
+            self.reset_shaping()
             self.current_method = method
+
+    def reset_shaping(self):
+        self.models_masks_ids = {}
+        self.loaded_shapes = {}
 
     def get_current_model_by_id(self, rch_shape_index):
         current_model = None
@@ -110,6 +118,7 @@ class UserState:
 
         return current_model
 
+    # TODO: throw it elsewhere (shape related)
     def get_shapes_from_masks_ids(self):
         """
         models_masks_ids dictionary contains hydrus models names as a key and array of indexes as values.

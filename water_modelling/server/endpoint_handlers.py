@@ -6,6 +6,7 @@ from flask_paginate import Pagination, get_page_args
 
 from deployment import daos
 from hydrus import hydrus_utils
+from metadata import project_metadata_loader
 from metadata.hydrological_model_enum import HydrologicalModelEnum
 from metadata.project_metadata import ProjectMetadata
 from modflow import modflow_utils
@@ -14,7 +15,6 @@ from zipfile import ZipFile
 from utils import path_formatter
 
 import app_utils
-from water_modelling.metadata import metadata_dao
 import weather_util
 import json
 import numpy as np
@@ -33,7 +33,7 @@ def create_project_handler():
     spin_up = request.json["spin_up"]
 
     # check for name collision
-    lowercase_project_names = [name.lower() for name in metadata_dao.read_all()]
+    lowercase_project_names = [name.lower() for name in daos.project_metadata_dao.read_all()]
     if name.lower() in lowercase_project_names:
         return jsonify(error=str("A project with this name already exists (names are case-insensitive)")), 404
 
@@ -53,7 +53,7 @@ def create_project_handler():
     # "modflow_model": None,
     # "hydrus_models": []
 
-    metadata_dao.create(project)
+    daos.project_metadata_dao.create(project)
     state.reset_project_data()
     state.loaded_project = project
     return json.dumps({'status': 'OK'})
@@ -65,7 +65,7 @@ def get_projects(projects, offset=0, per_page=10):
 
 def project_list_handler(search):
     state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
-    project_names = metadata_dao.read_all()
+    project_names = daos.project_metadata_dao.read_all()
 
     if search:
         project_names = [name for name in project_names if search.lower() in name.lower()]
@@ -92,7 +92,7 @@ def remove_project_handler():
     state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
     body = json.loads(request.data)
     if body['projectName']:
-        metadata_dao.remove_project(body['projectName'], state)
+        daos.project_metadata_dao.remove_project(body['projectName'], state)
     return redirect(endpoints.PROJECT_LIST, code=303)
 
 
@@ -110,20 +110,8 @@ def project_handler(project_name):
     # case 3 - we're selecting a new project
     else:
         try:
-            chosen_project = metadata_dao.read(project_name)
-
-            # clear old data and load new project
-            state.reset_project_data()
-            state.loaded_project = chosen_project
-
-            if state.loaded_project.modflow_model:
-                model_path = os.path.join(state.get_modflow_dir(), state.loaded_project.modflow_model)
-                nam_file_name = modflow_utils.get_nam_file(model_path)
-                model_data = modflow_utils.get_model_data(model_path, nam_file_name)
-                state.recharge_masks = modflow_utils.get_shapes_from_rch(
-                    model_path, nam_file_name, (model_data["rows"], model_data["cols"])
-                )
-
+            chosen_project = daos.project_metadata_dao.read(project_name)
+            project_metadata_loader.load_metadata_to_state(state, chosen_project)
             return render_template(template.PROJECT, project=chosen_project)
 
         # case 3a - the project does not exist
@@ -137,7 +125,7 @@ def project_is_finished_handler(project_name):
     if project_name is not None:
         try:
             # Check if project exists
-            metadata_dao.read(project_name)
+            daos.project_metadata_dao.read(project_name)
         except FileNotFoundError:  # the project does not exist
             state.error_flag = True
             return redirect(endpoints.PROJECT_LIST)
@@ -157,7 +145,7 @@ def project_download_handler(project_name):
     state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
     if project_name is not None:
         try:
-            project = metadata_dao.read(project_name)
+            project = daos.project_metadata_dao.read(project_name)
         except FileNotFoundError:  # the project does not exist
             state.error_flag = True
             return redirect(endpoints.PROJECT_LIST)
@@ -174,7 +162,7 @@ def project_download_handler(project_name):
 def edit_project_handler(project_name):
     state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
     try:
-        project = metadata_dao.read(project_name)
+        project = daos.project_metadata_dao.read(project_name)
         return render_template(
             template.CREATE_PROJECT,
             name=project_name,
@@ -199,7 +187,7 @@ def update_project_settings():
     spin_up = request.json['spin_up']
 
     try:
-        project_metadata = metadata_dao.read(name)
+        project_metadata = daos.project_metadata_dao.read(name)
 
         # Update metadata
         project_metadata.name = name
@@ -209,7 +197,7 @@ def update_project_settings():
         project_metadata.end_date = end_date
         project_metadata.spin_up = spin_up
 
-        metadata_dao.save_or_update(project_metadata, state)
+        daos.project_metadata_dao.save_or_update(project_metadata, state)
         return json.dumps({'status': 'OK'})
 
     except FileNotFoundError:
@@ -226,7 +214,7 @@ def upload_modflow_handler():
         return redirect(endpoints.PROJECT_LIST)
 
     model = request.files['archive-input']  # matches HTML input name
-    filename = path_formatter.fix_model_name(model.filename)
+    filename = path_formatter.fix_model_name(model.filename)        # TODO: Closer look at that
 
     if state.type_allowed(model.filename):
 
@@ -266,7 +254,7 @@ def upload_modflow_handler():
         project_metadata.row_cells = model_data["row_cells"]
         project_metadata.col_cells = model_data["col_cells"]
 
-        metadata_dao.save_or_update(project_metadata, state)
+        daos.project_metadata_dao.save_or_update(project_metadata, state)
 
         print("Modflow model uploaded successfully")  # TODO: Logger
         return redirect(endpoints.UPLOAD_MODFLOW)
@@ -287,10 +275,10 @@ def upload_weather_file_handler():
     weather_file.save(filepath)
 
     # update hydrus project
-    length_unit = metadata_dao.get_hydrus_length_unit(model_name, state)
+    length_unit = daos.project_metadata_dao.get_hydrus_length_unit(model_name, state)
     raw_data = weather_util.read_weather_csv(filepath)
     ready_data = weather_util.adapt_data(raw_data, length_unit)
-    success = metadata_dao.add_weather_to_hydrus_model(model_name, ready_data, state)
+    success = daos.project_metadata_dao.add_weather_to_hydrus_model(model_name, ready_data, state)
 
     os.remove(filepath)
 
@@ -304,7 +292,7 @@ def remove_modflow_handler():
     state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
     body = json.loads(request.data)
     if body['modelName']:
-        metadata_dao.remove_model(HydrologicalModelEnum.MODFLOW, body["modelName"], state)
+        daos.project_metadata_dao.remove_model(HydrologicalModelEnum.MODFLOW, body["modelName"], state)
     return redirect(endpoints.UPLOAD_MODFLOW, code=303)
 
 
@@ -353,7 +341,7 @@ def upload_hydrus_handler():
             project_metadata = state.loaded_project
             project_metadata.hydrus_models.append(model_name)
             # update project JSON
-            metadata_dao.save_or_update(project_metadata, state)
+            daos.project_metadata_dao.save_or_update(project_metadata, state)
 
         else:
             error_idx = i
@@ -393,7 +381,8 @@ def remove_hydrus_handler():
     print(hydrus_model_name)  # TODO: Logger
 
     if hydrus_model_name:
-        metadata_dao.remove_model(HydrologicalModelEnum.HYDRUS, hydrus_model_name, state)
+        # also deletes mask
+        daos.project_metadata_dao.remove_model(HydrologicalModelEnum.HYDRUS, hydrus_model_name, state)
         if hydrus_model_name in state.loaded_shapes.keys():
             del state.loaded_shapes[hydrus_model_name]
         if hydrus_model_name in state.models_masks_ids.keys():
@@ -404,6 +393,7 @@ def remove_hydrus_handler():
 def upload_shape_handler(req, hydrus_model_index):
     state = app_utils.get_user_by_cookie(request.cookies.get(app_utils.COOKIE_NAME))
 
+    # TODO: Not here, unexpected place
     # if not yet done, initialize the shape arrays list to the amount of models
     if len(state.loaded_shapes) < len(state.loaded_project.hydrus_models):
         for hydrus_model in state.loaded_project.hydrus_models:
