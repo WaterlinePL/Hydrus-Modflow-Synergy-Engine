@@ -13,10 +13,10 @@ class ProjectMetadata:
     long: float = None                      # longitude of model
     start_date: str = None                  # start date of the simulation (YYYY-mm-dd)
     end_date: str = None                    # end date of the simulation (YYYY-mm-dd)
-    spin_up: float = None                   # how many days of hydrus simulation should be ignored
+    spin_up: int = None                   # how many days of hydrus simulation should be ignored
     rows: int = None                        # amount of rows in the model grid
     cols: int = None                        # amount of columns in the model grid
-    grid_unit: str = None                   # unit in which the model grid size is represented
+    grid_unit: str = None                   # unit in which the model grid size is represented (feet/meters/centimeters)
     row_cells: List[float] = field(default_factory=list)        # heights of the model's consecutive rows
     col_cells: List[float] = field(default_factory=list)        # widths of the model's consecutive columns
     modflow_model: Optional[str] = None                 # name of the folder containing the modflow model

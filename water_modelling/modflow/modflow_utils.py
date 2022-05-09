@@ -129,7 +129,7 @@ def get_nam_file(project_path: str) -> Optional[str]:
         if filename.endswith(".nam"):
             return filename
 
-    print("ERROR: invalid modflow model; missing .nam file")
+    print("ERROR: invalid modflow model; missing .nam file")    # TODO: Logger
     return None
 
 

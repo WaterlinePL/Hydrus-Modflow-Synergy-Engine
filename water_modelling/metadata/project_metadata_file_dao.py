@@ -245,7 +245,7 @@ def modify_meteo_file(model_dir, data):
     # i+1 for 0-indexing, +1 for the sum to be correct, then -1 for the EOF line
     data_lines = len(old_file_lines) - (i + 1)
     if len(data[LATITUDE]) < data_lines:
-        print(
+        print(  # TODO: Logger
             f"WARNING: insufficient weather file size - expected at least {data_lines} records, got {len(data[LATITUDE])}")
         return False
 
@@ -309,7 +309,7 @@ def modify_atmosph_file(model_dir, data):
     # i+1 for 0-indexing, +1 for the sum to be correct, then -1 for the EOF line
     data_lines = len(old_file_lines) - (i + 1)
     if len(data[LATITUDE]) < data_lines:
-        print(
+        print(  # TODO: Logger
             f"WARNING: insufficient weather file size - expected at least {data_lines} records, got {len(data[LATITUDE])}")
         return False
 
