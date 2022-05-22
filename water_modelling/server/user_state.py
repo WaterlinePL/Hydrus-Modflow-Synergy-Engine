@@ -1,39 +1,45 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Dict, List
 
 import os
 
 import numpy as np
 from app_config import deployment_config
 from datapassing.shape_data import ShapeMetadata
+from deployment import daos
+
+from simulation.exceptions import NoLoadedProjectException
 
 if TYPE_CHECKING:
     from simulation.simulation_service import SimulationService
+    from metadata.project_metadata import ProjectMetadata
 
 
+# TODO: should be invoked on startup or sth (maybe in main)
 def verify_dir_exists_or_create(path: str):
     if not os.path.isdir(path):
         print('Directory ' + path + ' does not exist, creating...')
-        os.system('mkdir ' + path)
+        os.mkdir(path)
 
 
-def get_or_none(req, key):
-    return req.form[key] if req.form[key] != "" else None
+HydrusModelName = str
+HydrusModelIndices = List[int]
 
 
 class UserState:
 
     def __init__(self):
-        self.loaded_project = None
+        self.loaded_project: Optional[ProjectMetadata] = None
         self.simulation_service: Optional[SimulationService] = None
         self.current_method = None
-        self.recharge_masks = []
-        self.models_masks_ids = {}
-        self.loaded_shapes = {}
+        self.recharge_masks: List[np.ndarray] = []  # masks from .rch file
+        self.models_masks_ids: Dict[HydrusModelName, HydrusModelIndices] = {}
+        self.loaded_shapes: Dict[HydrusModelName, ShapeMetadata] = {}
         self._error_flag = False
 
     @staticmethod
+    # TODO: to ModflowDAO
     def get_modflow_dir_by_project_name(project_name):
         if project_name is not None:
             return os.path.join(deployment_config.WORKSPACE_DIR, project_name, 'modflow')
@@ -41,6 +47,7 @@ class UserState:
             return None
 
     @staticmethod
+    # TODO: throw it elsewhere
     def type_allowed(filename: str) -> bool:
         """
         @param filename: Path to the file whose extension needs to be checked
@@ -53,7 +60,7 @@ class UserState:
 
         # check if it's allowed
         extension = filename.rsplit('.', 1)[1]
-        return extension.upper() in deployment_config.ALLOWED_TYPES
+        return extension.upper() in deployment_config.ALLOWED_UPLOAD_TYPES
 
     def setup(self) -> None:
         self.reset_project_data()
@@ -68,15 +75,17 @@ class UserState:
         self.loaded_shapes = {}
         self._error_flag = False
 
+    # TODO: to ModflowDAO
     def get_modflow_dir(self):
         if self.loaded_project is not None:
-            return os.path.join(deployment_config.WORKSPACE_DIR, self.loaded_project['name'], 'modflow')
+            return os.path.join(deployment_config.WORKSPACE_DIR, self.loaded_project.name, 'modflow')
         else:
             return None
 
+    # TODO: to HydrusDAO
     def get_hydrus_dir(self):
         if self.loaded_project is not None:
-            return os.path.join(deployment_config.WORKSPACE_DIR, self.loaded_project['name'], 'hydrus')
+            return os.path.join(deployment_config.WORKSPACE_DIR, self.loaded_project.name, 'hydrus')
         else:
             return None
 
@@ -88,14 +97,17 @@ class UserState:
     def activate_error_flag(self):
         self._error_flag = True
 
-    def set_simulation_serivce(self, simulation_service: SimulationService):
+    def set_simulation_service(self, simulation_service: SimulationService):
         self.simulation_service = simulation_service
 
     def set_method(self, method):
         if self.current_method != method:
-            self.models_masks_ids = {}
-            self.loaded_shapes = {}
+            self.reset_shaping()
             self.current_method = method
+
+    def reset_shaping(self):
+        self.models_masks_ids = {}
+        self.loaded_shapes = {}
 
     def get_current_model_by_id(self, rch_shape_index):
         current_model = None
@@ -106,6 +118,7 @@ class UserState:
 
         return current_model
 
+    # TODO: throw it elsewhere (shape related)
     def get_shapes_from_masks_ids(self):
         """
         models_masks_ids dictionary contains hydrus models names as a key and array of indexes as values.
@@ -121,27 +134,30 @@ class UserState:
                 shapes_count = len(self.models_masks_ids[hydrus_model])
 
             if shapes_count == 1:
-                self.loaded_shapes[hydrus_model] = ShapeMetadata(shape_mask_array=
-                                                                 self.recharge_masks[
-                                                                     self.models_masks_ids[hydrus_model][0]])
+                shape_mask = self.recharge_masks[self.models_masks_ids[hydrus_model][0]]
+
             elif shapes_count > 1:
                 shape_mask = self.recharge_masks[self.models_masks_ids[hydrus_model][0]]
                 for idx in range(1, shapes_count):
-                    shape_mask = np.logical_or(shape_mask,
-                                               self.recharge_masks[self.models_masks_ids[hydrus_model][idx]])
+                    another_mask = self.recharge_masks[self.models_masks_ids[hydrus_model][idx]]
+                    shape_mask = np.logical_or(shape_mask, another_mask)
 
-                self.loaded_shapes[hydrus_model] = ShapeMetadata(shape_mask_array=shape_mask)
             else:
-                self.loaded_shapes[hydrus_model] = self.create_empty_mask()
+                shape_mask = self.create_empty_mask()
 
-    def create_empty_mask(self) -> Optional[ShapeMetadata]:
+            shape_metadata = ShapeMetadata(shape_mask, self.loaded_project.name, hydrus_model)
+            self.loaded_shapes[hydrus_model] = shape_metadata
+            daos.mask_dao.save_or_update(shape_metadata)
+
+    # TODO: Probably move elsewhere
+    def create_empty_mask(self) -> Optional[np.ndarray]:
         """
-        creates an empty shape mask
+        Creates an empty shape mask as an NumPy array
 
         @return: a ShapeFileData instance with an empty mask the size of the currently loaded model,
             or None if no project is loaded
         """
         if not self.loaded_project:
-            return None
+            raise NoLoadedProjectException("Tried to create empty mask without loading a project!")
         else:
-            return ShapeMetadata(shape_mask_array=np.zeros((self.loaded_project["rows"], self.loaded_project["cols"])))
+            return np.zeros((self.loaded_project.rows, self.loaded_project.cols))

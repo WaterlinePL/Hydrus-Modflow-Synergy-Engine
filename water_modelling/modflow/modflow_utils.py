@@ -2,12 +2,12 @@ from typing import Tuple, Optional, List
 
 import flopy
 import os
-import sys
 
 import numpy as np
 from collections import deque
 
 
+# TODO: return object?
 def get_model_data(project_path: str, nam_file_name: str) -> dict:
     """
     Get the following info about the modflow model:
@@ -50,11 +50,11 @@ def scale_cells_size(row_cells: List[float], col_cells: List[float], max_width) 
     width = max_width
     height = max_width * (sum_height / sum_width)
 
-    scaleX = sum_width / width
-    scaleY = sum_height / height
+    scale_x = sum_width / width
+    scale_y = sum_height / height
 
-    row_cells = np.divide(row_cells, scaleX)
-    col_cells = np.divide(col_cells, scaleY)
+    row_cells = np.divide(row_cells, scale_x)
+    col_cells = np.divide(col_cells, scale_y)
 
     return row_cells, col_cells
 
@@ -99,7 +99,6 @@ def get_shapes_from_rch(project_path: str, nam_file_name: str, project_shape: Tu
     @return: List of shapes read from Modflow project
     """
 
-
     modflow_model = flopy.modflow.Modflow \
         .load(nam_file_name, model_ws=project_path, load_only=["rch"], forgive=True)
 
@@ -130,7 +129,7 @@ def get_nam_file(project_path: str) -> Optional[str]:
         if filename.endswith(".nam"):
             return filename
 
-    print("ERROR: invalid modflow model; missing .nam file")
+    print("ERROR: invalid modflow model; missing .nam file")    # TODO: Logger
     return None
 
 

@@ -8,6 +8,7 @@ from datapassing.hydrus_modflow_passing import HydrusModflowPassing
 from datapassing.shape_data import ShapeMetadata, Shape
 
 
+# FIXME
 class HydrusShapesTest(unittest.TestCase):
 
     @staticmethod

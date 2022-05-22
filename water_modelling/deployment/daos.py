@@ -1,0 +1,5 @@
+from datapassing import shape_data_json_dao
+from metadata import project_metadata_file_dao
+
+mask_dao = shape_data_json_dao
+project_metadata_dao = project_metadata_file_dao

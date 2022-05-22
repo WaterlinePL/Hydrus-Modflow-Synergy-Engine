@@ -1,22 +1,20 @@
+from dataclasses import dataclass
 from typing import List
 
 import numpy as np
 import phydrus as ph
 
 
-class ShapeMetadata:
-
-    def __init__(self, shape_mask_array: np.ndarray):
-        """
-        This class contains metadata stored for defining and presenting shape masks to the user in UI.
-        @param shape_mask_array: NumPy 2D array representing bitmask of a particular shape
-        """
-        self.shape_mask = shape_mask_array
+@dataclass
+class ShapeMetadata:    # shape on which hydrus model will be applied
+    shape_mask: np.ndarray
+    project_name: str
+    hydrus_model_name: str
 
 
 class Shape:
 
-    def __init__(self, mask_array: np.array, hydrus_output_filepath: str):
+    def __init__(self, mask_array: np.ndarray, hydrus_output_filepath: str):
         """
         This class contains shape data used for passing output of Hydrus (recharge) as an input of Modflow.
         @param mask_array: NumPy 2D array representing bitmask of a particular shape
@@ -36,4 +34,4 @@ class Shape:
             t_level = ph.read.read_tlevel(path=hydrus_output_filepath)
             return t_level['sum(vBot)']
         except FileNotFoundError as err:
-            print(f"No file found containing hydrus output: {err}")
+            print(f"No file found containing hydrus output: {err}") # TODO: Logger

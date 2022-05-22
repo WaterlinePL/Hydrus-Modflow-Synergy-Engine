@@ -1,7 +1,7 @@
 import os
 import uuid
 from concurrent.futures import ThreadPoolExecutor
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 from kubernetes import config, client
 

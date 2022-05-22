@@ -147,7 +147,7 @@ def upload_modflow():
 
             return render_template(
                 template.UPLOAD_MODFLOW,
-                model_name=state.loaded_project["modflow_model"],
+                model_name=state.loaded_project.modflow_model,
                 upload_error=state.get_error_flag()
             )
 
@@ -166,7 +166,7 @@ def upload_weather_file():
         if state.loaded_project is not None:
             return render_template(
                 template.UPLOAD_WEATHER_FILE,
-                hydrus_models=state.loaded_project["hydrus_models"],
+                hydrus_models=state.loaded_project.hydrus_models,
                 upload_error=False
             )
         else:
@@ -188,7 +188,7 @@ def upload_hydrus():
         return endpoint_handlers.remove_hydrus_handler()
     else:
         return render_template(template.UPLOAD_HYDRUS,
-                               model_names=state.loaded_project["hydrus_models"],
+                               model_names=state.loaded_project.hydrus_models,
                                upload_error=state.get_error_flag())
 
 
@@ -254,12 +254,12 @@ def run_simulation():
         return check_previous_steps
 
     simulation_service = SimulationService(state.get_hydrus_dir(), state.get_modflow_dir())
-    state.set_simulation_serivce(simulation_service)
+    state.set_simulation_service(simulation_service)
     sim = state.simulation_service.prepare_simulation()
 
-    sim.set_modflow_project(modflow_project=state.loaded_project["modflow_model"])
+    sim.set_modflow_project(modflow_project=state.loaded_project.modflow_model)
     sim.set_loaded_shapes(loaded_shapes=state.loaded_shapes)
-    sim.set_spin_up(spin_up=int(state.loaded_project["spin_up"]))
+    sim.set_spin_up(spin_up=int(state.loaded_project.spin_up))
 
     sim_id = sim.get_id()
 
