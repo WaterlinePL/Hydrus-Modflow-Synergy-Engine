@@ -1,3 +1,5 @@
+# This repository is DEPRECATED - it will no longer be maintained!
+
 # Hydrus-Modflow Synergy Engine - AGH WATER MODELING
 This is the repository of the HMSE application, a thesis project aiming
 to combine the functionalities of the Hydrus and Modflow simulation programs. 
